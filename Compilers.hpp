@@ -7,10 +7,10 @@
 
 /// Detect debug builds																			
 #if defined(DEBUG) || !defined(NDEBUG) || defined(_DEBUG) || defined(CB_DEBUG) || defined(QT_QML_DEBUG)
-	#define LANGULUS_DEBUG() LANGULUS_ENABLED()
+	#define LANGULUS_DEBUG() 1
 	#define DEBUGGERY(a) a
 #else
-	#define LANGULUS_DEBUG() LANGULUS_DISABLED()
+	#define LANGULUS_DEBUG() 0
 	#define DEBUGGERY(a)
 #endif
 
