@@ -6,6 +6,7 @@
 /// See LICENSE file, or https://www.gnu.org/licenses									
 ///																									
 #pragma once
+#include "Compilers.hpp"
 #include <type_traits>
 #include <typeinfo>
 #include <cstddef>
@@ -16,29 +17,19 @@
 #include <concepts>
 #include <bit>
 #include <cstring>
-
 	
 /// All non-argument macros should use this facility									
 /// https://www.fluentcpp.com/2019/05/28/better-macros-better-flags/				
 #define LANGULUS(a) LANGULUS_##a()
 #define LANGULUS_MODULE(a) LANGULUS(MODULE_##a)
 #define LANGULUS_MODULE_Anyness()
-#define LANGULUS_DISABLED() 0
-#define LANGULUS_ENABLED() 1
 #define LANGULUS_FPU() double
 	
+#define UNUSED() [[maybe_unused]]
 #define NOD() [[nodiscard]]
-#define LANGULUS_SAFE() LANGULUS_DISABLED()
-#define LANGULUS_PARANOID() LANGULUS_DISABLED()
+#define LANGULUS_SAFE() 0
+#define LANGULUS_PARANOID() 0
 #define LANGULUS_ALIGN() ::std::size_t{16}
-
-#if defined(DEBUG) || !defined(NDEBUG) || defined(_DEBUG) || defined(CB_DEBUG) || defined(QT_QML_DEBUG)
-	#define LANGULUS_DEBUG() LANGULUS_ENABLED()
-	#define DEBUGGERY(a) a
-#else
-	#define LANGULUS_DEBUG() LANGULUS_DISABLED()
-	#define DEBUGGERY(a)
-#endif
 
 #if LANGULUS_SAFE()
 	#define SAFETY(a) a
@@ -48,59 +39,7 @@
 	#define SAFETY_NOEXCEPT() noexcept
 #endif
 
-#ifdef _MSC_VER
-	#define LANGULUS_NOINLINE() __declspec(noinline)
-#else
-	#define LANGULUS_NOINLINE() __attribute__((noinline))
-#endif
-
-#ifdef _MSC_VER
-	#define LANGULUS_LIKELY(condition) condition
-	#define LANGULUS_UNLIKELY(condition) condition
-#else
-	#define LANGULUS_LIKELY(condition) __builtin_expect(condition, 1)
-	#define LANGULUS_UNLIKELY(condition) __builtin_expect(condition, 0)
-#endif
-
-#if INTPTR_MAX == INT64_MAX
-	#define LANGULUS_BITNESS() 64
-#elif INTPTR_MAX == INT32_MAX
-	#define LANGULUS_BITNESS() 32
-#else
-	#error Unknown pointer size
-#endif
-
 #define LANGULUS_FEATURE(a) LANGULUS_FEATURE_##a()
-
-/// Replace the default new-delete operators with one that use Allocator		
-/// No overhead, no dependencies																
-#define LANGULUS_FEATURE_NEWDELETE() LANGULUS_DISABLED()
-
-/// Use the utfcpp library to convert between utf types								
-/// No overhead, requires utfcpp to be linked											
-#define LANGULUS_FEATURE_UTFCPP() LANGULUS_DISABLED()
-
-/// Enable memory compression via the use of zlib										
-/// Gives a tiny runtime overhead, requires zlib to be linked						
-#define LANGULUS_FEATURE_ZLIB() LANGULUS_DISABLED()
-
-/// Enable memory encryption and decryption												
-/// Gives a tiny runtime overhead, no dependencies										
-#define LANGULUS_FEATURE_ENCRYPTION() LANGULUS_DISABLED()
-
-/// Memory allocations will be pooled, authority will be tracked,					
-/// memory will be reused whenever possible, and you can also tweak				
-/// runtime allocation strategies on per-type basis									
-/// Significantly improves performance, no dependencies								
-#define LANGULUS_FEATURE_MANAGED_MEMORY() LANGULUS_DISABLED()
-
-/// Reflections will be registered in a centralized location, allowing for		
-/// runtime type modification. Meta primitives will always be in the same		
-/// place in memory regardless of translation unit, which significantly			
-/// speeds up meta definition comparisons.												
-/// Naming collisions will be detected upon type registration						
-/// Gives a significant overhead on program launch, no dependencies				
-#define LANGULUS_FEATURE_MANAGED_REFLECTION() LANGULUS_DISABLED()
 
 /// Trigger a static assert (without condition)											
 /// This form is required in order of it to work in 'if constexpr - else'		
