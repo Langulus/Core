@@ -7,16 +7,6 @@
 ///																									
 #pragma once
 #include "Compilers.hpp"
-#include <type_traits>
-#include <typeinfo>
-#include <cstddef>
-#include <functional>
-#include <span>
-#include <string_view>
-#include <limits>
-#include <concepts>
-#include <bit>
-#include <cstring>
 	
 /// All non-argument macros should use this facility									
 /// https://www.fluentcpp.com/2019/05/28/better-macros-better-flags/				

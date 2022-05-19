@@ -1,4 +1,14 @@
 #pragma once
+#include <type_traits>
+#include <typeinfo>
+#include <cstddef>
+#include <functional>
+#include <span>
+#include <string_view>
+#include <limits>
+#include <concepts>
+#include <bit>
+#include <cstring>
 
 /// Sorry, Langulus is designed for at least C++20 									
 #if __cplusplus <= 201703L && !defined(_MSC_VER)
