@@ -201,9 +201,13 @@ namespace Langulus
 		///																						
 		///	Concepts																			
 		///																						
-		/// True if two decayed types match												
-		template<class T1, class T2>
-		concept Same = ::std::same_as<Decay<T1>, Decay<T2>>;
+		/// True if T1 matches all T2														
+		template<class T1, class... T2>
+		concept Same = ((::std::same_as<Decay<T1>, Decay<T2>>) && ...);
+
+		/// True if T1 matches any of T2													
+		template<class T1, class... T2>
+		concept SameAsOneOf = ((::std::same_as<Decay<T1>, Decay<T2>>) || ...);
 	
 		/// Boolean concept																	
 		template<class... T>
