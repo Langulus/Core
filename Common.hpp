@@ -19,7 +19,7 @@
 #define NOD() [[nodiscard]]
 #define LANGULUS_SAFE() 0
 #define LANGULUS_PARANOID() 0
-#define LANGULUS_ALIGN() ::std::size_t{16}
+#define LANGULUS_ALIGN() 16
 
 #if LANGULUS_SAFE()
 	#define SAFETY(a) a
