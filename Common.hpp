@@ -19,7 +19,7 @@
 #define NOD() [[nodiscard]]
 #define LANGULUS_SAFE() 0
 #define LANGULUS_PARANOID() 0
-#define LANGULUS_ALIGN() 16
+#define LANGULUS_ALIGN() 16u
 
 #if LANGULUS_SAFE()
 	#define SAFETY(a) a
@@ -92,73 +92,6 @@ namespace Langulus
 	constexpr bool BigEndianMachine = ::std::endian::native == ::std::endian::big;
 	/// True if the architecture uses little/mixed endianness					
 	constexpr bool LittleEndianMachine = ::std::endian::native == ::std::endian::little;
-
-		
-	/// Count leading/trailing bits                                         
-	#ifdef _MSC_VER
-		#include <intrin.h>
-		#if LANGULUS(BITNESS) == 32
-			#pragma intrinsic(_BitScanForward)
-			#pragma intrinsic(_BitScanReverse)
-		#elif LANGULUS(BITNESS) == 64
-			#pragma intrinsic(_BitScanForward64)
-			#pragma intrinsic(_BitScanReverse64)
-		#else
-			#error Not implemented
-		#endif
-
-		constexpr int CountTrailingZeroes(size_t mask) {
-			unsigned long index;
-			#if LANGULUS(BITNESS) == 32
-				return _BitScanForward(&index, mask)
-					? static_cast<int>(index)
-					: LANGULUS(BITNESS);
-			#elif LANGULUS(BITNESS) == 64
-				return _BitScanForward64(&index, mask)
-					? static_cast<int>(index)
-					: LANGULUS(BITNESS);
-			#else
-				#error Not implemented
-			#endif
-		}
-
-		constexpr int CountLeadingZeroes(size_t mask) {
-			unsigned long index;
-			#if LANGULUS(BITNESS) == 32
-				return _BitScanReverse(&index, mask)
-					? static_cast<int>(index)
-					: LANGULUS(BITNESS);
-			#elif LANGULUS(BITNESS) == 64
-				return _BitScanReverse64(&index, mask)
-					? static_cast<int>(index)
-					: LANGULUS(BITNESS);
-			#else
-				#error Not implemented
-			#endif
-		}
-	#else
-		constexpr int CountTrailingZeroes(size_t mask) {
-			unsigned long index;
-			#if LANGULUS(BITNESS) == 32
-				return mask ? __builtin_ctzl(mask) : LANGULUS(BITNESS);
-			#elif LANGULUS(BITNESS) == 64
-				return mask ? __builtin_ctzll(mask) : LANGULUS(BITNESS);
-			#else
-				#error Not implemented
-			#endif
-		}
-
-		constexpr int CountLeadingZeroes(size_t mask) {
-			unsigned long index;
-			#if LANGULUS(BITNESS) == 32
-				return mask ? __builtin_clzl(mask) : LANGULUS(BITNESS);
-			#elif LANGULUS(BITNESS) == 64
-				return mask ? __builtin_clzll(mask) : LANGULUS(BITNESS);
-			#else
-				#error Not implemented
-			#endif
-		}
-	#endif
 
 	/// Same as ::std::declval, but conveniently named								
 	template<class T>

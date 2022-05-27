@@ -141,6 +141,80 @@ namespace Langulus
 		}
 	}
 
+	/// Check if an unsigned integer is a power of two									
+	///	@param n - the number to test														
+	///	@return true if number has exactly one bit set								
+	template<CT::Unsigned T>
+	constexpr bool IsPowerOfTwo(const T& n) noexcept {
+		return n > 0 && ((n & (n - 1)) == 0);
+	}
+		
+	/// Count leading/trailing bits															
+	#ifdef _MSC_VER
+		#include <intrin.h>
+		#if LANGULUS(BITNESS) == 32
+			#pragma intrinsic(_BitScanForward)
+			#pragma intrinsic(_BitScanReverse)
+		#elif LANGULUS(BITNESS) == 64
+			#pragma intrinsic(_BitScanForward64)
+			#pragma intrinsic(_BitScanReverse64)
+		#else
+			#error Not implemented
+		#endif
+
+		constexpr int CountTrailingZeroes(size_t mask) {
+			unsigned long index;
+			#if LANGULUS(BITNESS) == 32
+				return _BitScanForward(&index, mask)
+					? static_cast<int>(index)
+					: LANGULUS(BITNESS);
+			#elif LANGULUS(BITNESS) == 64
+				return _BitScanForward64(&index, mask)
+					? static_cast<int>(index)
+					: LANGULUS(BITNESS);
+			#else
+				#error Not implemented
+			#endif
+		}
+
+		constexpr int CountLeadingZeroes(size_t mask) {
+			unsigned long index;
+			#if LANGULUS(BITNESS) == 32
+				return _BitScanReverse(&index, mask)
+					? static_cast<int>(index)
+					: LANGULUS(BITNESS);
+			#elif LANGULUS(BITNESS) == 64
+				return _BitScanReverse64(&index, mask)
+					? static_cast<int>(index)
+					: LANGULUS(BITNESS);
+			#else
+				#error Not implemented
+			#endif
+		}
+	#else
+		constexpr int CountTrailingZeroes(size_t mask) {
+			unsigned long index;
+			#if LANGULUS(BITNESS) == 32
+				return mask ? __builtin_ctzl(mask) : LANGULUS(BITNESS);
+			#elif LANGULUS(BITNESS) == 64
+				return mask ? __builtin_ctzll(mask) : LANGULUS(BITNESS);
+			#else
+				#error Not implemented
+			#endif
+		}
+
+		constexpr int CountLeadingZeroes(size_t mask) {
+			unsigned long index;
+			#if LANGULUS(BITNESS) == 32
+				return mask ? __builtin_clzl(mask) : LANGULUS(BITNESS);
+			#elif LANGULUS(BITNESS) == 64
+				return mask ? __builtin_clzll(mask) : LANGULUS(BITNESS);
+			#else
+				#error Not implemented
+			#endif
+		}
+	#endif
+
 	/// A somewhat safer reinterpret_cast for dense instances						
 	///	@param what - reference to reinterpret											
 	///	@return the result of reinterpret_cast<TO&>									
