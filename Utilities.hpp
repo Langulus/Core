@@ -166,11 +166,11 @@ namespace Langulus
 			unsigned long index;
 			#if LANGULUS(BITNESS) == 32
 				return _BitScanForward(&index, mask)
-					? static_cast<int>(index)
+					? 31 - static_cast<int>(index)
 					: LANGULUS(BITNESS);
 			#elif LANGULUS(BITNESS) == 64
 				return _BitScanForward64(&index, mask)
-					? static_cast<int>(index)
+					? 63 - static_cast<int>(index)
 					: LANGULUS(BITNESS);
 			#else
 				#error Not implemented
@@ -181,11 +181,11 @@ namespace Langulus
 			unsigned long index;
 			#if LANGULUS(BITNESS) == 32
 				return _BitScanReverse(&index, mask)
-					? static_cast<int>(index)
+					? 31 - static_cast<int>(index)
 					: LANGULUS(BITNESS);
 			#elif LANGULUS(BITNESS) == 64
 				return _BitScanReverse64(&index, mask)
-					? static_cast<int>(index)
+					? 63 - static_cast<int>(index)
 					: LANGULUS(BITNESS);
 			#else
 				#error Not implemented
@@ -195,9 +195,13 @@ namespace Langulus
 		constexpr int CountTrailingZeroes(size_t mask) {
 			unsigned long index;
 			#if LANGULUS(BITNESS) == 32
-				return mask ? __builtin_ctzl(mask) : LANGULUS(BITNESS);
+				return mask 
+					? __builtin_ctzl(mask) 
+					: LANGULUS(BITNESS);
 			#elif LANGULUS(BITNESS) == 64
-				return mask ? __builtin_ctzll(mask) : LANGULUS(BITNESS);
+				return mask 
+					? __builtin_ctzll(mask) 
+					: LANGULUS(BITNESS);
 			#else
 				#error Not implemented
 			#endif
@@ -206,9 +210,13 @@ namespace Langulus
 		constexpr int CountLeadingZeroes(size_t mask) {
 			unsigned long index;
 			#if LANGULUS(BITNESS) == 32
-				return mask ? __builtin_clzl(mask) : LANGULUS(BITNESS);
+				return mask 
+					? __builtin_clzl(mask) 
+					: LANGULUS(BITNESS);
 			#elif LANGULUS(BITNESS) == 64
-				return mask ? __builtin_clzll(mask) : LANGULUS(BITNESS);
+				return mask 
+					? __builtin_clzll(mask) 
+					: LANGULUS(BITNESS);
 			#else
 				#error Not implemented
 			#endif
