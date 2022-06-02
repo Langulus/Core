@@ -19,7 +19,7 @@ namespace Langulus
 
 
    ///                                                                        
-   ///   A common langulus exception                                          
+   ///   A common Langulus exception                                          
    ///                                                                        
    struct Exception : public ::std::runtime_error {
       Exception() noexcept
@@ -58,6 +58,7 @@ namespace Langulus
       }; \
    }
 
+/// Here's some standard exception definitions                                
 LANGULUS_EXCEPTION(Copy);
 LANGULUS_EXCEPTION(Move);
 LANGULUS_EXCEPTION(Access);

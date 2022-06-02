@@ -1,22 +1,41 @@
 #pragma once
-#include <type_traits>
-#include <typeinfo>
-#include <cstddef>
-#include <functional>
-#include <span>
-#include <string_view>
-#include <limits>
-#include <concepts>
-#include <bit>
-#include <cstring>
+#include <cstdint>
 
 /// Sorry, Langulus is designed for at least C++20 									
 #if __cplusplus <= 201703L && !defined(_MSC_VER)
 	#error Langulus requires at least a C++20 compliant compiler in order to build
 #endif
 
+/// Safe mode increases sanity checks all over the code								
+#ifdef LANGULUS_ENABLE_SAFE_MODE
+	#define LANGULUS_SAFE() 1
+#else
+	#define LANGULUS_SAFE() 0
+#endif
+
+/// Paranoid mode introduces overhead, but zeroes any freed memory				
+#ifdef LANGULUS_ENABLE_PARANOIA
+	#define LANGULUS_PARANOID() 1
+#else
+	#define LANGULUS_PARANOID() 0
+#endif
+
+#if LANGULUS_SAFE()
+	#define SAFETY(a) a
+	#define SAFETY_NOEXCEPT()
+#else
+	#define SAFETY(a)
+	#define SAFETY_NOEXCEPT() noexcept
+#endif
+
+#if LANGULUS_PARANOID()
+	#define PARANOIA(a) a
+#else
+	#define PARANOIA(a)
+#endif
+
 /// Detect debug builds																			
-#if defined(DEBUG) || !defined(NDEBUG) || defined(_DEBUG) || defined(CB_DEBUG) || defined(QT_QML_DEBUG)
+#if defined(DEBUG) || !defined(NDEBUG) || defined(_DEBUG) || defined(CB_DEBUG) || defined(QT_QML_DEBUG) || defined(LANGULUS_ENABLE_DEBUGGING)
 	#define LANGULUS_DEBUG() 1
 	#define DEBUGGERY(a) a
 #else
@@ -50,29 +69,26 @@
 #endif
 
 /// Detect compiler																				
+#define LANGULUS_COMPILER_GCC() 0
+#define LANGULUS_COMPILER_MSVC() 0
+#define LANGULUS_COMPILER_CLANG() 0
+#define LANGULUS_COMPILER_MINGW() 0
+
 #if defined(__GNUC__)
 	// We're on a GNUC Compiler!														
+	#undef LANGULUS_COMPILER_GCC
 	#define LANGULUS_COMPILER_GCC() 1
-	#define LANGULUS_COMPILER_MSVC() 0
-	#define LANGULUS_COMPILER_CLANG() 0
-	#define LANGULUS_COMPILER_MINGW() 0
 #elif defined(_MSC_VER)
 	// We're on a microsoft visual c++ compiler!									
-	#define LANGULUS_COMPILER_GCC() 0
+	#undef LANGULUS_COMPILER_MSVC
 	#define LANGULUS_COMPILER_MSVC() 1
-	#define LANGULUS_COMPILER_CLANG() 0
-	#define LANGULUS_COMPILER_MINGW() 0
 #elif defined(__clang__)
 	// We're on a clang compiler!														
-	#define LANGULUS_COMPILER_GCC() 0
-	#define LANGULUS_COMPILER_MSVC() 0
+	#undef LANGULUS_COMPILER_CLANG
 	#define LANGULUS_COMPILER_CLANG() 1
-	#define LANGULUS_COMPILER_MINGW() 0
 #elif defined(__MINGW32__) || defined(__MINGW64__) 
 	// We're on a mingw compiler!														
-	#define LANGULUS_COMPILER_GCC() 0
-	#define LANGULUS_COMPILER_MSVC() 0
-	#define LANGULUS_COMPILER_CLANG() 0
+	#undef LANGULUS_COMPILER_MINGW
 	#define LANGULUS_COMPILER_MINGW() 1
 #else
 	#error Unrecognized compiler

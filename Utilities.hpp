@@ -7,8 +7,6 @@
 ///																									
 #pragma once
 #include "Common.hpp"
-#include <type_traits>
-#include <limits>
 
 namespace Langulus
 {
@@ -166,11 +164,11 @@ namespace Langulus
 			unsigned long index;
 			#if LANGULUS(BITNESS) == 32
 				return _BitScanForward(&index, mask)
-					? 31 - static_cast<int>(index)
+					? static_cast<int>(index)
 					: LANGULUS(BITNESS);
 			#elif LANGULUS(BITNESS) == 64
 				return _BitScanForward64(&index, mask)
-					? 63 - static_cast<int>(index)
+					? static_cast<int>(index)
 					: LANGULUS(BITNESS);
 			#else
 				#error Not implemented

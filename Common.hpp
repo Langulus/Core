@@ -6,30 +6,31 @@
 /// See LICENSE file, or https://www.gnu.org/licenses									
 ///																									
 #pragma once
-#include "Compilers.hpp"
-	
+#include "Config.hpp"
+#include <type_traits>
+#include <typeinfo>
+#include <cstddef>
+#include <functional>
+#include <span>
+#include <string_view>
+#include <limits>
+#include <concepts>
+#include <bit>
+#include <cstring>
+
 /// All non-argument macros should use this facility									
 /// https://www.fluentcpp.com/2019/05/28/better-macros-better-flags/				
 #define LANGULUS(a) LANGULUS_##a()
+
+/// Checks if a module is included															
 #define LANGULUS_MODULE(a) LANGULUS(MODULE_##a)
-#define LANGULUS_MODULE_Anyness()
-#define LANGULUS_FPU() double
-	
-#define UNUSED() [[maybe_unused]]
-#define NOD() [[nodiscard]]
-#define LANGULUS_SAFE() 0
-#define LANGULUS_PARANOID() 0
-#define LANGULUS_ALIGN() 16u
-
-#if LANGULUS_SAFE()
-	#define SAFETY(a) a
-	#define SAFETY_NOEXCEPT()
-#else
-	#define SAFETY(a)
-	#define SAFETY_NOEXCEPT() noexcept
-#endif
-
 #define LANGULUS_FEATURE(a) LANGULUS_FEATURE_##a()
+
+/// Convenience macro, for tagging unused declarations								
+#define UNUSED() [[maybe_unused]]
+
+/// Convenience macro, for tagging non-discardable returns							
+#define NOD() [[nodiscard]]
 
 /// Trigger a static assert (without condition)											
 /// This form is required in order of it to work in 'if constexpr - else'		
@@ -66,40 +67,65 @@ namespace Langulus
 		using VMeta = const MetaVerb*;
 	}
 
+	/// A byte																						
 	using Byte = ::std::byte;
 
+	/// Type for counting things, that depends on architecture						
 	using Count = ::std::size_t;
 	constexpr Count CountMax = ::std::numeric_limits<Count>::max();
 
+	/// Type for counting bytes, that depends on architecture						
 	using Size = ::std::size_t;
 	constexpr Size SizeMax = ::std::numeric_limits<Size>::max();
 
+	/// Type for offsetting pointers, depends on architecture						
 	using Offset = ::std::size_t;
 	constexpr Offset OffsetMax = ::std::numeric_limits<Offset>::max();
 
+	/// Type that holds a hash, depends on architecture								
 	using Hash = ::std::size_t;
 	constexpr Hash HashMax = ::std::numeric_limits<Hash>::max();
 
+	/// Type for wrapping a function															
 	template<class T>
 	using TFunctor = ::std::function<T>;
+
+	/// Type for wrapping a compile-time string											
 	using Token = ::std::u8string_view;
+
+	/// Integer equivalent to a pointer, depends on architecture					
 	using Pointer = ::std::uintptr_t;
-	using Real = LANGULUS(FPU);
+
+	/// The default floating point type, depends on configuration					
+	#if defined(LANGULUS_FPU_FLOAT)
+		using Real = float;
+	#elif defined(LANGULUS_FPU_DOUBLE)
+		using Real = double;
+	#else
+		using Real = float;
+	#endif
 
 
-	/// Check endianness at compile-time												
-	/// True if the architecture uses big/mixed endianness						
+	/// Check endianness at compile-time													
+	/// True if the architecture uses big/mixed endianness							
 	constexpr bool BigEndianMachine = ::std::endian::native == ::std::endian::big;
-	/// True if the architecture uses little/mixed endianness					
+	/// True if the architecture uses little/mixed endianness						
 	constexpr bool LittleEndianMachine = ::std::endian::native == ::std::endian::little;
 
-	/// Same as ::std::declval, but conveniently named								
+	/// The default alignment, depends on configuration and enabled SIMD			
+	#ifdef LANGULUS_ALIGNMENT
+		constexpr Size Alignment = LANGULUS_ALIGNMENT;
+	#else
+		constexpr Size Alignment = 16;
+	#endif
+
+	/// Same as ::std::declval, but conveniently named									
 	template<class T>
 	::std::add_rvalue_reference_t<T> Uneval() noexcept {
 		LANGULUS_ASSERT("Calling Uneval is ill-formed");
 	}
 
-	/// Same as ::std::declval, but deduces type via argument					
+	/// Same as ::std::declval, but deduces type via argument						
 	template<class T>
 	::std::add_rvalue_reference_t<T> Uneval(T) noexcept {
 		LANGULUS_ASSERT("Calling Uneval is ill-formed");
@@ -299,13 +325,13 @@ namespace Langulus
 			{a.GetBlock()} -> Same<::Langulus::Anyness::Block>;
 		};
 			
-		/// Check if T is move-assignable												
+		/// Check if T is hashable (has GetHash() method that returns Hash)	
 		template<class T>
 		concept Hashable = requires (Decay<T> a) {
 			{a.GetHash()} -> Same<::Langulus::Hash>;
 		};
 			
-		/// Check if T is move-assignable												
+		/// Check if T has a dispatcher (has Do() method for verbs)				
 		template<class T>
 		concept Dispatcher = requires (Decay<T> a, ::Langulus::Flow::Verb& b) {
 			{a.Do(b)};
@@ -326,21 +352,23 @@ namespace Langulus
 		constexpr bool IsConstexpr(Lambda) { return true; }
 		constexpr bool IsConstexpr(...) { return false; }
 		
-
+		/// Check if type is either move-constructible, or move-assignable	
 		template<class... T>
 		concept MakableOrMovable = ((MoveMakable<T> || Movable<T>) && ...);
+
+		/// Check if type is either move-constructible, or move-assignable	
+		/// (both being noexcept)															
 		template<class... T>
 		concept MakableOrMovableNoexcept = ((MoveMakableNoexcept<T> || MovableNoexcept<T>) && ...);
 
+		/// Check if type is either copy-constructible, or copy-assignable	
 		template<class... T>
 		concept MakableOrCopyable = ((CopyMakable<T> || Copyable<T>) && ...);
+
+		/// Check if type is either copy-constructible, or copy-assignable	
+		/// (both being noexcept)															
 		template<class... T>
 		concept MakableOrCopyableNoexcept = ((CopyMakableNoexcept<T> || CopyableNoexcept<T>) && ...);
-
-		template<class... T>
-		concept OnStackCriteria = ((sizeof(T) <= sizeof(Count) * 6 && MakableOrMovableNoexcept<T>) && ...);
-		template<class... T>
-		concept OnHeapCriteria = not OnStackCriteria<T...>;
 			
 		/// A reflected type is a type that has a public Reflection field			
 		/// This field is automatically added when using LANGULUS(REFLECT) macro
