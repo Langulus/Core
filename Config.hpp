@@ -51,13 +51,8 @@
 #endif
 
 /// LANGULUS(LIKELY) and LANGULUS(UNLIKELY) attributes								
-#ifdef _MSC_VER
-	#define LANGULUS_LIKELY(condition) condition
-	#define LANGULUS_UNLIKELY(condition) condition
-#else
-	#define LANGULUS_LIKELY(condition) __builtin_expect(condition, 1)
-	#define LANGULUS_UNLIKELY(condition) __builtin_expect(condition, 0)
-#endif
+#define LANGULUS_LIKELY() [[likely]]
+#define LANGULUS_UNLIKELY() [[unlikely]]
 
 /// Detect architecture																			
 #if INTPTR_MAX == INT64_MAX
