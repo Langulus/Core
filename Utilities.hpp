@@ -33,35 +33,45 @@ namespace Langulus
 		return static_cast<Deref<T>&&>(a);
 	}
 	
-	namespace Inner
+	/// A namespace dedicated to abstract entities										
+	namespace A
 	{
-		struct AAbandoned {};
-		struct ADisowned {};
+		/// An abstract abandoned value														
+		struct Abandoned {};
+		/// An abstract disowned value														
+		struct Disowned {};
 	}
 	
 	namespace CT
 	{
+		/// Check if a type is abandoned														
 		template<class T>
-		concept Abandoned = DerivedFrom<T, ::Langulus::Inner::AAbandoned>;
+		concept Abandoned = DerivedFrom<T, ::Langulus::A::Abandoned>;
 
+		/// Check if a type is disowned														
 		template<class T>
-		concept Disowned = DerivedFrom<T, ::Langulus::Inner::ADisowned>;
+		concept Disowned = DerivedFrom<T, ::Langulus::A::Disowned>;
 
+		/// Check if a type can be handled generally by templates, and doesn't	
+		/// require any specific built-in behavior										
 		template<class T>
 		concept CustomData = Data<T> && !Deep<T> && !Disowned<T> && !Abandoned<T>;
 	}
 	
 
-	/// Abandon a value																			
-	/// Same as Move, but resets only mandatory data inside source after move	
-	/// essentially saving up on a couple of instructions								
+	/// Abandoned value intermediate type, can be used in constructors and		
+	/// assignments to provide a guarantee, that the value shall not be used	
+	/// after that function, so we can save up on resetting it fully				
+	/// For example, you can construct an Any with an abandoned Any, which is	
+	/// same as move-construction, but the abandoned Any shall have only its	
+	/// mEntry reset, instead of the entire container									
 	template<class T>
-	struct Abandoned : public Inner::AAbandoned {
+	struct Abandoned : public A::Abandoned {
 		Abandoned() = delete;
 		Abandoned(const Abandoned&) = delete;
 		explicit constexpr Abandoned(Abandoned&&) noexcept = default;
 		explicit constexpr Abandoned(T&& value) noexcept 
-			: mValue(Langulus::Forward<T>(value)) {}
+			: mValue {Langulus::Forward<T>(value)} {}
 		
 		T&& mValue;
 		
@@ -74,26 +84,32 @@ namespace Langulus
 		}
 	};
 	
+	/// Abandon a value																			
+	/// Same as Move, but resets only mandatory data inside source after move	
+	/// essentially saving up on a couple of instructions								
 	template<class T>
 	NOD() constexpr Abandoned<T> Abandon(T&& a) noexcept {
 		return Abandoned<T>{Langulus::Forward<T>(a)};
 	}
+
+	/// Abandon a value																			
+	/// Same as Move, but resets only mandatory data inside source after move	
+	/// essentially saving up on a couple of instructions								
 	template<class T>
 	NOD() constexpr Abandoned<T> Abandon(T& a) noexcept {
 		return Abandoned<T>{Langulus::Move(a)};
 	}
 
-	/// Disown a value																			
-	/// Same as a shallow-copy, but never references, saving some instructions	
-	///	@attention values initialized using Disowned should be Abandoned		
-	///				  before the end of their scope										
+	/// Disowned value intermediate type, use in constructors and assignments	
+	/// to copy container while avoiding referencing it								
+	///	@tparam T - the type to disown													
 	template<class T>
-	struct Disowned : public Inner::ADisowned  {
+	struct Disowned : public A::Disowned  {
 		Disowned() = delete;
 		Disowned(const Disowned&) = delete;
 		explicit constexpr Disowned(Disowned&&) noexcept = default;
 		explicit constexpr Disowned(const T& value) noexcept 
-			: mValue(value) {}
+			: mValue {value} {}
 		
 		const T& mValue;
 		
@@ -104,6 +120,10 @@ namespace Langulus
 		}		
 	};
 	
+	/// Disown a value																			
+	/// Same as a shallow-copy, but never references, saving some instructions	
+	///	@attention values initialized using Disowned must be zeroed before	
+	///				  their destruction - be very careful with it					
 	template<class T>
 	NOD() constexpr Disowned<T> Disown(const T& item) noexcept {
 		return Disowned<T>{item};
@@ -144,82 +164,26 @@ namespace Langulus
 	///	@return true if number has exactly one bit set								
 	template<CT::Unsigned T>
 	constexpr bool IsPowerOfTwo(const T& n) noexcept {
-		return n > 0 && ((n & (n - 1)) == 0);
+		return ::std::has_single_bit(n);
 	}
-		
-	/// Count leading/trailing bits															
-	#ifdef _MSC_VER
-		#include <intrin.h>
-		#if LANGULUS(BITNESS) == 32
-			#pragma intrinsic(_BitScanForward)
-			#pragma intrinsic(_BitScanReverse)
-		#elif LANGULUS(BITNESS) == 64
-			#pragma intrinsic(_BitScanForward64)
-			#pragma intrinsic(_BitScanReverse64)
-		#else
-			#error Not implemented
-		#endif
 
-		constexpr int CountTrailingZeroes(size_t mask) {
-			unsigned long index;
-			#if LANGULUS(BITNESS) == 32
-				return _BitScanForward(&index, mask)
-					? static_cast<int>(index)
-					: LANGULUS(BITNESS);
-			#elif LANGULUS(BITNESS) == 64
-				return _BitScanForward64(&index, mask)
-					? static_cast<int>(index)
-					: LANGULUS(BITNESS);
-			#else
-				#error Not implemented
-			#endif
-		}
+	/// Returns the number of consecutive 0 bits in the value of x, starting	
+	/// from the least significant 'right' bit											
+	///	@param x - the value to scan														
+	///	@return the number of consecutive zero bits									
+	template<CT::Unsigned T>
+	constexpr int CountTrailingZeroes(const T& x) noexcept {
+		return ::std::countr_zero(x);
+	}
 
-		constexpr int CountLeadingZeroes(size_t mask) {
-			unsigned long index;
-			#if LANGULUS(BITNESS) == 32
-				return _BitScanReverse(&index, mask)
-					? 31 - static_cast<int>(index)
-					: LANGULUS(BITNESS);
-			#elif LANGULUS(BITNESS) == 64
-				return _BitScanReverse64(&index, mask)
-					? 63 - static_cast<int>(index)
-					: LANGULUS(BITNESS);
-			#else
-				#error Not implemented
-			#endif
-		}
-	#else
-		constexpr int CountTrailingZeroes(size_t mask) {
-			unsigned long index;
-			#if LANGULUS(BITNESS) == 32
-				return mask 
-					? __builtin_ctzl(mask) 
-					: LANGULUS(BITNESS);
-			#elif LANGULUS(BITNESS) == 64
-				return mask 
-					? __builtin_ctzll(mask) 
-					: LANGULUS(BITNESS);
-			#else
-				#error Not implemented
-			#endif
-		}
-
-		constexpr int CountLeadingZeroes(size_t mask) {
-			unsigned long index;
-			#if LANGULUS(BITNESS) == 32
-				return mask 
-					? __builtin_clzl(mask) 
-					: LANGULUS(BITNESS);
-			#elif LANGULUS(BITNESS) == 64
-				return mask 
-					? __builtin_clzll(mask) 
-					: LANGULUS(BITNESS);
-			#else
-				#error Not implemented
-			#endif
-		}
-	#endif
+	/// Returns the number of consecutive 0 bits in the value of x, starting	
+	/// from the most significant 'left' bit												
+	///	@param x - the value to scan														
+	///	@return the number of consecutive zero bits									
+	template<CT::Unsigned T>
+	constexpr int CountLeadingZeroes(const T& x) noexcept {
+		return ::std::countl_zero(x);
+	}
 
 	/// A somewhat safer reinterpret_cast for dense instances						
 	///	@param what - reference to reinterpret											
@@ -263,7 +227,7 @@ namespace Langulus
 
 	/// Always returns a pointer to the argument											
 	template<class T>
-	NOD() constexpr decltype(auto) MakeSparse(T& a) noexcept {
+	NOD() constexpr decltype(auto) SparseCast(T& a) noexcept {
 		if constexpr (CT::Sparse<T>)
 			return a;
 		else
@@ -272,7 +236,7 @@ namespace Langulus
 
 	/// Always returns a pointer to the argument (const)								
 	template<class T>
-	NOD() constexpr decltype(auto) MakeSparse(const T& a) noexcept {
+	NOD() constexpr decltype(auto) SparseCast(const T& a) noexcept {
 		if constexpr (CT::Sparse<T>)
 			return a;
 		else
@@ -282,9 +246,9 @@ namespace Langulus
 	/// Always returns a value reference to the argument								
 	/// If argument is an array, return a value reference to the first element	
 	template<class T>
-	NOD() constexpr decltype(auto) MakeDense(T& a) noexcept {
+	NOD() constexpr decltype(auto) DenseCast(T& a) noexcept {
 		if constexpr (CT::Array<T>)
-			return MakeDense(a[0]);
+			return DenseCast(a[0]);
 		else if constexpr (CT::Sparse<T>)
 			return *a;
 		else
@@ -294,9 +258,9 @@ namespace Langulus
 	/// Always returns a value reference to the argument (const)					
 	/// If argument is an array, return a value reference to the first element	
 	template<class T>
-	NOD() constexpr decltype(auto) MakeDense(const T& a) noexcept {
+	NOD() constexpr decltype(auto) DenseCast(const T& a) noexcept {
 		if constexpr (CT::Array<T>)
-			return MakeDense(a[0]);
+			return DenseCast(a[0]);
 		else if constexpr (CT::Sparse<T>)
 			return *a;
 		else
