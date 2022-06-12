@@ -40,7 +40,7 @@ namespace Langulus
 	/// code, thus making other inlinings more difficult								
 	/// Throws are also generally the slow path											
 	template <class E, class... Args>
-	[[noreturn]] LANGULUS(NOINLINE) void Throw(Args&&... args) {
+	[[noreturn]] NOINLINE() void Throw(Args&&... args) {
 		throw E {Forward<Args>(args)...};
 	}
 
