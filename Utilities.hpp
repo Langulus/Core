@@ -33,15 +33,6 @@ namespace Langulus
 		return static_cast<Deref<T>&&>(a);
 	}
 	
-	/// A namespace dedicated to abstract entities										
-	namespace A
-	{
-		/// An abstract abandoned value														
-		struct Abandoned {};
-		/// An abstract disowned value														
-		struct Disowned {};
-	}
-	
 	namespace CT
 	{
 		/// Check if a type is abandoned														
@@ -52,10 +43,15 @@ namespace Langulus
 		template<class T>
 		concept Disowned = DerivedFrom<T, ::Langulus::A::Disowned>;
 
+		template<class T>
+		concept AbandonedOrDisowned = Disowned<T> || Abandoned<T>;
+		template<class T>
+		concept NotAbandonedOrDisowned = !AbandonedOrDisowned<T>;
+
 		/// Check if a type can be handled generically by templates, and			
 		/// doesn't	require any special handling											
 		template<class T>
-		concept CustomData = Data<T> && !Deep<T> && !Disowned<T> && !Abandoned<T>;
+		concept CustomData = Data<T> && !Deep<T> && NotAbandonedOrDisowned<T>;
 	}
 	
 
@@ -65,8 +61,10 @@ namespace Langulus
 	/// For example, you can construct an Any with an abandoned Any, which is	
 	/// same as move-construction, but the abandoned Any shall have only its	
 	/// mEntry reset, instead of the entire container									
-	template<class T>
+	template<CT::NotAbandonedOrDisowned T>
 	struct Abandoned : public A::Abandoned {
+		using Type = T;
+
 		Abandoned() = delete;
 		Abandoned(const Abandoned&) = delete;
 		explicit constexpr Abandoned(Abandoned&&) noexcept = default;
@@ -88,7 +86,7 @@ namespace Langulus
 	/// Same as Move, but resets only mandatory data inside source after move	
 	/// essentially saving up on a couple of instructions								
 	template<class T>
-	NOD() constexpr Abandoned<T> Abandon(T&& a) noexcept {
+	NOD() constexpr auto Abandon(T&& a) noexcept requires (CT::NotAbandonedOrDisowned<T>) {
 		return Abandoned<T>{Langulus::Forward<T>(a)};
 	}
 
@@ -96,15 +94,17 @@ namespace Langulus
 	/// Same as Move, but resets only mandatory data inside source after move	
 	/// essentially saving up on a couple of instructions								
 	template<class T>
-	NOD() constexpr Abandoned<T> Abandon(T& a) noexcept {
+	NOD() constexpr auto Abandon(T& a) noexcept requires (CT::NotAbandonedOrDisowned<T>) {
 		return Abandoned<T>{Langulus::Move(a)};
 	}
 
 	/// Disowned value intermediate type, use in constructors and assignments	
 	/// to copy container while avoiding referencing it								
 	///	@tparam T - the type to disown													
-	template<class T>
-	struct Disowned : public A::Disowned  {
+	template<CT::NotAbandonedOrDisowned T>
+	struct Disowned : public A::Disowned {
+		using Type = T;
+
 		Disowned() = delete;
 		Disowned(const Disowned&) = delete;
 		explicit constexpr Disowned(Disowned&&) noexcept = default;
@@ -125,7 +125,7 @@ namespace Langulus
 	///	@attention values initialized using Disowned must be zeroed before	
 	///				  their destruction - be very careful with it					
 	template<class T>
-	NOD() constexpr Disowned<T> Disown(const T& item) noexcept {
+	NOD() constexpr auto Disown(const T& item) noexcept requires (CT::NotAbandonedOrDisowned<T>) {
 		return Disowned<T>{item};
 	}
 	
