@@ -33,6 +33,15 @@ namespace Langulus
 		return static_cast<Deref<T>&&>(a);
 	}
 	
+	/// A namespace dedicated to abstract entities										
+	namespace A
+	{
+		/// An abstract abandoned value														
+		struct Abandoned {};
+		/// An abstract disowned value														
+		struct Disowned {};
+	}
+
 	namespace CT
 	{
 		/// Check if a type is abandoned														
