@@ -32,12 +32,22 @@
 /// Convenience macro, for tagging non-discardable returns							
 #define NOD() [[nodiscard]]
 
+/// Likely/Unlikely attributes																
+#define LIKELY() [[likely]]
+#define UNLIKELY() [[unlikely]]
+
 /// Trigger a static assert (without condition)											
 /// This form is required in order of it to work in 'if constexpr - else'		
 /// https://stackoverflow.com/questions/38304847										
 #define LANGULUS_ASSERT(text) []<bool flag = false>() { static_assert(flag, "FAILED ASSERTION: " text); }()
 #define TODO() LANGULUS_ASSERT("TODO")
 
+/// Force no inlining																			
+#ifdef _MSC_VER
+	#define NOINLINE() __declspec(noinline)
+#else
+	#define NOINLINE() __attribute__((noinline))
+#endif
 
 namespace Langulus
 {
@@ -118,6 +128,9 @@ namespace Langulus
 	#else
 		constexpr Size Alignment = 16;
 	#endif
+
+	/// The bitness																				
+	constexpr Size Bitness = LANGULUS(BITNESS);
 
 	/// Same as ::std::declval, but conveniently named									
 	template<class T>

@@ -27,7 +27,7 @@ namespace Langulus
 	}
 
 	/// Forward as movable																		
-	/// Same as ::std::move, but avoid writing the namespace							
+	/// Same as ::std::move, but avoids writing the namespace						
 	template<class T>
 	NOD() constexpr Deref<T>&& Move(T&& a) noexcept {
 		return static_cast<Deref<T>&&>(a);
@@ -52,8 +52,8 @@ namespace Langulus
 		template<class T>
 		concept Disowned = DerivedFrom<T, ::Langulus::A::Disowned>;
 
-		/// Check if a type can be handled generally by templates, and doesn't	
-		/// require any specific built-in behavior										
+		/// Check if a type can be handled generically by templates, and			
+		/// doesn't	require any special handling											
 		template<class T>
 		concept CustomData = Data<T> && !Deep<T> && !Disowned<T> && !Abandoned<T>;
 	}

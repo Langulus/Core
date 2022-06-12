@@ -7,6 +7,7 @@
 #endif
 
 /// Safe mode increases sanity checks all over the code								
+/// Heavy overhead																				
 #ifdef LANGULUS_ENABLE_SAFE_MODE
 	#define LANGULUS_SAFE() 1
 #else
@@ -42,17 +43,6 @@
 	#define LANGULUS_DEBUG() 0
 	#define DEBUGGERY(a)
 #endif
-
-/// LANGULUS(NOINLINE) attribute																
-#ifdef _MSC_VER
-	#define LANGULUS_NOINLINE() __declspec(noinline)
-#else
-	#define LANGULUS_NOINLINE() __attribute__((noinline))
-#endif
-
-/// LANGULUS(LIKELY) and LANGULUS(UNLIKELY) attributes								
-#define LANGULUS_LIKELY() [[likely]]
-#define LANGULUS_UNLIKELY() [[unlikely]]
 
 /// Detect architecture																			
 #if INTPTR_MAX == INT64_MAX
