@@ -70,7 +70,7 @@ namespace Langulus
 	/// For example, you can construct an Any with an abandoned Any, which is	
 	/// same as move-construction, but the abandoned Any shall have only its	
 	/// mEntry reset, instead of the entire container									
-	template<CT::NotAbandonedOrDisowned T>
+	template<class T>
 	struct Abandoned : public A::Abandoned {
 		using Type = T;
 
@@ -78,13 +78,18 @@ namespace Langulus
 		Abandoned(const Abandoned&) = delete;
 		explicit constexpr Abandoned(Abandoned&&) noexcept = default;
 		explicit constexpr Abandoned(T&& value) noexcept 
-			: mValue {Langulus::Forward<T>(value)} {}
+			: mValue {Langulus::Forward<T>(value)} {
+			static_assert(CT::NotAbandonedOrDisowned<T>,
+				"Can't nest abandoned/disowned here");
+		}
 		
 		T&& mValue;
 		
 		/// Forward as abandoned																
 		template<class ALT_T>
 		NOD() constexpr Abandoned<ALT_T> Forward() const noexcept {
+			static_assert(CT::NotAbandonedOrDisowned<ALT_T>, 
+				"Can't nest abandoned/disowned here");
 			return Abandoned<ALT_T>{
 				Langulus::Forward<ALT_T>(mValue)
 			};
@@ -94,23 +99,23 @@ namespace Langulus
 	/// Abandon a value																			
 	/// Same as Move, but resets only mandatory data inside source after move	
 	/// essentially saving up on a couple of instructions								
-	template<class T>
-	NOD() constexpr auto Abandon(T&& a) noexcept requires (CT::NotAbandonedOrDisowned<T>) {
+	template<CT::NotAbandonedOrDisowned T>
+	NOD() constexpr auto Abandon(T&& a) noexcept {
 		return Abandoned<T>{Langulus::Forward<T>(a)};
 	}
 
 	/// Abandon a value																			
 	/// Same as Move, but resets only mandatory data inside source after move	
 	/// essentially saving up on a couple of instructions								
-	template<class T>
-	NOD() constexpr auto Abandon(T& a) noexcept requires (CT::NotAbandonedOrDisowned<T>) {
+	template<CT::NotAbandonedOrDisowned T>
+	NOD() constexpr auto Abandon(T& a) noexcept {
 		return Abandoned<T>{Langulus::Move(a)};
 	}
 
 	/// Disowned value intermediate type, use in constructors and assignments	
 	/// to copy container while avoiding referencing it								
 	///	@tparam T - the type to disown													
-	template<CT::NotAbandonedOrDisowned T>
+	template<class T>
 	struct Disowned : public A::Disowned {
 		using Type = T;
 
@@ -118,13 +123,18 @@ namespace Langulus
 		Disowned(const Disowned&) = delete;
 		explicit constexpr Disowned(Disowned&&) noexcept = default;
 		explicit constexpr Disowned(const T& value) noexcept 
-			: mValue {value} {}
+			: mValue {value} {
+			static_assert(CT::NotAbandonedOrDisowned<T>,
+				"Can't nest abandoned/disowned here");
+		}
 		
 		const T& mValue;
 		
 		/// Forward as disowned																	
 		template<class ALT_T>
 		NOD() constexpr Disowned<ALT_T> Forward() const noexcept {
+			static_assert(CT::NotAbandonedOrDisowned<ALT_T>,
+				"Can't nest abandoned/disowned here");
 			return Disowned<ALT_T>{mValue};
 		}		
 	};
@@ -133,8 +143,8 @@ namespace Langulus
 	/// Same as a shallow-copy, but never references, saving some instructions	
 	///	@attention values initialized using Disowned must be zeroed before	
 	///				  their destruction - be very careful with it					
-	template<class T>
-	NOD() constexpr auto Disown(const T& item) noexcept requires (CT::NotAbandonedOrDisowned<T>) {
+	template<CT::NotAbandonedOrDisowned T>
+	NOD() constexpr auto Disown(const T& item) noexcept {
 		return Disowned<T>{item};
 	}
 	
