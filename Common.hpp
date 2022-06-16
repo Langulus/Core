@@ -456,10 +456,6 @@ namespace Langulus
 	template<bool CONDITION, class TRUETYPE, class FALSETYPE>
 	using Conditional = ::std::conditional_t<CONDITION, TRUETYPE, FALSETYPE>;
 
-	/// Make a type constant reference or constant pointer						
-	template<class T>
-	using MakeConst = Conditional<CT::Dense<T>, const Decay<T>&, const Decay<T>*>;
-
 	/// Get the extent of an array, or 1 if dense, or 0 if sparse				
 	template<class T>
 	constexpr Count ExtentOf = CT::Array<T> ? ::std::extent_v<Deref<T>> : (CT::Dense<T> ? 1 : 0);

@@ -286,4 +286,8 @@ namespace Langulus
 			return a;
 	}
 
+	/// Make a type constant reference or constant pointer							
+	template<class T>
+	using ConstCast = Conditional<CT::Dense<T>, const Decay<T>&, const Decay<T>*>;
+
 } // namespace Langulus
