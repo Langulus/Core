@@ -123,11 +123,10 @@ namespace Langulus
 	constexpr bool LittleEndianMachine = ::std::endian::native == ::std::endian::little;
 
 	/// The default alignment, depends on configuration and enabled SIMD			
-	#ifdef LANGULUS_ALIGNMENT
-		constexpr Size Alignment = LANGULUS_ALIGNMENT;
-	#else
-		constexpr Size Alignment = 16;
+	#ifndef LANGULUS_ALIGNMENT
+		#define LANGULUS_ALIGNMENT 16
 	#endif
+	constexpr Size Alignment = LANGULUS_ALIGNMENT;
 
 	/// The bitness																				
 	constexpr Size Bitness = LANGULUS(BITNESS);
