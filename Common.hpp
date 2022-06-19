@@ -51,7 +51,7 @@
 	/// Force no inlining																		
 	#define LANGULUS_NOINLINE() __attribute__((noinline))
 	/// Force always inlining																	
-	#define LANGULUS_ALWAYSINLINE() __attribute__((always_inline))
+	#define LANGULUS_ALWAYSINLINE() __attribute__((always_inline)) inline
 #endif
 
 namespace Langulus
