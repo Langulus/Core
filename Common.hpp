@@ -42,11 +42,16 @@
 #define LANGULUS_ASSERT(text) []<bool flag = false>() { static_assert(flag, "FAILED ASSERTION: " text); }()
 #define TODO() LANGULUS_ASSERT("TODO")
 
-/// Force no inlining																			
 #ifdef _MSC_VER
-	#define NOINLINE() __declspec(noinline)
+	/// Force no inlining																		
+	#define LANGULUS_NOINLINE() __declspec(noinline)
+	/// Force always inlining																	
+	#define LANGULUS_ALWAYSINLINE() __forceinline
 #else
-	#define NOINLINE() __attribute__((noinline))
+	/// Force no inlining																		
+	#define LANGULUS_NOINLINE() __attribute__((noinline))
+	/// Force always inlining																	
+	#define LANGULUS_ALWAYSINLINE() __attribute__((always_inline))
 #endif
 
 namespace Langulus
