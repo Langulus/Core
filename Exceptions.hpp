@@ -32,7 +32,7 @@ namespace Langulus
       /// Get exception name                                                  
       ///   @return the name of the exception                                 
       virtual Token GetName() const noexcept {
-         return u8"Unknown";
+         return "Unknown";
       }
    };
 

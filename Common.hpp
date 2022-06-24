@@ -105,19 +105,28 @@ namespace Langulus
 	template<class T>
 	using TFunctor = ::std::function<T>;
 
+	/// Type for a character																	
+	using Letter = char;
+
 	/// Type for wrapping a compile-time string											
-	using Token = ::std::u8string_view;
+	using Token = ::std::basic_string_view<Letter>;
 
 	/// Integer equivalent to a pointer, depends on architecture					
 	using Pointer = ::std::uintptr_t;
 
+	/// Single precision float																	
+	using RealSP = float;
+
+	/// Double precision float																	
+	using RealDP = double;
+
 	/// The default floating point type, depends on configuration					
 	#if defined(LANGULUS_FPU_FLOAT)
-		using Real = float;
+		using Real = RealSP;
 	#elif defined(LANGULUS_FPU_DOUBLE)
-		using Real = double;
+		using Real = RealDP;
 	#else
-		using Real = float;
+		using Real = RealSP;
 	#endif
 
 
@@ -226,7 +235,7 @@ namespace Langulus
 		/// Character concept																	
 		/// Notice how char is not here, as it is considered a number				
 		template<class... T>
-		concept Character = ((Same<T, char8_t> || Same<T, char16_t> || Same<T, char32_t> || Same<T, wchar_t>) && ...);
+		concept Character = ((Same<T, char> || Same<T, unsigned char> || Same<T, char8_t> || Same<T, char16_t> || Same<T, char32_t> || Same<T, wchar_t>) && ...);
 	
 		/// Integer number concept (either sparse or dense)							
 		/// Excludes boolean types																
