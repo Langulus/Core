@@ -13,4 +13,5 @@ aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR} SOURCE_FILES)
 
 add_library(Langulus.Core INTERFACE)
 
-target_include_directories(Langulus.Core INTERFACE include/)
+target_include_directories(Langulus.Core
+    INTERFACE   include/)
