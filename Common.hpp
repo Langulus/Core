@@ -65,10 +65,8 @@ namespace Langulus
 		class Verb;
 	}
 
-	namespace Anyness
+	namespace RTTI
 	{
-		class Block;
-		class Trait;
 		struct Member;
 		struct Base;
 		struct Ability;
@@ -80,6 +78,14 @@ namespace Langulus
 		using DMeta = const MetaData*;
 		using TMeta = const MetaTrait*;
 		using VMeta = const MetaVerb*;
+	}
+
+	namespace Anyness
+	{
+		class Block;
+		class Trait;
+		class Any;
+		class Map;
 	}
 
 	/// A byte																						
