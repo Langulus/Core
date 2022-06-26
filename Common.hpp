@@ -407,7 +407,7 @@ namespace Langulus
 		/// inside the type you want to reflect											
 		template<class T>
 		concept Reflectable = requires {
-			{Decay<T>::Reflect()} -> Same<::Langulus::Anyness::MetaData>;
+			{Decay<T>::Reflect()} -> Same<::Langulus::RTTI::MetaData>;
 		};
 
 		/// Check if type is dense void														
