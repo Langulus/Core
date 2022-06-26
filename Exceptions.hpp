@@ -6,7 +6,7 @@
 /// See LICENSE file, or https://www.gnu.org/licenses									
 ///																									
 #pragma once
-#include "Utilities.hpp"
+#include "Common.hpp"
 #include <stdexcept>
 
 namespace Langulus
@@ -42,7 +42,7 @@ namespace Langulus
 	/// Throws are also generally the slow path											
 	template <class E, class... Args>
 	[[noreturn]] LANGULUS(NOINLINE) void Throw(Args&&... args) {
-		throw E {Forward<Args>(args)...};
+		throw E {::std::forward<Args>(args)...};
 	}
 
 } // namespace Langulus
