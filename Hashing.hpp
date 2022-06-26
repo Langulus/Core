@@ -76,8 +76,8 @@ namespace Langulus
 		}
 
 		h ^= h >> r;
-		h *= m;
-		h ^= h >> r;
+		//h *= m;
+		//h ^= h >> r;
 		return static_cast<Hash>(h);
 	}
 
@@ -87,8 +87,8 @@ namespace Langulus
 		x ^= x >> 33U;
 		x *= UINT64_C(0xff51afd7ed558ccd);
 		x ^= x >> 33U;
-		x *= UINT64_C(0xc4ceb9fe1a85ec53);
-		x ^= x >> 33U;
+		//x *= UINT64_C(0xc4ceb9fe1a85ec53);
+		//x ^= x >> 33U;
 		return static_cast<Hash>(x);
 	}
 
