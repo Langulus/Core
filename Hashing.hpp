@@ -68,11 +68,11 @@ namespace Langulus
 		///	@param len - the number of bytes in the key								
 		///	@param seed - the seed for the hash											
 		///	@param out - [out] the hash goes here (must be 4 bytes)				
-		template<bool TAIL = true>
-		void MurmurHash3_x86_32(const void* key, int len, uint32_t seed, void* out) {
+		template<bool TAIL = true, uint32_t SEED = 19890212>
+		void MurmurHash3_x86_32(const void* key, int len, void* out) {
 			const uint8_t* data = (const uint8_t*) key;
 			const int nblocks = len / 4;
-			uint32_t h1 = seed;
+			uint32_t h1 = SEED;
 			const uint32_t c1 = 0xcc9e2d51;
 			const uint32_t c2 = 0x1b873593;
 			
@@ -123,15 +123,15 @@ namespace Langulus
 		///	@param len - the number of bytes in the key								
 		///	@param seed - the seed for the hash											
 		///	@param out - [out] the hash goes here (must be 16 bytes)				
-		template<bool TAIL = true>
-		void MurmurHash3_x86_128(const void* key, const int len, uint32_t seed, void* out) {
+		template<bool TAIL = true, uint32_t SEED = 19890212>
+		void MurmurHash3_x86_128(const void* key, const int len, void* out) {
 			const uint8_t* data = (const uint8_t*) key;
 			const int nblocks = len / 16;
 
-			uint32_t h1 = seed;
-			uint32_t h2 = seed;
-			uint32_t h3 = seed;
-			uint32_t h4 = seed;
+			uint32_t h1 = SEED;
+			uint32_t h2 = SEED;
+			uint32_t h3 = SEED;
+			uint32_t h4 = SEED;
 
 			const uint32_t c1 = 0x239b961b;
 			const uint32_t c2 = 0xab0e9789;
@@ -294,11 +294,11 @@ namespace Langulus
 		///	@param len - the number of bytes in the key								
 		///	@param seed - the seed for the hash											
 		///	@param out - [out] the hash goes here (must be 8 bytes)				
-		template<bool TAIL = true>
-		void MurmurHash2_x64_64(const void* key, int len, uint64_t seed, void* out) {
+		template<bool TAIL = true, uint32_t SEED = 19890212>
+		void MurmurHash2_x64_64(const void* key, int len, void* out) {
 			const uint64_t m = BIG_CONSTANT(0xc6a4a7935bd1e995);
 			const int r = 47;
-			uint64_t h = seed ^ (len * m);
+			uint64_t h = uint64_t {SEED} ^ (len * m);
 			const uint64_t* data = (const uint64_t*) key;
 			const uint64_t* end = data + (len / 8);
 
@@ -353,13 +353,13 @@ namespace Langulus
 		///	@param len - the number of bytes in the key								
 		///	@param seed - the seed for the hash											
 		///	@param out - [out] the hash goes here (must be 16 bytes)				
-		template<bool TAIL = true>
-		void MurmurHash3_x64_128(const void* key, const int len, const uint32_t seed, void* out) {
+		template<bool TAIL = true, uint32_t SEED = 19890212>
+		void MurmurHash3_x64_128(const void* key, const int len, void* out) {
 			const uint8_t* data = (const uint8_t*) key;
 			const int nblocks = len / 16;
 
-			uint64_t h1 = seed;
-			uint64_t h2 = seed;
+			uint64_t h1 = SEED;
+			uint64_t h2 = SEED;
 
 			const uint64_t c1 = BIG_CONSTANT(0x87c37b91114253d5);
 			const uint64_t c2 = BIG_CONSTANT(0x4cf5ad432745937f);
@@ -417,7 +417,7 @@ namespace Langulus
 				case  9:
 					k2 ^= ((uint64_t) tail[8]) << 0;
 					k2 *= c2;
-					k2 = ROTL64(k2, 33);
+					k2 = ::std::rotl(k2, 33);
 					k2 *= c1;
 					h2 ^= k2;
 					[[fallthrough]];
@@ -473,14 +473,15 @@ namespace Langulus
 	///	@param ptr - memory start															
 	///	@param len - number of bytes to hash											
 	///	@return the hash																		
-	inline Hash HashBytes(void const* ptr, size_t len, const uint32_t seed = 19890212) noexcept {
+	template<uint32_t SEED = 19890212, bool TAIL = true>
+	inline Hash HashBytes(void const* ptr, size_t len) noexcept {
 		Hash result;
 		if constexpr (sizeof(Hash) == 4)
-			Inner::MurmurHash3_x86_32(ptr, len, seed, &result);
+			Inner::MurmurHash3_x86_32<TAIL, SEED>(ptr, len, &result);
 		else if constexpr (sizeof(Hash) == 8)
-			Inner::MurmurHash2_x64_64(ptr, len, seed, &result);
+			Inner::MurmurHash2_x64_64<TAIL, SEED>(ptr, len, &result);
 		else if constexpr (sizeof(Hash) == 16)
-			Inner::MurmurHash3_x64_128(ptr, len, seed, &result);
+			Inner::MurmurHash3_x64_128<TAIL, SEED>(ptr, len, &result);
 		else
 			TODO();
 		return result;
@@ -490,57 +491,50 @@ namespace Langulus
 	///	@tparam N - type to hash (deducible)											
 	///	@param n - the number to hash														
 	///	@return the hash for the number													
-	template<CT::Number N>
-	constexpr Hash HashNumber(const N& n, const uint32_t seed = 19890212) noexcept {
-		constexpr bool tail = 0 != (sizeof(N) % sizeof(Hash));
-		Hash result;
-		if constexpr (sizeof(Hash) == 4)
-			Inner::MurmurHash3_x86_32<tail>(&n, sizeof(N), seed, &result);
-		else if constexpr (sizeof(Hash) == 8)
-			Inner::MurmurHash2_x64_64<tail>(&n, sizeof(N), seed, &result);
-		else if constexpr (sizeof(Hash) == 16)
-			Inner::MurmurHash3_x64_128<tail>(&n, sizeof(N), seed, &result);
-		else
-			TODO();
-		return result;
+	template<uint32_t SEED = 19890212, CT::Number N>
+	constexpr Hash HashNumber(const N& n) noexcept {
+		constexpr bool TAIL = 0 != (sizeof(N) % sizeof(Hash));
+		return HashBytes<SEED, TAIL>(&n, sizeof(N));
 	}
 
 	/// Hash any hashable data, including fundamental types							
 	///	@tparam T - type to hash (deducible)											
 	///	@param data - the data to hash													
 	///	@return the hash																		
-	template<class... T>
-	constexpr Hash HashData(const T&... data) noexcept {
-		if constexpr (sizeof...(T) == 1) {
+	template<uint32_t SEED = 19890212, class T, class... MORE>
+	constexpr Hash HashData(const T& head, const MORE&... rest) noexcept {
+		if constexpr (sizeof...(MORE) == 0) {
 			if constexpr (CT::Hashable<T>) {
 				// Hashable via a member GetHash() function						
-				return data.GetHash();
+				return head.GetHash();
 			}
 			else if constexpr (CT::Number<T>) {
 				// A fundamental number is built-in hashable						
-				return HashNumber(data);
+				return HashNumber<SEED>(head);
 			}
-			else if constexpr (requires (::std::hash<T> h, const T & i) { h(i); }) {
+			else if constexpr (requires (::std::hash<T> h, const T& i) { h(i); }) {
 				// Hashable via std::hash												
 				::std::hash<T> hasher;
-				return hasher(data);
+				return hasher(head);
 			}
 			else if constexpr (CT::POD<T>) {
 				// Explicitly marked POD type is always hashable, but be		
 				// careful for POD types with padding - the junk inbetween	
 				// members can interfere with the hash, giving unique			
 				// hashes where the same hashes should be produced				
-				return HashBytes(&data, sizeof(T));
+				constexpr bool TAIL = 0 != (sizeof(T) % sizeof(Hash));
+				return HashBytes<SEED, TAIL>(&head, sizeof(T));
 			}
 			else LANGULUS_ASSERT("Can't hash data");
 		}
-		else if constexpr (sizeof...(T) > 1) {
+		else {
 			// Combine all data into a single array of hashes, and then		
 			// hash that array again													
-			const Hash coalesced[sizeof...(T)] {HashData(data)...};
-			return HashBytes(coalesced, sizeof(Hash) * sizeof...(T));
+			const Hash coalesced[1 + sizeof...(MORE)] {
+				HashData<SEED>(head), HashData<SEED>(rest)...
+			};
+			return HashBytes<SEED, false>(coalesced, sizeof(coalesced));
 		}
-		else return 0;
 	}
 
 } // namespace Langulus
