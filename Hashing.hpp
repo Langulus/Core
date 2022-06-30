@@ -12,15 +12,34 @@ namespace Langulus
 {
 	namespace Inner
 	{
-		///																							
-		template <class T>
-		T unaligned_load(void const* ptr) noexcept {
-			// Using memcpy so we don't get into unaligned load problems	
-			// Compiler should optimize this very well anyways					
-			T t;
-			::std::memcpy(&t, ptr, sizeof(T));
-			return t;
-		}
+
+		/// MurmurHash3 was written by Austin Appleby, and is placed in the		
+		/// public domain																			
+		void MurmurHash3_x86_32(const void* key, int len, uint32_t seed, void* out);
+		void MurmurHash3_x86_128(const void* key, int len, uint32_t seed, void* out);
+		void MurmurHash3_x64_128(const void* key, int len, uint32_t seed, void* out);
+
+		/// Note - The x86 and x64 versions do _not_ produce the same results,	
+		/// as the algorithms are optimized for their respective platforms.		
+		/// You can still compile and run any of them on any platform, but your	
+		/// performance with the non-native version will be less than optimal.	
+		#if defined(_MSC_VER)
+			#define ROTL32(x,y)	_rotl(x,y)
+			#define ROTL64(x,y)	_rotl64(x,y)
+			#define BIG_CONSTANT(x) (x)
+		#else
+			inline uint32_t rotl32(uint32_t x, int8_t r) {
+				return (x << r) | (x >> (32 - r));
+			}
+
+			inline uint64_t rotl64(uint64_t x, int8_t r) {
+				return (x << r) | (x >> (64 - r));
+			}
+
+			#define ROTL32(x,y)	rotl32(x,y)
+			#define ROTL64(x,y)	rotl64(x,y)
+			#define BIG_CONSTANT(x) (x##LLU)
+		#endif // !defined(_MSC_VER)
 	}
 
 	/// Hash a sequence of bytes																
@@ -81,6 +100,10 @@ namespace Langulus
 		return static_cast<Hash>(h);
 	}
 
+	/// Hash a number																				
+	///	@tparam N - type to hash (deducible)											
+	///	@param n - the number to hash														
+	///	@return the hash for the number													
 	template<CT::Number N>
 	constexpr Hash HashNumber(const N& n) noexcept {
 		auto x = static_cast<uint64_t>(n);
@@ -96,29 +119,38 @@ namespace Langulus
 	///	@tparam T - type to hash (deducible)											
 	///	@param data - the data to hash													
 	///	@return the hash																		
-	template<class T>
-	constexpr Hash HashData(const T& data) noexcept {
-		if constexpr (CT::Hashable<T>) {
-			// Hashable via a member GetHash() function							
-			return data.GetHash();
+	template<class... T>
+	constexpr Hash HashData(const T&... data) noexcept {
+		if constexpr (sizeof...(T) == 1) {
+			if constexpr (CT::Hashable<T>) {
+				// Hashable via a member GetHash() function						
+				return data.GetHash();
+			}
+			else if constexpr (CT::Number<T>) {
+				// A fundamental number is built-in hashable						
+				return HashNumber(data);
+			}
+			else if constexpr (requires (::std::hash<T> h, const T & i) { h(i); }) {
+				// Hashable via std::hash												
+				::std::hash<T> hasher;
+				return hasher(data);
+			}
+			else if constexpr (CT::POD<T>) {
+				// Explicitly marked POD type is always hashable, but be		
+				// careful for POD types with padding - the junk inbetween	
+				// members can interfere with the hash, giving unique			
+				// hashes where the same hashes should be produced				
+				return HashBytes(&data, sizeof(T));
+			}
+			else LANGULUS_ASSERT("Can't hash data");
 		}
-		else if constexpr (CT::Number<T>) {
-			// A fundamental number is built-in hashable							
-			return HashNumber(data);
+		else if constexpr (sizeof...(T) > 1) {
+			// Combine all data into a single array of hashes, and then		
+			// hash that																	
+			const Hash coalesced[sizeof...(T)] {HashData(data)...};
+			return HashBytes(coalesced, sizeof(Hash) * sizeof...(T));
 		}
-		else if constexpr (requires { Uneval<::std::hash<T>&>().operator ()(data); }) {
-			// Hashable via std::hash													
-			::std::hash<T> hasher;
-			return hasher(data);
-		}
-		else if constexpr (CT::POD<T>) {
-			// Explicitly marked POD type is always hashable, but be			
-			// careful for POD types with padding - the junk inbetween		
-			// members can interfere with the hash, giving unique hashes	
-			// where the same hashes should be produced							
-			return HashBytes(&data, sizeof(T));
-		}
-		else LANGULUS_ASSERT("Can't hash data");
+		else return 0;
 	}
 
 } // namespace Langulus
