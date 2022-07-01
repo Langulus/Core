@@ -104,8 +104,11 @@ namespace Langulus
 	constexpr Offset OffsetMax = ::std::numeric_limits<Offset>::max();
 
 	/// Type that holds a hash, depends on architecture								
-	using Hash = ::std::size_t;
-	constexpr Hash HashMax = ::std::numeric_limits<Hash>::max();
+	struct Hash {
+		::std::size_t mHash {};
+
+		constexpr bool operator == (const Hash&) const noexcept = default;
+	}; 
 
 	/// Type for wrapping a function															
 	template<class T>
