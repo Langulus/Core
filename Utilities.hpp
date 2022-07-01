@@ -57,11 +57,6 @@ namespace Langulus
 		concept AbandonedOrDisowned = Disowned<T> || Abandoned<T>;
 		template<class T>
 		concept NotAbandonedOrDisowned = !AbandonedOrDisowned<T>;
-
-		/// Check if a type can be handled generically by templates, and			
-		/// doesn't	require any special handling											
-		template<class T>
-		concept CustomData = Data<T> && !Deep<T> && NotAbandonedOrDisowned<T>;
 	}
 	
 
