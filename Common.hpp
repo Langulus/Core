@@ -284,10 +284,6 @@ namespace Langulus
 		template<class... T>
 		concept Mutable = (!Constant<T> && ...);
 	
-		/// Check if T is abstract (has at least one pure virtual function)		
-		template<class... T>
-		concept Abstract = ((!Sparse<T> && (::std::is_abstract_v<Decay<T>> || Decay<T>::CTTI_Abstract)) && ...);
-	
 		/// Check if T is a fundamental type (either sparse or dense)				
 		template<class... T>
 		concept Fundamental = (::std::is_fundamental_v<Decay<T>> && ...);
@@ -402,14 +398,6 @@ namespace Langulus
 		template<class... T>
 		concept MakableOrCopyableNoexcept = ((CopyMakableNoexcept<T> || CopyableNoexcept<T>) && ...);
 			
-		/// A reflected type is a type that has a public Reflection field			
-		/// This field is automatically added when using LANGULUS(REFLECT) macro
-		/// inside the type you want to reflect											
-		template<class T>
-		concept Reflectable = requires {
-			{Decay<T>::Reflect()} -> Same<::Langulus::RTTI::MetaData>;
-		};
-
 		/// Check if type is dense void														
 		template<class T>
 		concept Void = ::std::is_void_v<T>;
@@ -430,44 +418,6 @@ namespace Langulus
 		/// Checks if T inherits Block														
 		template<class T>
 		concept Block = DerivedFrom<T, ::Langulus::Anyness::Block>;
-
-		/// A deep type is any type with a true static member T::CTTI_Deep		
-		/// and a common interface with Block												
-		/// If no such member/base exists, the type is assumed NOT deep by		
-		/// default. Deep types are considered iteratable, and verbs are			
-		/// executed in each of their elements/members, instead on the type		
-		/// itself. Use LANGULUS(DEEP) macro as member to tag deep types			
-		template<class T>
-		concept Deep = Block<T> && Decay<T>::CTTI_Deep;
-
-		/// A POD (Plain Old Data) type is any type with a static member			
-		/// T::CTTI_POD set to true. If no such member exists, the type is		
-		/// assumed NOT POD by default, unless ::std::is_trivial.					
-		/// POD types improve construction, destruction, copying, and cloning	
-		/// by using some batching runtime optimizations								
-		/// All POD types are also directly serializable to binary					
-		/// Use LANGULUS(POD) macro as member to tag POD types						
-		template<class T>
-		concept POD = ::std::is_trivial_v<Decay<T>> || Decay<T>::CTTI_POD;
-
-		/// A nullifiable type is any type with a static member						
-		/// T::CTTI_Nullifiable set to true. If no such member exists, the type	
-		/// is assumed NOT nullifiable by default											
-		/// Nullifiable types improve construction by using some batching			
-		/// runtime optimizations																
-		/// Use LANGULUS(NULLIFIABLE) macro as member to tag nullifiable types	
-		template<class T>
-		concept Nullifiable = Decay<T>::CTTI_Nullifiable;
-
-		/// A concretizable type is any type with a member type CTTI_Concrete	
-		/// If no such member exists, the type is assumed NOT concretizable by	
-		/// default. Concretizable types provide a default concretization for	
-		/// when	allocating abstract types													
-		/// Use LANGULUS(CONCRETIZABLE) macro as member to tag such types			
-		template<class T>
-		concept Concretizable = requires {
-			typename Decay<T>::CTTI_Concrete;
-		};
 
 	} // namespace Langulus::CT
 
