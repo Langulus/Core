@@ -107,6 +107,7 @@ namespace Langulus
 	struct Hash {
 		::std::size_t mHash {};
 
+		explicit constexpr operator bool() const noexcept { return mHash != 0; }
 		constexpr bool operator == (const Hash&) const noexcept = default;
 	}; 
 
@@ -221,30 +222,48 @@ namespace Langulus
 		template<class... T>
 		concept Dense = (!Sparse<T> && ...);
 	
+		namespace Inner
+		{
+			template<class T, class U = T>
+			concept Sortable = requires(Decay<T> t, Decay<U> u) {
+				{ t < u } -> Bool;
+				{ t > u } -> Bool;
+			};
+		}
+
 		/// Sortable concept																		
 		/// Any class with an adequate <, >, or combined <=> operator				
-		template<class T, class U = T>
-		concept Sortable = requires(Decay<T> t, Decay<U> u) {
-			{ t < u } -> Bool;
-			{ t > u } -> Bool;
-		};
-			
+		template<class T, class... U = T>
+		concept Sortable = (Inner::Sortable<T, U> && ...);
+	
+		namespace Inner
+		{
+			template<class T, class U = T>
+			concept Comparable = ::std::equality_comparable_with<Decay<T>, Decay<U>>;
+		}
+
 		/// Equality comparable concept														
 		/// Any class with an adequate == operator										
-		template<class T, class U = T>
-		concept Comparable = ::std::equality_comparable_with<Decay<T>, Decay<U>>;
-			
+		template<class T, class... U = T>
+		concept Comparable = (Inner::Comparable<T, U> && ...);
+
+		namespace Inner
+		{
+			template<class FROM, class TO>
+			concept Convertible = requires(FROM from, TO to) {
+				to = static_cast<TO>(from);
+			};
+		}
+
 		/// Convertible concept																	
 		/// Checks if a static_cast is possible between the provided types		
-		template<class FROM, class TO>
-		concept Convertible = requires(FROM from, TO to) {
-			to = static_cast<TO>(from);
-		};
-	
+		template<class FROM, class... TO>
+		concept Convertible = (Inner::Convertible<FROM, TO> && ...);
+
 		/// Character concept																	
 		/// Notice how char is not here, as it is considered a number				
 		template<class... T>
-		concept Character = ((Same<T, char> || Same<T, unsigned char> || Same<T, char8_t> || Same<T, char16_t> || Same<T, char32_t> || Same<T, wchar_t>) && ...);
+		concept Character = ((SameAsOneOf<T, char, unsigned char, char8_t, char16_t, char32_t, wchar_t>) && ...);
 	
 		/// Integer number concept (either sparse or dense)							
 		/// Excludes boolean types																
@@ -313,25 +332,43 @@ namespace Langulus
 		template<class... T>
 		concept Destroyable = (::std::destructible<Decay<T>> && ...);
 	
+		namespace Inner
+		{
+			template<class T>
+			concept CloneMakable = requires (Decay<T> a) {
+				{ Decay<T>(a.Clone()) };
+			};
+		}
+
 		/// Check if Decay<T> is clone-constructible										
-		template<class T>
-		concept CloneMakable = requires (Decay<T> a) { 
-			{ Decay<T>(a.Clone()) };
-		};
-			
+		template<class... T>
+		concept CloneMakable = (Inner::CloneMakable<T> && ...);
+
+		namespace Inner
+		{
+			template<class T>
+			concept CloneCopyable = requires (Decay<T> a) {
+				{ a = a.Clone() };
+			};
+		}
+
 		/// Check if Decay<T> is clone-copyable											
-		template<class T>
-		concept CloneCopyable = requires (Decay<T> a) { 
-			{ a = a.Clone() };
-		};
-			
+		template<class... T>
+		concept CloneCopyable = (Inner::CloneCopyable<T> && ...);
+
+		namespace Inner
+		{
+			template<class T>
+			concept Referencable = requires (const Decay<T> a) {
+				{a.Keep()};
+				{a.Free()} -> Same<Count>;
+			};
+		}
+
 		/// Check if T is referencable														
-		template<class T>
-		concept Referencable = requires (const Decay<T> a) { 
-			{a.Keep()};
-			{a.Free()} -> Same<Count>;
-		};
-			
+		template<class... T>
+		concept Referencable = (Inner::Referencable<T> && ...);
+
 		/// Check if T is copy-assignable													
 		template<class... T>
 		concept Copyable = (::std::copyable<Decay<T>> && ...);
@@ -350,27 +387,45 @@ namespace Langulus
 		template<class... T>
 		concept SwappableNoexcept = (::std::is_nothrow_swappable_v<T> && ...);
 			
+		namespace Inner
+		{
+			template<class T>
+			concept Resolvable = requires (Decay<T> a) {
+				{a.GetBlock()} -> Same<::Langulus::Anyness::Block>;
+			};
+		}
+
 		/// Check if T is resolvable at runtime											
-		template<class T>
-		concept Resolvable = requires (Decay<T> a) {
-			{a.GetBlock()} -> Same<::Langulus::Anyness::Block>;
-		};
-			
+		template<class... T>
+		concept Resolvable = (Inner::Resolvable<T> && ...);
+
+		namespace Inner
+		{
+			template<class T>
+			concept Hashable = requires (Decay<T> a) {
+				{a.GetHash()} -> Same<::Langulus::Hash>;
+			};
+		}
+
 		/// Check if T is hashable (has GetHash() method that returns Hash)		
-		template<class T>
-		concept Hashable = requires (Decay<T> a) {
-			{a.GetHash()} -> Same<::Langulus::Hash>;
-		};
-			
+		template<class... T>
+		concept Hashable = (Inner::Hashable<T> && ...);
+
+		namespace Inner
+		{
+			template<class T>
+			concept Dispatcher = requires (Decay<T> a, ::Langulus::Flow::Verb & b) {
+				{a.Do(b)};
+			};
+		}
+
 		/// Check if T has a dispatcher (has Do() method for verbs)					
-		template<class T>
-		concept Dispatcher = requires (Decay<T> a, ::Langulus::Flow::Verb& b) {
-			{a.Do(b)};
-		};
-			
+		template<class... T>
+		concept Dispatcher = (Inner::Dispatcher<T> && ...);
+
 		/// Check if T inherits BASE															
-		template<class T, class BASE>
-		concept DerivedFrom = ::std::derived_from<Decay<T>, Decay<BASE>>;
+		template<class T, class... BASE>
+		concept DerivedFrom = (::std::derived_from<Decay<T>, Decay<BASE>> && ...);
 	
 		/// Check if type has no reference/pointer/extent, etc.						
 		template<class... T>
@@ -402,25 +457,32 @@ namespace Langulus
 		concept MakableOrCopyableNoexcept = ((CopyMakableNoexcept<T> || CopyableNoexcept<T>) && ...);
 			
 		/// Check if type is dense void														
-		template<class T>
-		concept Void = ::std::is_void_v<T>;
+		template<class... T>
+		concept Void = (::std::is_void_v<T> && ...);
 
 		/// A reflected data type is any type that is not void, and is either	
 		/// manually reflected, or an implicitly reflected fundamental type		
-		template<class T>
-		concept Data = !Void<Decay<T>>;
+		template<class... T>
+		concept Data = (!Void<Decay<T>> && ...);
 
-		/// A reflected verb type is any type that inherits Verb						
-		template<class T>
-		concept Verb = DerivedFrom<T, ::Langulus::Flow::Verb>;
+		/// A reflected verb type is any type that inherits Verb, and is binary	
+		/// compatible to a Verb																
+		template<class... T>
+		concept Verb = ((DerivedFrom<T, ::Langulus::Flow::Verb>
+			&& sizeof(T) == sizeof(::Langulus::Flow::Verb)) && ...);
 
-		/// A reflected trait type is any type that inherits Trait					
-		template<class T>
-		concept Trait = DerivedFrom<T, ::Langulus::Anyness::Trait>;
+		/// A reflected trait type is any type that inherits Trait, and is		
+		/// binary compatible to a Trait														
+		template<class... T>
+		concept Trait = ((DerivedFrom<T, ::Langulus::Anyness::Trait>
+			&& sizeof(T) == sizeof(::Langulus::Anyness::Trait)) && ...);
 
-		/// Checks if T inherits Block														
-		template<class T>
-		concept Block = DerivedFrom<T, ::Langulus::Anyness::Block>;
+		/// A reflected block type is any type that inherits Block, and is		
+		/// binary compatible to a Block - this is a mandatory requirement for	
+		/// and CT::Deep type																	
+		template<class... T>
+		concept Block = ((DerivedFrom<T, ::Langulus::Anyness::Block>
+			&& sizeof(T) == sizeof(::Langulus::Anyness::Block)) && ...);
 
 	} // namespace Langulus::CT
 
