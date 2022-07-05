@@ -233,7 +233,7 @@ namespace Langulus
 
 		/// Sortable concept																		
 		/// Any class with an adequate <, >, or combined <=> operator				
-		template<class T, class... U = T>
+		template<class T, class... U>
 		concept Sortable = (Inner::Sortable<T, U> && ...);
 	
 		namespace Inner
@@ -244,7 +244,7 @@ namespace Langulus
 
 		/// Equality comparable concept														
 		/// Any class with an adequate == operator										
-		template<class T, class... U = T>
+		template<class T, class... U>
 		concept Comparable = (Inner::Comparable<T, U> && ...);
 
 		namespace Inner
