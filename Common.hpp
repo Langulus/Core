@@ -465,25 +465,6 @@ namespace Langulus
 		template<class... T>
 		concept Data = (!Void<Decay<T>> && ...);
 
-		/// A reflected verb type is any type that inherits Verb, and is binary	
-		/// compatible to a Verb																
-		template<class... T>
-		concept Verb = ((DerivedFrom<T, ::Langulus::Flow::Verb>
-			&& sizeof(T) == sizeof(::Langulus::Flow::Verb)) && ...);
-
-		/// A reflected trait type is any type that inherits Trait, and is		
-		/// binary compatible to a Trait														
-		template<class... T>
-		concept Trait = ((DerivedFrom<T, ::Langulus::Anyness::Trait>
-			&& sizeof(T) == sizeof(::Langulus::Anyness::Trait)) && ...);
-
-		/// A reflected block type is any type that inherits Block, and is		
-		/// binary compatible to a Block - this is a mandatory requirement for	
-		/// and CT::Deep type																	
-		template<class... T>
-		concept Block = ((DerivedFrom<T, ::Langulus::Anyness::Block>
-			&& sizeof(T) == sizeof(::Langulus::Anyness::Block)) && ...);
-
 	} // namespace Langulus::CT
 
 	/// Pick between two types, based on a condition									
