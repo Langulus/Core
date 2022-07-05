@@ -224,7 +224,7 @@ namespace Langulus
 	
 		namespace Inner
 		{
-			template<class T, class U = T>
+			template<class T, class U>
 			concept Sortable = requires(Decay<T> t, Decay<U> u) {
 				{ t < u } -> Bool;
 				{ t > u } -> Bool;
@@ -238,7 +238,7 @@ namespace Langulus
 	
 		namespace Inner
 		{
-			template<class T, class U = T>
+			template<class T, class U>
 			concept Comparable = ::std::equality_comparable_with<Decay<T>, Decay<U>>;
 		}
 
