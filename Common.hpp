@@ -411,18 +411,6 @@ namespace Langulus
 		template<class... T>
 		concept Hashable = (Inner::Hashable<T> && ...);
 
-		namespace Inner
-		{
-			template<class T>
-			concept Dispatcher = requires (Decay<T> a, ::Langulus::Flow::Verb & b) {
-				{a.Do(b)};
-			};
-		}
-
-		/// Check if T has a dispatcher (has Do() method for verbs)					
-		template<class... T>
-		concept Dispatcher = (Inner::Dispatcher<T> && ...);
-
 		/// Check if T inherits BASE															
 		template<class T, class... BASE>
 		concept DerivedFrom = (::std::derived_from<Decay<T>, Decay<BASE>> && ...);
