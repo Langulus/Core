@@ -250,8 +250,8 @@ namespace Langulus
 		namespace Inner
 		{
 			template<class FROM, class TO>
-			concept Convertible = requires(FROM from, TO to) {
-				to = static_cast<TO>(from);
+			concept Convertible = requires(const FROM& from) {
+				static_cast<TO>(from);
 			};
 		}
 
