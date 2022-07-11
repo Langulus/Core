@@ -66,7 +66,7 @@
 #define LANGULUS_COMPILER_CLANG() 0
 #define LANGULUS_COMPILER_MINGW() 0
 
-#if defined(__GNUC__)
+#if defined(__GNUC__) && !defined(__clang__)
 	// We're on a GNUC Compiler!														
 	#undef LANGULUS_COMPILER_GCC
 	#define LANGULUS_COMPILER_GCC() 1
