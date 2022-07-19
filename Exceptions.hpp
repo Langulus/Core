@@ -12,13 +12,6 @@
 namespace Langulus
 {
 
-   namespace Logger::A
-   {
-      /// The abstract Logger interface, as defined in Langulus.Logger        
-      class Interface;
-   }
-
-
    ///                                                                        
    ///   A common Langulus exception                                          
    ///                                                                        
@@ -27,8 +20,6 @@ namespace Langulus
          : ::std::runtime_error {"<no information provided>"} { }
       Exception(const char* what) noexcept
          : ::std::runtime_error {what} { }
-      Exception(Logger::A::Interface&) noexcept
-			: Exception {} { }
 
       /// Get exception name                                                  
       ///   @return the name of the exception                                 
