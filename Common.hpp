@@ -74,10 +74,12 @@ namespace Langulus
 		struct MetaData;
 		struct MetaVerb;
 		struct MetaTrait;
+		struct MetaConst;
 
 		using DMeta = const MetaData*;
 		using TMeta = const MetaTrait*;
 		using VMeta = const MetaVerb*;
+		using CMeta = const MetaConst*;
 	}
 
 	namespace Anyness

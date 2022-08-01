@@ -52,6 +52,7 @@ namespace Langulus
 
 /// Here's some standard exception definitions                                
 LANGULUS_EXCEPTION(Copy);
+LANGULUS_EXCEPTION(Clone);
 LANGULUS_EXCEPTION(Move);
 LANGULUS_EXCEPTION(Access);
 LANGULUS_EXCEPTION(Convert);
