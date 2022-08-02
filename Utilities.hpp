@@ -82,7 +82,7 @@ namespace Langulus
 		T&& mValue;
 		
 		/// Forward as abandoned																
-		template<class ALT_T>
+		template<class ALT_T = T>
 		NOD() constexpr Abandoned<ALT_T> Forward() const noexcept {
 			static_assert(CT::NotAbandonedOrDisowned<ALT_T>, 
 				"Can't nest abandoned/disowned here");
@@ -127,7 +127,7 @@ namespace Langulus
 		const T& mValue;
 		
 		/// Forward as disowned																	
-		template<class ALT_T>
+		template<class ALT_T = T>
 		NOD() constexpr Disowned<ALT_T> Forward() const noexcept {
 			static_assert(CT::NotAbandonedOrDisowned<ALT_T>,
 				"Can't nest abandoned/disowned here");
