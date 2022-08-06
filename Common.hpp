@@ -311,7 +311,13 @@ namespace Langulus
 		/// Check if T is a fundamental type (either sparse or dense)				
 		template<class... T>
 		concept Fundamental = (::std::is_fundamental_v<Decay<T>> && ...);
-	
+
+		/// Check if type is moved																
+		template<class... T>
+		concept Moved = ((!::std::is_const_v<T> && ::std::is_lvalue_reference_v<T>
+				&& ::std::is_lvalue_reference_v<::std::remove_reference_t<T>>)
+			&& ...);
+
 		/// Check if T is default-constructible											
 		template<class... T>
 		concept Defaultable = (::std::default_initializable<Decay<T>> && ...);
