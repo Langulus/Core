@@ -314,9 +314,7 @@ namespace Langulus
 
 		/// Check if type is moved																
 		template<class... T>
-		concept Moved = ((!::std::is_const_v<T> && ::std::is_lvalue_reference_v<T>
-				&& ::std::is_lvalue_reference_v<::std::remove_reference_t<T>>)
-			&& ...);
+		concept Moved = (::std::is_rvalue_reference_v<T> && ...);
 
 		/// Check if T is default-constructible											
 		template<class... T>
