@@ -15,16 +15,26 @@ namespace Langulus
    ///                                                                        
    ///   A common Langulus exception                                          
    ///                                                                        
-   struct Exception : public ::std::runtime_error {
-      Exception() noexcept
-         : ::std::runtime_error {"<no information provided>"} { }
-      Exception(const char* what) noexcept
-         : ::std::runtime_error {what} { }
+   class Exception {
+   protected:
+      Token mMessage;
+
+   public:
+      constexpr Exception() noexcept
+         : mMessage {"<no information provided>"} { }
+      constexpr Exception(const char* what) noexcept
+         : mMessage {what} { }
 
       /// Get exception name                                                  
       ///   @return the name of the exception                                 
       virtual Token GetName() const noexcept {
          return "Unknown";
+      }
+
+      /// Get exception message                                               
+      ///   @return the message of the exception                              
+      const Token& GetMessage() const noexcept {
+         return mMessage;
       }
    };
 
@@ -39,10 +49,12 @@ namespace Langulus
 } // namespace Langulus
 
 /// Convenience macro of declaring an exception                               
+///   @param name - the name of the exception type                            
+///                 it will be declared in namespace ::Langulus::Except       
 #define LANGULUS_EXCEPTION(name) \
    namespace Langulus::Except \
    { \
-      struct name : public Exception { \
+      struct name : public ::Langulus::Exception { \
          using Exception::Exception; \
          Token GetName() const noexcept override { \
             return #name; \
