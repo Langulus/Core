@@ -318,19 +318,23 @@ namespace Langulus
 
 		/// Check if T is default-constructible											
 		template<class... T>
-		concept Defaultable = (::std::default_initializable<Decay<T>> && ...);
+		concept Defaultable = (requires { Decay<T>{}; } && ...);
 		template<class... T>
 		concept DefaultableNoexcept = Defaultable<T...> && (noexcept(T{}) && ...);
 	
 		/// Check if T is copy-constructible												
 		template<class... T>
-		concept CopyMakable = (::std::copy_constructible<Decay<T>> && ...);
+		concept CopyMakable = (requires (const Decay<T>& a) { 
+			Decay<T> {a};
+		} && ...);
 		template<class... T>
 		concept CopyMakableNoexcept = CopyMakable<T...> && (noexcept(T{Uneval<const T&>()}) && ...);
 			
 		/// Check if T is move-constructible												
 		template<class... T>
-		concept MoveMakable = (::std::move_constructible<Decay<T>> && ...);
+		concept MoveMakable = (requires (Decay<T>&& a) { 
+			Decay<T> {::std::forward<Decay<T>>(a)};
+		} && ...);
 		template<class... T>
 		concept MoveMakableNoexcept = MoveMakable<T...> && (noexcept(T{Uneval<T&&>()}) && ...);
 			
@@ -342,7 +346,7 @@ namespace Langulus
 		{
 			template<class T>
 			concept CloneMakable = requires (Decay<T> a) {
-				{ Decay<T>(a.Clone()) };
+				Decay<T> {a.Clone()};
 			};
 		}
 
@@ -354,7 +358,7 @@ namespace Langulus
 		{
 			template<class T>
 			concept CloneCopyable = requires (Decay<T> a) {
-				{ a = a.Clone() };
+				a = a.Clone();
 			};
 		}
 
