@@ -401,6 +401,7 @@ namespace Langulus
 		{
 			template<class T>
 			concept Resolvable = requires (Decay<T> a) {
+				{a.GetType()} -> Same<::Langulus::RTTI::DMeta>;
 				{a.GetBlock()} -> Same<::Langulus::Anyness::Block>;
 			};
 		}
