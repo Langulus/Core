@@ -28,7 +28,7 @@ namespace Langulus
 		/// Manual exception constructor														
 		///   @param what - custom message about the exception						
 		///   @param location - location of exception, see LANGULUS_LOCATION()	
-		constexpr Exception(const char* what, const char* location = {}) noexcept
+		constexpr Exception(const char* what, const char* location = "<unknown location>") noexcept
 			: mMessage {what}
 			, mLocation {location} { }
 
