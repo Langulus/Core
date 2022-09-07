@@ -12,33 +12,45 @@
 namespace Langulus
 {
 
-   ///                                                                        
-   ///   A common Langulus exception                                          
-   ///                                                                        
-   class Exception {
-   protected:
-      Token mMessage;
+	///																								
+	///   A common Langulus exception														
+	///																								
+	class Exception {
+	protected:
+		Token mMessage;
+		Token mLocation;
 
-   public:
-      constexpr Exception() noexcept
-         : mMessage {"<no information provided>"} { }
-      constexpr Exception(const char* what) noexcept
-         : mMessage {what} { }
+	public:
+		/// Default exception constructor													
+		constexpr Exception() noexcept
+			: mMessage {"<no information provided>"} { }
 
-      /// Get exception name                                                  
-      ///   @return the name of the exception                                 
-      virtual Token GetName() const noexcept {
-         return "Unknown";
-      }
+		/// Manual exception constructor														
+		///   @param what - custom message about the exception						
+		///   @param location - location of exception, see LANGULUS_LOCATION()	
+		constexpr Exception(const char* what, const char* location = {}) noexcept
+			: mMessage {what}
+			, mLocation {location} { }
 
-      /// Get exception message                                               
-      ///   @return the message of the exception                              
-      const Token& GetMessage() const noexcept {
-         return mMessage;
-      }
-   };
+		/// Get exception name																	
+		///   @return the name of the exception											
+		virtual Token GetName() const noexcept {
+			return "Unknown";
+		}
 
-   /// Make sure this is not inlined as it is slow and dramatically enlarges	
+		/// Get exception message																
+		///   @return the message of the exception										
+		const Token& GetMessage() const noexcept {
+			return mMessage;
+		}
+		/// Get exception location																
+		///   @return the location of the exception										
+		const Token& GetLocation() const noexcept {
+			return mLocation;
+		}
+	};
+
+	/// Make sure this is not inlined as it is slow and dramatically enlarges	
 	/// code, thus making other inlinings more difficult								
 	/// Throws are also generally the slow path											
 	template <class E, class... Args>
@@ -48,21 +60,23 @@ namespace Langulus
 
 } // namespace Langulus
 
-/// Convenience macro of declaring an exception                               
-///   @param name - the name of the exception type                            
-///                 it will be declared in namespace ::Langulus::Except       
-#define LANGULUS_EXCEPTION(name) \
-   namespace Langulus::Except \
-   { \
-      struct name : public ::Langulus::Exception { \
-         using Exception::Exception; \
-         Token GetName() const noexcept override { \
-            return #name; \
-         } \
-      }; \
-   }
 
-/// Here's some standard exception definitions                                
+/// Convenience macro of declaring an exception											
+///   @param name - the name of the exception type										
+///                 it will be declared in namespace ::Langulus::Except			
+#define LANGULUS_EXCEPTION(name) \
+	namespace Langulus::Except \
+	{ \
+		struct name : public ::Langulus::Exception { \
+			using Exception::Exception; \
+			Token GetName() const noexcept override { \
+				return #name; \
+			} \
+		}; \
+	}
+
+
+/// Here's some standard exception definitions											
 LANGULUS_EXCEPTION(Copy);
 LANGULUS_EXCEPTION(Clone);
 LANGULUS_EXCEPTION(Move);
@@ -79,3 +93,4 @@ LANGULUS_EXCEPTION(Overflow);
 LANGULUS_EXCEPTION(Underflow);
 LANGULUS_EXCEPTION(ZeroDivision);
 LANGULUS_EXCEPTION(OutOfRange);
+LANGULUS_EXCEPTION(Assertion);

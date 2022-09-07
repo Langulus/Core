@@ -15,10 +15,22 @@
 
 /// Safe mode increases sanity checks all over the code								
 /// Heavy overhead																				
-#ifdef LANGULUS_ENABLE_SAFE_MODE
-	#define LANGULUS_SAFE() 1
+#if defined(LANGULUS_ENABLE_SAFE_MODE) || defined(LANGULUS_ENABLE_ASSERTION_LEVEL)
+	#ifdef LANGULUS_ENABLE_ASSERTION_LEVEL
+		#define LANGULUS_SAFE() LANGULUS_ENABLE_ASSERTION_LEVEL
+	#else
+		#define LANGULUS_SAFE() 1
+	#endif
 #else
 	#define LANGULUS_SAFE() 0
+#endif
+
+/// Testing mode exposes some otherwise private functions							
+/// Overhead is unlikely																		
+#ifdef LANGULUS_ENABLE_TESTING
+	#define LANGULUS_TESTING() 1
+#else
+	#define LANGULUS_TESTING() 0
 #endif
 
 /// Paranoid mode introduces overhead, but zeroes any freed memory				
@@ -34,6 +46,12 @@
 #else
 	#define SAFETY(a)
 	#define SAFETY_NOEXCEPT() noexcept
+#endif
+
+#if LANGULUS_TESTING()
+	#define TESTING(a) a
+#else
+	#define TESTING(a)
 #endif
 
 #if LANGULUS_PARANOID()
@@ -115,3 +133,6 @@
 #else
 	#define LANGULUS_FUNCTION() "(unknown)"
 #endif
+
+/// Macro that generates a string with the function name, file and line			
+#define LANGULUS_LOCATION() LANGULUS_FUNCTION() " at " __FILE__ ":" __LINE__

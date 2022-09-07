@@ -39,8 +39,8 @@
 /// Trigger a static assert (without condition)											
 /// This form is required in order of it to work in 'if constexpr - else'		
 /// https://stackoverflow.com/questions/38304847										
-#define LANGULUS_ASSERT(text) []<bool flag = false>() { static_assert(flag, "FAILED ASSERTION: " text); }()
-#define TODO() LANGULUS_ASSERT("TODO")
+#define LANGULUS_ERROR(text) []<bool flag = false>() { static_assert(flag, "LANGULUS ERROR: " text); }()
+#define TODO() LANGULUS_ERROR("TODO")
 
 #ifdef _MSC_VER
 	/// Force no inlining																		
@@ -160,13 +160,13 @@ namespace Langulus
 	/// Same as ::std::declval, but conveniently named									
 	template<class T>
 	::std::add_rvalue_reference_t<T> Uneval() noexcept {
-		LANGULUS_ASSERT("Calling Uneval is ill-formed");
+		LANGULUS_ERROR("Calling Uneval is ill-formed");
 	}
 
 	/// Same as ::std::declval, but deduces type via argument						
 	template<class T>
 	::std::add_rvalue_reference_t<T> Uneval(T) noexcept {
-		LANGULUS_ASSERT("Calling Uneval is ill-formed");
+		LANGULUS_ERROR("Calling Uneval is ill-formed");
 	}
 
 	/// Remove a reference from type															
