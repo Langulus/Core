@@ -21,7 +21,7 @@ namespace Langulus
 	LANGULUS(ALWAYSINLINE) void Assume(
 		bool condition, 
 		const char* message = "<unknown assumption failure>", 
-		const char* location = {}
+		const char* location = "<unknown location>"
 	) {
 		if constexpr (LEVEL <= LANGULUS_SAFE()) {
 			if (!condition)
@@ -33,8 +33,11 @@ namespace Langulus
 
 
 /// Convenience macro for declaring an assumption										
+/// Throws Except::Assertion if condition isn't met									
 ///   @param level - the level at which assumption will be checked -				
 /// if level is larger than LANGULUS_SAFE(), no check will be performed;		
 /// Zero level assumptions are always checked											
+///	@param condition - the condition to check for failure							
+///	@param message - the exception message, if condition doesn't hold			
 #define LANGULUS_ASSUME(level, condition, message) \
-	::Langulus::Assume<level>(condition, message, LANGULUS_LOCATION());
+	::Langulus::Assume<level>(condition, message, LANGULUS_LOCATION())

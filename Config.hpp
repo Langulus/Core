@@ -134,5 +134,11 @@
 	#define LANGULUS_FUNCTION() "(unknown)"
 #endif
 
+/// Utility macro, that turns its argument to a string literal (inner)			
+#define LANGULUS_STRINGIFY_INNER(x)		#x
+
+/// Utility macro, that turns its argument to a string literal						
+#define LANGULUS_STRINGIFY(x)				LANGULUS_STRINGIFY_INNER(x)
+
 /// Macro that generates a string with the function name, file and line			
-#define LANGULUS_LOCATION() LANGULUS_FUNCTION() " at " __FILE__ ":" __LINE__
+#define LANGULUS_LOCATION() LANGULUS_FUNCTION() " at " __FILE__ ":" LANGULUS_STRINGIFY(__LINE__)
