@@ -345,26 +345,14 @@ namespace Langulus
 		namespace Inner
 		{
 			template<class T>
-			concept CloneMakable = requires (Decay<T> a) {
-				Decay<T> {a.Clone()};
+			concept Clonable = requires (Decay<T> a) {
+				{a.Clone()} -> Same<Decay<T>>;
 			};
 		}
 
-		/// Check if Decay<T> is clone-constructible										
+		/// Check if Decay<T> is clonable													
 		template<class... T>
-		concept CloneMakable = (Inner::CloneMakable<T> && ...);
-
-		namespace Inner
-		{
-			template<class T>
-			concept CloneCopyable = requires (Decay<T> a) {
-				a = a.Clone();
-			};
-		}
-
-		/// Check if Decay<T> is clone-copyable											
-		template<class... T>
-		concept CloneCopyable = (Inner::CloneCopyable<T> && ...);
+		concept Clonable = (Inner::Clonable<T> && ...);
 
 		namespace Inner
 		{
