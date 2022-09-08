@@ -19,8 +19,6 @@ namespace Langulus
 		return static_cast<T&&>(a);
 	}
 
-	/// Forward rvalue as rvalue																
-	/// Same as ::std::forward, but avoid writing the namespace						
 	template<class T>
 	NOD() constexpr T&& Forward(Deref<T>&& a) noexcept {
 		static_assert(!::std::is_lvalue_reference_v<T>, "Bad forward call");
@@ -32,6 +30,16 @@ namespace Langulus
 	template<class T>
 	NOD() constexpr Deref<T>&& Move(T&& a) noexcept {
 		return static_cast<Deref<T>&&>(a);
+	}
+
+	template<class T>
+	NOD() constexpr Deref<T>&& Move(T& a) noexcept {
+		return static_cast<Deref<T>&&>(a);
+	}
+	
+	template<class T>
+	NOD() constexpr Deref<T>&& Move(const T& a) noexcept {
+		LANGULUS_ERROR("Can't move constant item");
 	}
 	
 	/// A namespace dedicated to abstract entities										
