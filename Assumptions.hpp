@@ -17,7 +17,7 @@ namespace Langulus
 	///	@param condition - the condition that must hold true						
 	///	@param message - an error message if condition doesn't hold				
 	///	@param location - the location of the error, if any						
-	template<unsigned LEVEL>
+	template<unsigned LEVEL, class EXCEPTION = Except::Assertion>
 	LANGULUS(ALWAYSINLINE) void Assume(
 		bool condition, 
 		const char* message = "<unknown assumption failure>", 
@@ -25,9 +25,17 @@ namespace Langulus
 	) {
 		if constexpr (LEVEL <= LANGULUS_SAFE()) {
 			if (!condition)
-				Throw<Except::Assertion>(message, location);
+				Throw<EXCEPTION>(message, location);
 		}
 	}
+
+	/// A developer assumption level is higher - it is less likely to fail		
+	/// Useful inside inner functions, that are implementation details			
+	constexpr unsigned DevAssumes {2};
+
+	/// A user assumption level is lower - more likely to fail - no one RTFM!	
+	/// Useful for public interface functions, that are exposed to user input	
+	constexpr unsigned UserAssumes {1};
 
 } // namespace Langulus
 
@@ -41,3 +49,6 @@ namespace Langulus
 ///	@param message - the exception message, if condition doesn't hold			
 #define LANGULUS_ASSUME(level, condition, message) \
 	::Langulus::Assume<level>(condition, message, LANGULUS_LOCATION())
+
+#define LANGULUS_ASSERT(condition, exception, message) \
+	::Langulus::Assume<0, exception>(condition, message, LANGULUS_LOCATION())
