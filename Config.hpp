@@ -141,4 +141,4 @@
 #define LANGULUS_STRINGIFY(x)				LANGULUS_STRINGIFY_INNER(x)
 
 /// Macro that generates a string with the function name, file and line			
-#define LANGULUS_LOCATION() LANGULUS_FUNCTION() " at " __FILE__ ":" LANGULUS_STRINGIFY(__LINE__)
+#define LANGULUS_LOCATION() __FILE__ ":" LANGULUS_STRINGIFY(__LINE__)
