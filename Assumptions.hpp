@@ -52,3 +52,4 @@ namespace Langulus
 
 #define LANGULUS_ASSERT(condition, exception, message) \
 	::Langulus::Assume<0, exception>(condition, message, LANGULUS_LOCATION())
+
