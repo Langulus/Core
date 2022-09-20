@@ -169,6 +169,36 @@ namespace Langulus
 		LANGULUS_ERROR("Calling Uneval is ill-formed");
 	}
 
+	namespace Inner
+	{
+		/// This function declaration is used to decompose a lambda					
+		/// You can use it to extract the argument type of the lambda, using		
+		/// decltype on the return type														
+		/// Handles functors, member/standing function pointers, lambdas			
+		template<class R, class F, class A>
+		A GetFunctionArgument(R(F::*)(A) const) {
+			LANGULUS_ERROR("Calling GetFunctionArgument is ill-formed");
+		}
+		template<class R, class F, class A>
+		A GetFunctionArgument(R(F::*)(A)) {
+			LANGULUS_ERROR("Calling GetFunctionArgument is ill-formed");
+		}
+		template<class R, class A>
+		A GetFunctionArgument(R(*)(A)) {
+			LANGULUS_ERROR("Calling GetFunctionArgument is ill-formed");
+		}
+		template<class F>
+		decltype(GetFunctionArgument(&F::operator())) GetFunctionArgument(F) {
+			LANGULUS_ERROR("Calling GetFunctionArgument is ill-formed");
+		}
+	}
+
+	template<class F>
+	using ArgumentOf = decltype(::Langulus::Inner::GetFunctionArgument(Uneval<F>()));
+	template<class F>
+	using ReturnOf = decltype((Uneval<F>()) (Uneval<ArgumentOf<F>>()));
+
+
 	/// Remove a reference from type															
 	template<class T>
 	using Deref = ::std::remove_reference_t<T>;
