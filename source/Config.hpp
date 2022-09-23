@@ -88,6 +88,7 @@
 	// We're on a GNUC Compiler!														
 	#undef LANGULUS_COMPILER_GCC
 	#define LANGULUS_COMPILER_GCC() 1
+	#pragma GCC diagnostic ignored "-Wtrigraphs"
 #elif defined(_MSC_VER)
 	// We're on a microsoft visual c++ compiler!									
 	#undef LANGULUS_COMPILER_MSVC
@@ -96,10 +97,12 @@
 	// We're on a clang compiler!														
 	#undef LANGULUS_COMPILER_CLANG
 	#define LANGULUS_COMPILER_CLANG() 1
+	#pragma GCC diagnostic ignored "-Wtrigraphs"
 #elif defined(__MINGW32__) || defined(__MINGW64__) 
 	// We're on a mingw compiler!														
 	#undef LANGULUS_COMPILER_MINGW
 	#define LANGULUS_COMPILER_MINGW() 1
+	#pragma GCC diagnostic ignored "-Wtrigraphs"
 #else
 	#error Unrecognized compiler
 #endif

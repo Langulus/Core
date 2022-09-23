@@ -6,8 +6,8 @@
 /// See LICENSE file, or https://www.gnu.org/licenses									
 ///																									
 #pragma once
-#include "../Common.hpp"
-#include "../Exceptions.hpp"
-#include "../TypeList.hpp"
-#include "../Utilities.hpp"
-#include "../Assumptions.hpp"
+#include "../source/Common.hpp"
+#include "../source/Exceptions.hpp"
+#include "../source/TypeList.hpp"
+#include "../source/Utilities.hpp"
+#include "../source/Assumptions.hpp"
