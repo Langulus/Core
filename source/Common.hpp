@@ -293,12 +293,11 @@ namespace Langulus
 		concept Convertible = (Inner::Convertible<FROM, TO> && ...);
 
 		/// Character concept																	
-		/// Notice how char is not here, as it is considered a number				
 		template<class... T>
 		concept Character = ((SameAsOneOf<T, char, unsigned char, char8_t, char16_t, char32_t, wchar_t>) && ...);
 	
 		/// Integer number concept (either sparse or dense)							
-		/// Excludes boolean types																
+		/// Excludes boolean types and char types											
 		template<class... T>
 		concept Integer = ((::std::integral<Decay<T>> && !Bool<T> && !Character<T>) && ...);
 	
@@ -307,13 +306,10 @@ namespace Langulus
 		concept Real = (::std::floating_point<Decay<T>> && ...);
 	
 		/// Built-in number concept (either sparse or dense)							
+		/// Excludes boolean types and char types											
 		template<class... T>
 		concept BuiltinNumber = ((Integer<T> || Real<T>) && ...);
-	
-		/// Number concept (either sparse or dense)										
-		template<class... T>
-		concept Number = (BuiltinNumber<T> && ...);
-	
+
 		/// Check if type is signed (either sparse or dense)							
 		template<class... T>
 		concept Signed = (::std::is_signed_v<Decay<T>> && ...);
@@ -341,6 +337,10 @@ namespace Langulus
 		/// Check if T is a fundamental type (either sparse or dense)				
 		template<class... T>
 		concept Fundamental = (::std::is_fundamental_v<Decay<T>> && ...);
+
+		/// Check if T is an arithmetic type (either sparse or dense)				
+		template<class... T>
+		concept Arithmetic = (::std::is_arithmetic_v<Decay<T>> && ...);
 
 		/// Check if type is moved																
 		template<class... T>
