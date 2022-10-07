@@ -491,5 +491,17 @@ namespace Langulus
 	/// Get the extent of an array, or 1 otherwise										
 	template<class T>
 	constexpr Count ExtentOf = CT::Array<T> ? ::std::extent_v<Deref<T>> : 1;
+	
+	/// When given two arithmetic types, choose the one that is most lossless	
+	/// after an arithmetic operation of any kind is performed between both		
+	template<class T1, class T2>
+	using Lossless = Conditional<
+			// Always pick real numbers over integers if available			
+			(CT::Real<T1> && CT::Integer<T2>)
+			// Always pick signed type if available								
+			|| (CT::Signed<T1> && CT::Unsigned<T2>)
+			// Always pick the larger type as a last resort						
+			|| (sizeof(Decay<T1>) > sizeof(Decay<T2>)
+		), Decay<T1>, Decay<T2>>;
 
 } // namespace Langulus
