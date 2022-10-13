@@ -14,8 +14,8 @@ jobs:
       - name: Dispatch event
         run: >
           curl
-          -d "{\"event_type\": \"Dependency changed\"}"
-          -H "Content-Type: application/json"
-          -H "Authorization: token ${{secrets.TRIGGER_WORKFLOWS}}"
-          -H "Accept: application/vnd.github.everest-preview+json"
-          "https://api.github.com/repos/Langulus/${{matrix.dependents}}/dispatches"
+            -X POST
+            -H "Accept: application/vnd.github+json"
+            -H "Authorization: Bearer ${{secrets.TRIGGER_WORKFLOWS}}"
+            https://api.github.com/repos/Langulus/${{matrix.dependents}}/dispatches
+            -d '{"event_type":"Dependency changed"}'
