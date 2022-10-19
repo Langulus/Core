@@ -91,9 +91,6 @@ namespace Langulus
       class Map;
    }
 
-   /// A byte                                                                 
-   using Byte = ::std::byte;
-
    /// Type for counting things, that depends on architecture                 
    using Count = ::std::size_t;
    constexpr Count CountMax = ::std::numeric_limits<Count>::max();
