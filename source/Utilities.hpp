@@ -38,7 +38,7 @@ namespace Langulus
    }
    
    template<class T>
-   NOD() constexpr Deref<T>&& Move(const T& a) noexcept {
+   NOD() constexpr Deref<T>&& Move(const T&) noexcept {
       LANGULUS_ERROR("Can't move constant item");
    }
    
