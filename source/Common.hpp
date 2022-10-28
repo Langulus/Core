@@ -22,8 +22,8 @@
 /// https://www.fluentcpp.com/2019/05/28/better-macros-better-flags/          
 #define LANGULUS(a) LANGULUS_##a()
 
-/// Checks if a module is included                                            
-#define LANGULUS_MODULE(a) LANGULUS_MODULE_##a()
+/// Checks if a library is included                                           
+#define LANGULUS_LIBRARY(a) LANGULUS_LIBRARY_##a()
 
 /// Checks if a feature is enabled                                            
 #define LANGULUS_FEATURE(a) LANGULUS_FEATURE_##a()

@@ -134,7 +134,7 @@
 #elif defined(__cplusplus) && (__cplusplus >= 201103)
    #define LANGULUS_FUNCTION() __func__
 #else
-   #define LANGULUS_FUNCTION() "(unknown)"
+   #error Not implemented
 #endif
 
 /// Utility macro, that turns its argument to a string literal (inner)        
@@ -143,5 +143,26 @@
 /// Utility macro, that turns its argument to a string literal                
 #define LANGULUS_STRINGIFY(x)				LANGULUS_STRINGIFY_INNER(x)
 
-/// Macro that generates a literal with the function name, file and line      
+/// Macro that generates a literal with the function name, file, and line     
 #define LANGULUS_LOCATION() __FILE__ ":" LANGULUS_STRINGIFY(__LINE__)
+
+/// Shared object export/import attributes                                    
+#if LANGULUS_COMPILER(GCC) || LANGULUS_COMPILER(CLANG)
+	#define LANGULUS_EXPORT() __attribute__ ((dllexport))
+	#define LANGULUS_IMPORT() __attribute__ ((dllimport))
+#elif LANGULUS_COMPILER(MSVC) || LANGULUS_COMPILER(MINGW)
+	#define LANGULUS_EXPORT() __declspec(dllexport)
+	#define LANGULUS_IMPORT() __declspec(dllimport)
+#else 
+   #error Not implemented
+#endif
+
+/// Useful for globally exporting everything, when building the framework     
+#ifdef LANGULUS_EXPORT_ALL
+   #define LANGULUS_API_ALL() LANGULUS_EXPORT()
+#else
+   #define LANGULUS_API_ALL() LANGULUS_IMPORT()
+#endif
+
+/// Used to define imports/exports per module                                 
+#define LANGULUS_API(a) LANGULUS_API_##a()
