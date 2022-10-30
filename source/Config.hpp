@@ -146,10 +146,55 @@
 /// Macro that generates a literal with the function name, file, and line     
 #define LANGULUS_LOCATION() __FILE__ ":" LANGULUS_STRINGIFY(__LINE__)
 
+#define LANGULUS_OS(a) LANGULUS_OS_##a()
+
+#if defined(_WIN32) || defined(__CYGWIN__)
+   #define LANGULUS_OS_WINDOWS() 1
+#else 
+   #define LANGULUS_OS_WINDOWS() 0
+#endif
+
+#if defined(__linux__)
+   #define LANGULUS_OS_LINUX() 1
+#else 
+   #define LANGULUS_OS_LINUX() 0
+#endif
+
+#if defined(__ANDROID__)
+   #define LANGULUS_OS_ANDROID() 1
+#else 
+   #define LANGULUS_OS_ANDROID() 0
+#endif
+
+#if defined(__APPLE__)
+   #define LANGULUS_OS_MACOS() 1
+#else 
+   #define LANGULUS_OS_MACOS() 0
+#endif
+
+#if defined(__unix__)
+   #define LANGULUS_OS_UNIX() 1
+#else 
+   #define LANGULUS_OS_UNIX() 0
+#endif
+
+#if defined(__FreeBSD__)
+   #define LANGULUS_OS_FREEBSD() 1
+#else 
+   #define LANGULUS_OS_FREEBSD() 0
+#endif
+
 /// Shared object export/import attributes                                    
 #if LANGULUS_COMPILER(GCC) || LANGULUS_COMPILER(CLANG)
-	#define LANGULUS_EXPORT() __attribute__ ((dllexport))
-	#define LANGULUS_IMPORT() __attribute__ ((dllimport))
+   #if LANGULUS_OS(WINDOWS)
+	   #define LANGULUS_EXPORT() __attribute__ ((dllexport))
+	   #define LANGULUS_IMPORT() __attribute__ ((dllimport))
+   #elif LANGULUS_OS(LINUX)
+	   #define LANGULUS_EXPORT() __attribute__((visibility("default")))
+	   #define LANGULUS_IMPORT() // requires -fvisibility=hidden as a compiler flag
+   #else
+      #error Not implemented
+   #endif
 #elif LANGULUS_COMPILER(MSVC) || LANGULUS_COMPILER(MINGW)
 	#define LANGULUS_EXPORT() __declspec(dllexport)
 	#define LANGULUS_IMPORT() __declspec(dllimport)
