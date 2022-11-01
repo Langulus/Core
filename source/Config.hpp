@@ -185,21 +185,27 @@
 #endif
 
 /// Shared object export/import attributes                                    
-#if LANGULUS_COMPILER(GCC) || LANGULUS_COMPILER(CLANG)
-   #if LANGULUS_OS(WINDOWS)
-	   #define LANGULUS_EXPORT() __attribute__ ((dllexport))
-	   #define LANGULUS_IMPORT() __attribute__ ((dllimport))
-   #elif LANGULUS_OS(LINUX)
-	   #define LANGULUS_EXPORT() __attribute__((visibility("default")))
-	   #define LANGULUS_IMPORT() // requires -fvisibility=hidden as a compiler flag
-   #else
+#ifdef LANGULUS_BUILD_SHARED_LIBRARIES
+   #if LANGULUS_COMPILER(GCC) || LANGULUS_COMPILER(CLANG)
+      #if LANGULUS_OS(WINDOWS)
+	      #define LANGULUS_EXPORT() __attribute__ ((dllexport))
+	      #define LANGULUS_IMPORT() __attribute__ ((dllimport))
+      #elif LANGULUS_OS(LINUX)
+	      #define LANGULUS_EXPORT() __attribute__ ((visibility("default")))
+	      #define LANGULUS_IMPORT() // requires -fvisibility=hidden      
+      #else
+         #error Not implemented
+      #endif
+   #elif LANGULUS_COMPILER(MSVC) || LANGULUS_COMPILER(MINGW)
+	   #define LANGULUS_EXPORT() __declspec(dllexport)
+	   #define LANGULUS_IMPORT() __declspec(dllimport)
+   #else 
       #error Not implemented
    #endif
-#elif LANGULUS_COMPILER(MSVC) || LANGULUS_COMPILER(MINGW)
-	#define LANGULUS_EXPORT() __declspec(dllexport)
-	#define LANGULUS_IMPORT() __declspec(dllimport)
-#else 
-   #error Not implemented
+#else
+   /// Shared library exports are disabled                                    
+   #define LANGULUS_EXPORT()
+   #define LANGULUS_IMPORT()
 #endif
 
 /// Useful for globally exporting everything, when building the framework     
