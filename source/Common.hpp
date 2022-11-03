@@ -231,11 +231,11 @@ namespace Langulus
       ///                                                                     
       ///   Concepts                                                          
       ///                                                                     
-      /// True if T1 matches all T2                                           
+      /// True if decayed T1 matches all decayed T2                           
       template<class T1, class... T2>
       concept Same = ((::std::same_as<Decay<T1>, Decay<T2>>) && ...);
 
-      /// True if T1 matches any of T2                                        
+      /// True if decayed T1 matches any of decayed T2                        
       template<class T1, class... T2>
       concept SameAsOneOf = ((::std::same_as<Decay<T1>, Decay<T2>>) || ...);
 
@@ -253,11 +253,11 @@ namespace Langulus
       template<class... T>
       concept Dense = (!Sparse<T> && ...);
 
-      /// Check if type is cv-qualified                                       
+      /// Check if type is constant-qualified                                 
       template<class... T>
       concept Constant = (::std::is_const_v<Deptr<Deref<T>>> && ...);
 
-      /// Check if type is not cv-qualified                                   
+      /// Check if type is not constant-qualified                             
       template<class... T>
       concept Mutable = (!Constant<T> && ...);
 
@@ -291,7 +291,7 @@ namespace Langulus
       template<class... T>
       concept SparseUnsigned = ((Unsigned<T> && Sparse<T>) && ...);
 
-      /// Built-in boolean concept                                            
+      /// Built-in boolean concept (either sparse or dense)                   
       template<class... T>
       concept BuiltinBool = (Same<T, bool> && ...);
 
@@ -330,8 +330,8 @@ namespace Langulus
          };
       }
 
-      /// Sortable concept                                                    
-      /// Any class with an adequate <, >, or combined <=> operator           
+      /// Sortable concept for any decayed T and U, with an adequate <, >,    
+      /// or combined <=> operator                                            
       template<class T, class... U>
       concept Sortable = (Inner::Sortable<T, U> && ...);
    
@@ -341,8 +341,8 @@ namespace Langulus
          concept Comparable = ::std::equality_comparable_with<Decay<T>, Decay<U>>;
       }
 
-      /// Equality comparable concept                                         
-      /// Any class with an adequate == operator                              
+      /// Equality comparable concept for any decayed T and U, with an        
+      /// adequate == operator                                                
       template<class T, class... U>
       concept Comparable = (Inner::Comparable<T, U> && ...);
 
@@ -367,33 +367,36 @@ namespace Langulus
       template<class... T>
       concept Arithmetic = (::std::is_arithmetic_v<Decay<T>> && ...);
 
-      /// Check if type is moved                                              
+      /// Check if type is moved (is an rvalue)                               
       template<class... T>
       concept Moved = (::std::is_rvalue_reference_v<T> && ...);
 
-      /// Check if T is default-constructible                                 
+      /// Check if the decayed T is default-constructible                     
       template<class... T>
       concept Defaultable = (requires { Decay<T>{}; } && ...);
+
       template<class... T>
       concept DefaultableNoexcept = Defaultable<T...> && (noexcept(T{}) && ...);
    
-      /// Check if T is copy-constructible                                    
+      /// Check if the decayed T is copy-constructible                        
       template<class... T>
       concept CopyMakable = (requires (const Decay<T>& a) { 
          Decay<T> {a};
       } && ...);
+
       template<class... T>
       concept CopyMakableNoexcept = CopyMakable<T...> && (noexcept(T{Uneval<const T&>()}) && ...);
          
-      /// Check if T is move-constructible                                    
+      /// Check if the decayed T is move-constructible                        
       template<class... T>
       concept MoveMakable = (requires (Decay<T>&& a) { 
          Decay<T> {::std::forward<Decay<T>>(a)};
       } && ...);
+
       template<class... T>
       concept MoveMakableNoexcept = MoveMakable<T...> && (noexcept(T{Uneval<T&&>()}) && ...);
-         
-      /// Check if T is destructible                                          
+      
+      /// Check if the decayed T is destructible                              
       template<class... T>
       concept Destroyable = (::std::destructible<Decay<T>> && ...);
    
@@ -405,7 +408,7 @@ namespace Langulus
          };
       }
 
-      /// Check if Decay<T> is clonable                                       
+      /// Check if the decayed T is clonable                                  
       template<class... T>
       concept Clonable = (Inner::Clonable<T> && ...);
 
@@ -418,17 +421,17 @@ namespace Langulus
          };
       }
 
-      /// Check if T is referencable                                          
+      /// Check if the decayed T is referencable                              
       template<class... T>
       concept Referencable = (Inner::Referencable<T> && ...);
 
-      /// Check if T is copy-assignable                                       
+      /// Check if the decayed T is copy-assignable                           
       template<class... T>
       concept Copyable = (::std::copyable<Decay<T>> && ...);
       template<class... T>
       concept CopyableNoexcept = Copyable<T...> && (noexcept(Uneval<T&>() = Uneval<const T&>()) && ...);
          
-      /// Check if T is move-assignable                                       
+      /// Check if the decayed T is move-assignable                           
       template<class... T>
       concept Movable = (::std::movable<Decay<T>> && ...);
       template<class... T>
@@ -449,7 +452,7 @@ namespace Langulus
          };
       }
 
-      /// Check if T is resolvable at runtime                                 
+      /// Check if the decayed T is resolvable at runtime                     
       template<class... T>
       concept Resolvable = (Inner::Resolvable<T> && ...);
 
@@ -461,11 +464,11 @@ namespace Langulus
          };
       }
 
-      /// Check if T is hashable (has GetHash() method that returns Hash)     
+      /// Check if the decayed T has custom GetHash() method                  
       template<class... T>
       concept Hashable = (Inner::Hashable<T> && ...);
 
-      /// Check if T inherits BASE                                            
+      /// Check if the decayed T inherits BASE                                
       template<class T, class... BASE>
       concept DerivedFrom = (::std::derived_from<Decay<T>, Decay<BASE>> && ...);
    
@@ -480,30 +483,30 @@ namespace Langulus
       constexpr bool IsConstexpr(Lambda) { return true; }
       constexpr bool IsConstexpr(...) { return false; }
       
-      /// Check if type is either move-constructible, or move-assignable      
+      /// Check if decayed T is either move-constructible, or move-assignable 
       template<class... T>
       concept MakableOrMovable = ((MoveMakable<T> || Movable<T>) && ...);
 
-      /// Check if type is either move-constructible, or move-assignable      
+      /// Check if decayed T is either move-constructible, or move-assignable 
       /// (both being noexcept)                                               
       template<class... T>
       concept MakableOrMovableNoexcept = ((MoveMakableNoexcept<T> || MovableNoexcept<T>) && ...);
 
-      /// Check if type is either copy-constructible, or copy-assignable      
+      /// Check if decayed T is either copy-constructible, or copy-assignable 
       template<class... T>
       concept MakableOrCopyable = ((CopyMakable<T> || Copyable<T>) && ...);
 
-      /// Check if type is either copy-constructible, or copy-assignable      
+      /// Check if decayed T is either copy-constructible, or copy-assignable 
       /// (both being noexcept)                                               
       template<class... T>
       concept MakableOrCopyableNoexcept = ((CopyMakableNoexcept<T> || CopyableNoexcept<T>) && ...);
          
-      /// Check if type is dense void                                         
+      /// Check if type is a dense void                                       
       template<class... T>
       concept Void = (::std::is_void_v<T> && ...);
 
-      /// A reflected data type is any type that is not void, and is either   
-      /// manually reflected, or an implicitly reflected fundamental type     
+      /// A reflected data type is any type that is not dense void, and is    
+      /// either manually or implicitly reflected                             
       template<class... T>
       concept Data = (!Void<Decay<T>> && ...);
 
@@ -513,7 +516,7 @@ namespace Langulus
    template<bool CONDITION, class TRUETYPE, class FALSETYPE>
    using Conditional = ::std::conditional_t<CONDITION, TRUETYPE, FALSETYPE>;
 
-   /// Get the extent of an array, or 1 otherwise                             
+   /// Get the extent of an array, or 1 if T is not an array                  
    template<class T>
    constexpr Count ExtentOf = CT::Array<T> ? ::std::extent_v<Deref<T>> : 1;
 
