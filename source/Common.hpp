@@ -232,12 +232,22 @@ namespace Langulus
       ///   Concepts                                                          
       ///                                                                     
       /// True if decayed T1 matches all decayed T2                           
+      ///   @attention ignores type density and cv-qualifications             
       template<class T1, class... T2>
       concept Same = ((::std::same_as<Decay<T1>, Decay<T2>>) && ...);
 
+      /// True if T1 matches exactly T2, including density and cv-qualifiers  
+      template<class T1, class... T2>
+      concept Exact = ((::std::same_as<T1, T2>) && ...);
+
       /// True if decayed T1 matches any of decayed T2                        
+      ///   @attention ignores type density and cv-qualifications             
       template<class T1, class... T2>
       concept SameAsOneOf = ((::std::same_as<Decay<T1>, Decay<T2>>) || ...);
+
+      /// True if T1 matches exactly one of T2, including density and cvq     
+      template<class T1, class... T2>
+      concept ExactAsOneOf = ((::std::same_as<T1, T2>) || ...);
 
       /// True if T is an array (has an extent with [])                       
       /// Sometimes a reference hides the pointer/extent, hence the deref     
@@ -325,8 +335,8 @@ namespace Langulus
       {
          template<class T, class U>
          concept Sortable = requires(Decay<T> t, Decay<U> u) {
-            { t < u } -> BuiltinBool;
-            { t > u } -> BuiltinBool;
+            { t < u } -> Exact<bool>;
+            { t > u } -> Exact<bool>;
          };
       }
 
@@ -404,7 +414,7 @@ namespace Langulus
       {
          template<class T>
          concept Clonable = requires (Decay<T> a) {
-            {a.Clone()} -> Same<Decay<T>>;
+            {a.Clone()} -> Exact<Decay<T>>;
          };
       }
 
@@ -417,7 +427,8 @@ namespace Langulus
          template<class T>
          concept Referencable = requires (const Decay<T> a) {
             {a.Keep()};
-            {a.Free()} -> Same<Count>;
+            {a.Free()} -> Exact<Count>;
+            {a.GetReferences()} -> Exact<Count>;
          };
       }
 
@@ -447,8 +458,8 @@ namespace Langulus
       {
          template<class T>
          concept Resolvable = requires (Decay<T> a) {
-            {a.GetType()} -> Same<RTTI::DMeta>;
-            {a.GetBlock()} -> Same<Anyness::Block>;
+            {a.GetType()} -> Exact<RTTI::DMeta>;
+            {a.GetBlock()} -> Exact<Anyness::Block>;
          };
       }
 
@@ -460,7 +471,7 @@ namespace Langulus
       {
          template<class T>
          concept Hashable = requires (Decay<T> a) {
-            {a.GetHash()} -> Same<Hash>;
+            {a.GetHash()} -> Exact<Hash>;
          };
       }
 
@@ -505,10 +516,9 @@ namespace Langulus
       template<class... T>
       concept Void = (::std::is_void_v<T> && ...);
 
-      /// A reflected data type is any type that is not dense void, and is    
-      /// either manually or implicitly reflected                             
+      /// A reflected data type is any type that is not a dense void          
       template<class... T>
-      concept Data = (!Void<Decay<T>> && ...);
+      concept Data = (!Void<T> && ...);
 
    } // namespace Langulus::CT
 
