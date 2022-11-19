@@ -471,7 +471,8 @@ namespace Langulus
       {
          template<class T>
          concept Hashable = requires (Decay<T> a) {
-            {a.GetHash()} -> Exact<Hash>;
+            {a.GetHash()} -> Same<Hash>;
+            {a.GetHash()} -> Dense;
          };
       }
 
