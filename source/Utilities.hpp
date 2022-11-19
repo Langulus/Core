@@ -106,13 +106,16 @@ namespace Langulus
    template<bool SAFE = false, CT::Unsigned T>
    NOD() LANGULUS(ALWAYSINLINE) constexpr T Roof2(const T& x) noexcept(!SAFE) {
       if constexpr (SAFE) {
-         constexpr T lastPowerOfTwo = T{1} << T{sizeof(T) * 8 - 1};
+         constexpr T lastPowerOfTwo = (T {1}) << (T {sizeof(T) * 8 - 1});
          if (x > lastPowerOfTwo)
             LANGULUS_THROW(Overflow, "Roof2 overflowed");
       }
 
-      return x <= 1 ? x : T {1} << (
-         T {sizeof(size_t) * 8} - CountLeadingZeroes<size_t>(x - T {1})
+      return x <= 1 ? x : T {1} << static_cast<T>(
+         ::std::size_t {sizeof(::std::size_t) * 8} -
+         CountLeadingZeroes<::std::size_t>(
+            static_cast<::std::size_t>(x) - ::std::size_t {1}
+         )
       );
    }
 
@@ -124,7 +127,7 @@ namespace Langulus
    template<bool SAFE = false, CT::Unsigned T>
    NOD() LANGULUS(ALWAYSINLINE) constexpr T Roof2cexpr(const T& x) noexcept(!SAFE) {
       if constexpr (SAFE) {
-         constexpr T lastPowerOfTwo = T{1} << T{sizeof(T) * 8 - 1};
+         constexpr T lastPowerOfTwo = (T {1}) << (T {sizeof(T) * 8 - 1});
          if (x > lastPowerOfTwo)
             LANGULUS_THROW(Overflow, "Roof2 overflowed");
       }
