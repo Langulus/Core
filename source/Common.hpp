@@ -388,6 +388,16 @@ namespace Langulus
       template<class... T>
       concept DefaultableNoexcept = Defaultable<T...> && (noexcept(T{}) && ...);
    
+      /// Check if the decayed T is descriptor-constructible                  
+      template<class... T>
+      concept DescriptorMakable = (requires (const Decay<T>& a, const ::Langulus::Anyness::Any& b) {
+         Decay<T> {b};
+      } && ...);
+
+      template<class... T>
+      concept DescriptorMakableNoexcept = DescriptorMakable<T...>
+         && (noexcept(T{Uneval<const ::Langulus::Anyness::Any&>()}) && ...);
+
       /// Check if the decayed T is copy-constructible                        
       template<class... T>
       concept CopyMakable = (requires (const Decay<T>& a) { 
@@ -395,7 +405,8 @@ namespace Langulus
       } && ...);
 
       template<class... T>
-      concept CopyMakableNoexcept = CopyMakable<T...> && (noexcept(T{Uneval<const T&>()}) && ...);
+      concept CopyMakableNoexcept = CopyMakable<T...>
+         && (noexcept(T{Uneval<const T&>()}) && ...);
          
       /// Check if the decayed T is move-constructible                        
       template<class... T>
@@ -404,7 +415,8 @@ namespace Langulus
       } && ...);
 
       template<class... T>
-      concept MoveMakableNoexcept = MoveMakable<T...> && (noexcept(T{Uneval<T&&>()}) && ...);
+      concept MoveMakableNoexcept = MoveMakable<T...>
+         && (noexcept(T{Uneval<T&&>()}) && ...);
       
       /// Check if the decayed T is destructible                              
       template<class... T>
@@ -439,18 +451,23 @@ namespace Langulus
       /// Check if the decayed T is copy-assignable                           
       template<class... T>
       concept Copyable = (::std::copyable<Decay<T>> && ...);
+
       template<class... T>
-      concept CopyableNoexcept = Copyable<T...> && (noexcept(Uneval<T&>() = Uneval<const T&>()) && ...);
+      concept CopyableNoexcept = Copyable<T...>
+         && (noexcept(Uneval<T&>() = Uneval<const T&>()) && ...);
          
       /// Check if the decayed T is move-assignable                           
       template<class... T>
       concept Movable = (::std::movable<Decay<T>> && ...);
+
       template<class... T>
-      concept MovableNoexcept = Movable<T...> && (noexcept(Uneval<T&>() = Uneval<T&&>()) && ...);
+      concept MovableNoexcept = Movable<T...>
+         && (noexcept(Uneval<T&>() = Uneval<T&&>()) && ...);
          
       /// Check if T is swappable                                             
       template<class... T>
       concept Swappable = (::std::is_swappable_v<T> && ...);
+
       template<class... T>
       concept SwappableNoexcept = (::std::is_nothrow_swappable_v<T> && ...);
          
