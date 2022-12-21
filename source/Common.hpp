@@ -64,6 +64,10 @@ namespace Langulus
    namespace Flow
    {
       class Verb;
+      template<class VERB>
+      struct StaticVerb;
+      template<class VERB, bool NOEXCEPT>
+      struct ArithmeticVerb;
    }
 
    namespace RTTI
@@ -376,10 +380,6 @@ namespace Langulus
       /// Check if T is an arithmetic type (either sparse or dense)           
       template<class... T>
       concept Arithmetic = (::std::is_arithmetic_v<Decay<T>> && ...);
-
-      /// Check if type is moved (is an rvalue)                               
-      template<class... T>
-      concept Moved = (::std::is_rvalue_reference_v<T> && ...);
 
       /// Check if the decayed T is default-constructible                     
       template<class... T>

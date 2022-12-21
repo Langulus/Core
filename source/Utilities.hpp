@@ -24,23 +24,6 @@ namespace Langulus
       static_assert(!::std::is_lvalue_reference_v<T>, "Bad forward call");
       return static_cast<T&&>(a);
    }
-
-   /// Forward as movable                                                     
-   /// Same as ::std::move, but avoids writing the namespace                  
-   template<class T>
-   NOD() constexpr Deref<T>&& Move(T&& a) noexcept {
-      return static_cast<Deref<T>&&>(a);
-   }
-
-   template<class T>
-   NOD() constexpr Deref<T>&& Move(T& a) noexcept {
-      return static_cast<Deref<T>&&>(a);
-   }
-   
-   template<class T>
-   NOD() constexpr Deref<T>&& Move(const T&) noexcept {
-      LANGULUS_ERROR("Can't move constant item");
-   }
    
    /// Get number of digits inside an integer                                 
    /// The routine is as statically optimized as possible                     
@@ -104,7 +87,7 @@ namespace Langulus
    ///   @param x - the unsigned integer to round up                          
    ///   @return the closest upper power-of-two to x                          
    template<bool SAFE = false, CT::Unsigned T>
-   NOD() LANGULUS(ALWAYSINLINE) constexpr T Roof2(const T& x) noexcept(!SAFE) {
+   NOD() constexpr T Roof2(const T& x) noexcept(!SAFE) {
       if constexpr (SAFE) {
          constexpr T lastPowerOfTwo = (T {1}) << (T {sizeof(T) * 8 - 1});
          if (x > lastPowerOfTwo)
@@ -125,7 +108,7 @@ namespace Langulus
    ///   @param x - the unsigned integer to round up                          
    ///   @return the closest upper power-of-two to x                          
    template<bool SAFE = false, CT::Unsigned T>
-   NOD() LANGULUS(ALWAYSINLINE) constexpr T Roof2cexpr(const T& x) noexcept(!SAFE) {
+   NOD() constexpr T Roof2cexpr(const T& x) noexcept(!SAFE) {
       if constexpr (SAFE) {
          constexpr T lastPowerOfTwo = (T {1}) << (T {sizeof(T) * 8 - 1});
          if (x > lastPowerOfTwo)

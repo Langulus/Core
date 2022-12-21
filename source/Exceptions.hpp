@@ -42,12 +42,14 @@ namespace Langulus
 
       /// Get exception message                                               
       ///   @return the message of the exception                              
+      LANGULUS(ALWAYSINLINE)
       const Token& GetMessage() const noexcept {
          return mMessage;
       }
 
       /// Get exception location                                              
       ///   @return the location of the exception                             
+      LANGULUS(ALWAYSINLINE)
       const Token& GetLocation() const noexcept {
          return mLocation;
       }
@@ -91,6 +93,7 @@ LANGULUS_EXCEPTION(Reallocate);
 LANGULUS_EXCEPTION(Mutate);
 LANGULUS_EXCEPTION(Construct);
 LANGULUS_EXCEPTION(Destruct);
+LANGULUS_EXCEPTION(Assign);
 LANGULUS_EXCEPTION(Reference);
 LANGULUS_EXCEPTION(Overflow);
 LANGULUS_EXCEPTION(Underflow);

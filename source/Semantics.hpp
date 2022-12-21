@@ -15,16 +15,64 @@ namespace Langulus
    /// A namespace dedicated to abstract entities                             
    namespace A
    {
+
+      /// An abstract semantic value                                          
+      struct Semantic {};
+
+      /// An abstract copied value                                            
+      struct Copied : public Semantic {
+         static constexpr bool Keep = true;
+         static constexpr bool Move = false;
+         static constexpr bool Shallow = true;
+      };
+
+      /// An abstract moved value                                             
+      struct Moved : public Semantic {
+         static constexpr bool Keep = true;
+         static constexpr bool Move = true;
+         static constexpr bool Shallow = true;
+      };
+
       /// An abstract abandoned value                                         
-      struct Abandoned {};
+      struct Abandoned : public Semantic {
+         static constexpr bool Keep = false;
+         static constexpr bool Move = true;
+         static constexpr bool Shallow = true;
+      };
+
       /// An abstract disowned value                                          
-      struct Disowned {};
+      struct Disowned : public Semantic {
+         static constexpr bool Keep = false;
+         static constexpr bool Move = false;
+         static constexpr bool Shallow = true;
+      };
+
       /// An abstract cloned value                                            
-      struct Cloned {};
+      struct Cloned : public Semantic {
+         static constexpr bool Keep = true;
+         static constexpr bool Move = false;
+         static constexpr bool Shallow = false;
+      };
    }
 
    namespace CT
    {
+      /// Checks if a type has special semantics                              
+      template<class... T>
+      concept Semantic = (DerivedFrom<T, A::Semantic> && ...);
+
+      /// Checks if a type has no special semantics                           
+      template<class... T>
+      concept NotSemantic = (!Semantic<T> && ...);
+
+      /// Check if a type is copied                                           
+      template<class... T>
+      concept Copied = (DerivedFrom<T, A::Copied> && ...);
+
+      /// Check if a type is moved                                            
+      template<class... T>
+      concept Moved = (DerivedFrom<T, A::Moved> && ...);
+
       /// Check if a type is abandoned                                        
       template<class... T>
       concept Abandoned = (DerivedFrom<T, A::Abandoned> && ...);
@@ -36,16 +84,111 @@ namespace Langulus
       /// Check if a type is cloned                                           
       template<class... T>
       concept Cloned = (DerivedFrom<T, A::Cloned> && ...);
-
-      /// Checks if a type has special semantics                              
-      template<class... T>
-      concept Semantic = ((Disowned<T> || Abandoned<T> || Cloned<T>) && ...);
-
-      /// Checks if a type has no special semantics                           
-      template<class... T>
-      concept NotSemantic = (!Semantic<T> && ...);
    }
    
+   
+   ///                                                                        
+   /// Copied value intermediate type, use in constructors and assignments    
+   /// to shallow-copy container explicitly                                   
+   ///   @tparam T - the type to copy                                         
+   template<class T>
+   struct Copied : public A::Copied {
+      using Type = T;
+
+      template<class ALT_T>
+      static constexpr bool Is = CT::Same<Type, ALT_T>;
+      template<class ALT_T>
+      static constexpr bool Exact = CT::Exact<Type, ALT_T>;
+
+      const T& mValue;
+
+      Copied() = delete;
+      Copied(const Copied&) = delete;
+      explicit constexpr Copied(Copied&&) noexcept = default;
+      explicit constexpr Copied(const T& value) noexcept
+         : mValue {value} {
+         static_assert(CT::NotSemantic<T>, "Can't nest semantics");
+      }
+      
+      /// Forward as copied                                                   
+      template<class ALT_T = T>
+      NOD() constexpr Copied<ALT_T> Forward() const noexcept {
+         static_assert(CT::NotSemantic<ALT_T>, "Can't nest semantics");
+         return Copied<ALT_T>{mValue};
+      }
+
+      /// Copy something else                                                 
+      template<class ALT_T>
+      NOD() static constexpr Copied<ALT_T> Nest(const ALT_T& value) noexcept {
+         return Copied<ALT_T>{value};
+      }
+
+      template<class ALT_T>
+      using Nested = Copied<ALT_T>;
+   };
+   
+   /// Copy a value                                                           
+   template<CT::NotSemantic T>
+   NOD() constexpr auto Copy(const T& item) noexcept {
+      return Copied<T>{item};
+   }
+   
+
+   ///                                                                        
+   /// Moved value intermediate type, use in constructors and assignments     
+   /// to move data explicitly                                                
+   ///   @tparam T - the type to move                                         
+   template<class T>
+   struct Moved : public A::Moved {
+      static_assert(!::std::is_const_v<T>,
+         "T must be mutable in order to be moved");
+
+      using Type = T;
+
+      template<class ALT_T>
+      static constexpr bool Is = CT::Same<Type, ALT_T>;
+      template<class ALT_T>
+      static constexpr bool Exact = CT::Exact<Type, ALT_T>;
+
+      T&& mValue;
+
+      Moved() = delete;
+      Moved(const Moved&) = delete;
+      explicit constexpr Moved(Moved&&) noexcept = default;
+      explicit constexpr Moved(T&& value) noexcept
+         : mValue {::std::forward<T>(value)} {
+         static_assert(CT::NotSemantic<T>, "Can't nest semantics");
+      }
+
+      /// Forward as moved                                                    
+      template<class ALT_T = T>
+      NOD() constexpr Moved<ALT_T> Forward() const noexcept {
+         static_assert(CT::NotSemantic<ALT_T>, "Can't nest semantics");
+         return Moved<ALT_T>{::std::forward<ALT_T>(mValue)};
+      }
+
+      /// Move something else                                                 
+      template<class ALT_T>
+      NOD() static constexpr Moved<ALT_T> Nest(ALT_T&& value) noexcept {
+         return Moved<ALT_T>{::std::forward<ALT_T>(value)};
+      }
+
+      template<class ALT_T>
+      using Nested = Moved<ALT_T>;
+   };
+   
+   /// Move data                                                              
+   template<CT::NotSemantic T>
+   NOD() constexpr auto Move(T&& a) noexcept {
+      return Moved<T>{::std::forward<T>(a)};
+   }
+
+   /// Move data                                                              
+   template<CT::NotSemantic T>
+   NOD() constexpr auto Move(T& a) noexcept {
+      return Moved<T>{::std::move(a)};
+   }
+
 
    ///                                                                        
    /// Abandoned value intermediate type, can be used in constructors and     
@@ -57,7 +200,15 @@ namespace Langulus
    ///   @tparam T - the type to abandon                                      
    template<class T>
    struct Abandoned : public A::Abandoned {
+      static_assert(!::std::is_const_v<T>,
+         "T must be mutable in order to be abandoned");
+
       using Type = T;
+
+      template<class ALT_T>
+      static constexpr bool Is = CT::Same<Type, ALT_T>;
+      template<class ALT_T>
+      static constexpr bool Exact = CT::Exact<Type, ALT_T>;
 
       T&& mValue;
 
@@ -65,7 +216,7 @@ namespace Langulus
       Abandoned(const Abandoned&) = delete;
       explicit constexpr Abandoned(Abandoned&&) noexcept = default;
       explicit constexpr Abandoned(T&& value) noexcept 
-         : mValue {Langulus::Forward<T>(value)} {
+         : mValue {::std::forward<T>(value)} {
          static_assert(CT::NotSemantic<T>, "Can't nest semantics");
       }
       
@@ -73,10 +224,17 @@ namespace Langulus
       template<class ALT_T = T>
       NOD() constexpr Abandoned<ALT_T> Forward() const noexcept {
          static_assert(CT::NotSemantic<ALT_T>, "Can't nest semantics");
-         return Abandoned<ALT_T>{
-            Langulus::Forward<ALT_T>(mValue)
-         };
+         return Abandoned<ALT_T>{::std::forward<ALT_T>(mValue)};
       }
+
+      /// Abandon something else                                              
+      template<class ALT_T>
+      NOD() static constexpr Abandoned<ALT_T> Nest(ALT_T&& value) noexcept {
+         return Abandoned<ALT_T>{::std::forward<ALT_T>(value)};
+      }
+
+      template<class ALT_T>
+      using Nested = Abandoned<ALT_T>;
    };
    
    /// Abandon a value                                                        
@@ -84,7 +242,7 @@ namespace Langulus
    /// essentially saving up on a couple of instructions                      
    template<CT::NotSemantic T>
    NOD() constexpr auto Abandon(T&& a) noexcept {
-      return Abandoned<T>{Langulus::Forward<T>(a)};
+      return Abandoned<T>{::std::forward<T>(a)};
    }
 
    /// Abandon a value                                                        
@@ -92,17 +250,22 @@ namespace Langulus
    /// essentially saving up on a couple of instructions                      
    template<CT::NotSemantic T>
    NOD() constexpr auto Abandon(T& a) noexcept {
-      return Abandoned<T>{Langulus::Move(a)};
+      return Abandoned<T>{::std::move(a)};
    }
 
 
    ///                                                                        
    /// Disowned value intermediate type, use in constructors and assignments  
-   /// to copy container while avoiding referencing it                        
+   /// to copy container without gaining ownership                            
    ///   @tparam T - the type to disown                                       
    template<class T>
    struct Disowned : public A::Disowned {
       using Type = T;
+
+      template<class ALT_T>
+      static constexpr bool Is = CT::Same<Type, ALT_T>;
+      template<class ALT_T>
+      static constexpr bool Exact = CT::Exact<Type, ALT_T>;
 
       const T& mValue;
 
@@ -119,7 +282,16 @@ namespace Langulus
       NOD() constexpr Disowned<ALT_T> Forward() const noexcept {
          static_assert(CT::NotSemantic<ALT_T>, "Can't nest semantics");
          return Disowned<ALT_T>{mValue};
-      }		
+      }
+
+      /// Disown something else                                               
+      template<class ALT_T>
+      NOD() static constexpr Disowned<ALT_T> Nest(const ALT_T& value) noexcept {
+         return Disowned<ALT_T>{value};
+      }
+
+      template<class ALT_T>
+      using Nested = Disowned<ALT_T>;
    };
    
    /// Disown a value                                                         
@@ -132,11 +304,16 @@ namespace Langulus
 
    ///                                                                        
    /// Cloned value intermediate type, use in constructors and assignments    
-   /// to clone container, doing a deep copy instead of the default shallow   
+   /// to clone container, doing a deep copy instead of default shallow copy  
    ///   @tparam T - the type to clone                                        
    template<class T>
    struct Cloned : public A::Cloned {
       using Type = T;
+
+      template<class ALT_T>
+      static constexpr bool Is = CT::Same<Type, ALT_T>;
+      template<class ALT_T>
+      static constexpr bool Exact = CT::Exact<Type, ALT_T>;
 
       const T& mValue;
 
@@ -148,13 +325,21 @@ namespace Langulus
          static_assert(CT::NotSemantic<T>, "Can't nest semantics");
       }
       
-      
       /// Forward as cloned                                                   
       template<class ALT_T = T>
       NOD() constexpr Cloned<ALT_T> Forward() const noexcept {
          static_assert(CT::NotSemantic<ALT_T>, "Can't nest semantics");
          return Cloned<ALT_T>{mValue};
-      }		
+      }
+
+      /// Clone something else                                                
+      template<class ALT_T>
+      NOD() static constexpr Cloned<ALT_T> Nest(const ALT_T& value) noexcept {
+         return Cloned<ALT_T>{value};
+      }
+
+      template<class ALT_T>
+      using Nested = Cloned<ALT_T>;
    };
    
    /// Clone a value                                                          

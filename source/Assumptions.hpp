@@ -18,7 +18,8 @@ namespace Langulus
    ///   @param message - an error message if condition doesn't hold          
    ///   @param location - the location of the error, if any                  
    template<unsigned LEVEL, class EXCEPTION = Except::Assertion>
-   LANGULUS(ALWAYSINLINE) void Assume(
+   LANGULUS(ALWAYSINLINE)
+   void Assume(
       bool condition, 
       const char* message = "<unknown assumption failure>", 
       const char* location = "<unknown location>"
@@ -51,7 +52,7 @@ namespace Langulus
    ::Langulus::Assume<level>(condition, message, LANGULUS_LOCATION())
 
 #define LANGULUS_ASSERT(condition, exception, message) \
-   ::Langulus::Assume<0, exception>(condition, message, LANGULUS_LOCATION())
+   ::Langulus::Assume<0, ::Langulus::Except::exception>(condition, message, LANGULUS_LOCATION())
 
 #define LANGULUS_THROW(exception, message) \
    ::Langulus::Throw<::Langulus::Except::exception>(message, LANGULUS_LOCATION())
