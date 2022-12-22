@@ -161,12 +161,17 @@ namespace Langulus
 
       /// Move something else                                                 
       template<class ALT_T>
+      NOD() static constexpr Moved<ALT_T> Nest(ALT_T& value) noexcept {
+         return Moved<ALT_T>{::std::move(value)};
+      }
+
+      template<class ALT_T>
       NOD() static constexpr Moved<ALT_T> Nest(ALT_T&& value) noexcept {
          return Moved<ALT_T>{::std::forward<ALT_T>(value)};
       }
 
       template<class ALT_T>
-      using Nested = Moved<ALT_T>;
+      using Nested = decltype(Nest(Uneval<ALT_T>()));
    };
    
    /// Move data                                                              
@@ -217,12 +222,17 @@ namespace Langulus
 
       /// Abandon something else                                              
       template<class ALT_T>
+      NOD() static constexpr Abandoned<ALT_T> Nest(ALT_T& value) noexcept {
+         return Abandoned<ALT_T>{::std::move(value)};
+      }
+
+      template<class ALT_T>
       NOD() static constexpr Abandoned<ALT_T> Nest(ALT_T&& value) noexcept {
          return Abandoned<ALT_T>{::std::forward<ALT_T>(value)};
       }
 
       template<class ALT_T>
-      using Nested = Abandoned<ALT_T>;
+      using Nested = decltype(Nest(Uneval<ALT_T>()));
    };
    
    /// Abandon a value                                                        
