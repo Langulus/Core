@@ -59,7 +59,7 @@ namespace Langulus
    {
       /// Checks if a type has special semantics                              
       template<class... T>
-      concept Semantic = (DerivedFrom<T, A::Semantic> && ...);
+      concept Semantic = ((Dense<T> && DerivedFrom<T, A::Semantic>) && ...);
 
       /// Checks if a type has no special semantics                           
       template<class... T>
@@ -67,23 +67,23 @@ namespace Langulus
 
       /// Check if a type is copied                                           
       template<class... T>
-      concept Copied = (DerivedFrom<T, A::Copied> && ...);
+      concept Copied = ((Dense<T> && DerivedFrom<T, A::Copied>) && ...);
 
       /// Check if a type is moved                                            
       template<class... T>
-      concept Moved = (DerivedFrom<T, A::Moved> && ...);
+      concept Moved = ((Dense<T> && DerivedFrom<T, A::Moved>) && ...);
 
       /// Check if a type is abandoned                                        
       template<class... T>
-      concept Abandoned = (DerivedFrom<T, A::Abandoned> && ...);
+      concept Abandoned = ((Dense<T> && DerivedFrom<T, A::Abandoned>) && ...);
 
       /// Check if a type is disowned                                         
       template<class... T>
-      concept Disowned = (DerivedFrom<T, A::Disowned> && ...);
+      concept Disowned = ((Dense<T> && DerivedFrom<T, A::Disowned>) && ...);
 
       /// Check if a type is cloned                                           
       template<class... T>
-      concept Cloned = (DerivedFrom<T, A::Cloned> && ...);
+      concept Cloned = ((Dense<T> && DerivedFrom<T, A::Cloned>) && ...);
    }
    
    
@@ -93,12 +93,8 @@ namespace Langulus
    ///   @tparam T - the type to copy                                         
    template<class T>
    struct Copied : public A::Copied {
-      using Type = T;
-
-      template<class ALT_T>
-      static constexpr bool Is = CT::Same<Type, ALT_T>;
-      template<class ALT_T>
-      static constexpr bool Exact = CT::Exact<Type, ALT_T>;
+      // Makes the type CT::Typed                                       
+      using MemberType = T;
 
       const T& mValue;
 
@@ -143,12 +139,8 @@ namespace Langulus
       static_assert(!::std::is_const_v<T>,
          "T must be mutable in order to be moved");
 
-      using Type = T;
-
-      template<class ALT_T>
-      static constexpr bool Is = CT::Same<Type, ALT_T>;
-      template<class ALT_T>
-      static constexpr bool Exact = CT::Exact<Type, ALT_T>;
+      // Makes the type CT::Typed                                       
+      using MemberType = T;
 
       T&& mValue;
 
@@ -203,12 +195,8 @@ namespace Langulus
       static_assert(!::std::is_const_v<T>,
          "T must be mutable in order to be abandoned");
 
-      using Type = T;
-
-      template<class ALT_T>
-      static constexpr bool Is = CT::Same<Type, ALT_T>;
-      template<class ALT_T>
-      static constexpr bool Exact = CT::Exact<Type, ALT_T>;
+      // Makes the type CT::Typed                                       
+      using MemberType = T;
 
       T&& mValue;
 
@@ -260,12 +248,8 @@ namespace Langulus
    ///   @tparam T - the type to disown                                       
    template<class T>
    struct Disowned : public A::Disowned {
-      using Type = T;
-
-      template<class ALT_T>
-      static constexpr bool Is = CT::Same<Type, ALT_T>;
-      template<class ALT_T>
-      static constexpr bool Exact = CT::Exact<Type, ALT_T>;
+      // Makes the type CT::Typed                                       
+      using MemberType = T;
 
       const T& mValue;
 
@@ -308,12 +292,8 @@ namespace Langulus
    ///   @tparam T - the type to clone                                        
    template<class T>
    struct Cloned : public A::Cloned {
-      using Type = T;
-
-      template<class ALT_T>
-      static constexpr bool Is = CT::Same<Type, ALT_T>;
-      template<class ALT_T>
-      static constexpr bool Exact = CT::Exact<Type, ALT_T>;
+      // Makes the type CT::Typed                                       
+      using MemberType = T;
 
       const T& mValue;
 
