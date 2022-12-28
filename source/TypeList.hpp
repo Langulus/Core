@@ -40,9 +40,11 @@ namespace Langulus
    public:
       template<Offset INDEX>
       using At = typename AtWrapper<INDEX>::type;
+      using First = Head<T...>;
 
       template<class... MORE>
-      static constexpr auto Push(TTypeList<MORE...>) -> TTypeList<T..., MORE...>;
+      static constexpr auto Push(TTypeList<MORE...>)
+         -> TTypeList<T..., MORE...>;
    };
 
 
