@@ -197,7 +197,7 @@ namespace Langulus
    NOD() constexpr decltype(auto) DenseCast(T& a) noexcept {
       if constexpr (CT::Array<T>)
          return DenseCast(a[0]);
-      else if constexpr (CT::Sparse<T>)
+      else if constexpr (CT::Sparse<T> || requires(T t) { {*t} -> CT::Dense; })
          return *a;
       else
          return a;
@@ -209,7 +209,7 @@ namespace Langulus
    NOD() constexpr decltype(auto) DenseCast(const T& a) noexcept {
       if constexpr (CT::Array<T>)
          return DenseCast(a[0]);
-      else if constexpr (CT::Sparse<T>)
+      else if constexpr (CT::Sparse<T> || requires(T t) { {*t} -> CT::Dense; })
          return *a;
       else
          return a;
