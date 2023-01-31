@@ -330,10 +330,20 @@ namespace Langulus
       template<class... T>
       concept BuiltinReal = (::std::floating_point<Decay<T>> && ...);
 
-      /// Built-in number concept (either sparse or dense)							
+      /// Built-in number concept (either sparse or dense)                    
       ///   @attention excludes boolean types and char types                  
       template<class... T>
       concept BuiltinNumber = ((BuiltinInteger<T> || BuiltinReal<T>) && ...);
+
+      /// Dense built-in number concept                                       
+      ///   @attention excludes boolean types and char types                  
+      template<class... T>
+      concept DenseBuiltinNumber = ((BuiltinNumber<T> && Dense<T>) && ...);
+
+      /// Sparse built-in number concept                                      
+      ///   @attention excludes boolean types and char types                  
+      template<class... T>
+      concept SparseBuiltinNumber = ((BuiltinNumber<T> && Sparse<T>) && ...);
 
       namespace Inner
       {
@@ -373,6 +383,14 @@ namespace Langulus
       template<class FROM, class... TO>
       concept Convertible = (Inner::Convertible<FROM, TO> && ...);
 
+      /// Check if T is complete (defined), by exploiting sizeof              
+      /// Usefulness of this is limited to the first instantiation, and       
+      /// that is how it is used upon reflection by RTTI. Any other use is    
+      /// undefined and might produce wrong results on some compilers.        
+      /// https://stackoverflow.com/questions/21119281                        
+      template<class... T>
+      concept Complete = ((sizeof(T) == sizeof(T)) && ... );
+
       /// Check if T is a fundamental type (either sparse or dense)           
       template<class... T>
       concept Fundamental = (::std::is_fundamental_v<Decay<T>> && ...);
@@ -410,9 +428,9 @@ namespace Langulus
          
       /// Check if the decayed T is move-constructible                        
       template<class... T>
-      concept MoveMakable = (requires (Decay<T>&& a) { 
+      concept MoveMakable = ((CT::Mutable<T> && requires (Decay<T>&& a) { 
          Decay<T> {::std::forward<Decay<T>>(a)};
-      } && ...);
+      }) && ...);
 
       template<class... T>
       concept MoveMakableNoexcept = MoveMakable<T...>
@@ -448,9 +466,9 @@ namespace Langulus
       template<class... T>
       concept Referencable = (Inner::Referencable<T> && ...);
 
-      /// Check if the decayed T is copy-assignable                           
+      /// Check if the decayed T is copy-assignable, if mutable               
       template<class... T>
-      concept Copyable = (::std::copyable<Decay<T>> && ...);
+      concept Copyable = ((Mutable<T> && ::std::copyable<Decay<T>>) && ...);
 
       template<class... T>
       concept CopyableNoexcept = Copyable<T...>
@@ -458,7 +476,7 @@ namespace Langulus
          
       /// Check if the decayed T is move-assignable                           
       template<class... T>
-      concept Movable = (::std::movable<Decay<T>> && ...);
+      concept Movable = ((Mutable<T> && ::std::movable<Decay<T>>) && ...);
 
       template<class... T>
       concept MovableNoexcept = Movable<T...>
@@ -466,10 +484,10 @@ namespace Langulus
          
       /// Check if T is swappable                                             
       template<class... T>
-      concept Swappable = (::std::is_swappable_v<T> && ...);
+      concept Swappable = ((Mutable<T> && ::std::is_swappable_v<T>) && ...);
 
       template<class... T>
-      concept SwappableNoexcept = (::std::is_nothrow_swappable_v<T> && ...);
+      concept SwappableNoexcept = ((Mutable<T> && ::std::is_nothrow_swappable_v<T>) && ...);
          
       namespace Inner
       {
