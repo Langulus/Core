@@ -222,11 +222,23 @@ namespace Langulus
    template<class T>
    using Deext = ::std::remove_extent_t<T>;
 
-   /// Strip a typename to its root type, removing qualifiers/pointers/etc.   
-   /// Note that this strips only 1D array, one reference, one pointer...     
-   /// You can chain multiple Decay<Decay<T>> if not sure                     
+   namespace Inner
+   {
+      template<class T>
+      NOD() constexpr auto NestedDecay() noexcept {
+         using Stripped = Decvq<Deptr<Deext<Deref<T>>>>;
+         if constexpr (::std::same_as<T, Stripped>)
+            return static_cast<Stripped*>(nullptr);
+         else
+            return NestedDecay<Stripped>();
+      }
+   }
+
+   /// Strip a typename to its origin type, removing qualifiers/pointers/etc. 
+   /// This strongly guarantees, that it strips EVERYTHING, including nested  
+   /// pointers, extents, etc.                                                
    template<class T>
-   using Decay = Decvq<Deptr<Deext<Deref<T>>>>;
+   using Decay = Deptr<decltype(Inner::NestedDecay<T>())>;
 
    /// A namespace dedicated for Compile Time checks and ConcepTs             
    namespace CT
