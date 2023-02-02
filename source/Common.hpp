@@ -247,6 +247,15 @@ namespace Langulus
       ///                                                                     
       ///   Concepts                                                          
       ///                                                                     
+
+      /// Check if T is complete (defined), by exploiting sizeof              
+      /// Usefulness of this is limited to the first instantiation, and       
+      /// that is how it is used upon reflection by RTTI. Any other use is    
+      /// undefined and might produce wrong results on some compilers.        
+      /// https://stackoverflow.com/questions/21119281                        
+      template<class... T>
+      concept Complete = ((sizeof(T) == sizeof(T)) && ...);
+
       /// True if decayed T1 matches all decayed T2                           
       ///   @attention ignores type density and cv-qualifications             
       template<class T1, class... T2>
@@ -360,10 +369,11 @@ namespace Langulus
       namespace Inner
       {
          template<class T, class U>
-         concept Sortable = requires(Decay<T> t, Decay<U> u) {
-            { t < u } -> Exact<bool>;
-            { t > u } -> Exact<bool>;
-         };
+         concept Sortable = Complete<Decay<T>, Decay<U>>
+            && requires (Decay<T> t, Decay<U> u) {
+               { t < u } -> Exact<bool>;
+               { t > u } -> Exact<bool>;
+            };
       }
 
       /// Sortable concept for any decayed T and U, with an adequate <, >,    
@@ -374,7 +384,8 @@ namespace Langulus
       namespace Inner
       {
          template<class T, class U>
-         concept Comparable = ::std::equality_comparable_with<Decay<T>, Decay<U>>;
+         concept Comparable = Complete<Decay<T>, Decay<U>>
+            && ::std::equality_comparable_with<Decay<T>, Decay<U>>;
       }
 
       /// Equality comparable concept for any decayed T and U, with an        
@@ -395,34 +406,29 @@ namespace Langulus
       template<class FROM, class... TO>
       concept Convertible = (Inner::Convertible<FROM, TO> && ...);
 
-      /// Check if T is complete (defined), by exploiting sizeof              
-      /// Usefulness of this is limited to the first instantiation, and       
-      /// that is how it is used upon reflection by RTTI. Any other use is    
-      /// undefined and might produce wrong results on some compilers.        
-      /// https://stackoverflow.com/questions/21119281                        
-      template<class... T>
-      concept Complete = ((sizeof(T) == sizeof(T)) && ... );
-
       /// Check if T is a fundamental type (either sparse or dense)           
       template<class... T>
-      concept Fundamental = (::std::is_fundamental_v<Decay<T>> && ...);
+      concept Fundamental = ((Complete<Decay<T>>
+         && ::std::is_fundamental_v<Decay<T>>) && ...);
 
       /// Check if T is an arithmetic type (either sparse or dense)           
       template<class... T>
-      concept Arithmetic = (::std::is_arithmetic_v<Decay<T>> && ...);
+      concept Arithmetic = ((Complete<Decay<T>>
+         && ::std::is_arithmetic_v<Decay<T>>) && ...);
 
       /// Check if the decayed T is default-constructible                     
       template<class... T>
-      concept Defaultable = (requires { Decay<T>{}; } && ...);
+      concept Defaultable = ((Complete<Decay<T>> && requires { Decay<T>{}; }) && ...);
 
       template<class... T>
       concept DefaultableNoexcept = Defaultable<T...> && (noexcept(T{}) && ...);
    
       /// Check if the decayed T is descriptor-constructible                  
       template<class... T>
-      concept DescriptorMakable = (requires (const Decay<T>& a, const ::Langulus::Anyness::Any& b) {
-         Decay<T> {b};
-      } && ...);
+      concept DescriptorMakable = ((Complete<Decay<T>> 
+         && requires (const Decay<T>& a, const ::Langulus::Anyness::Any& b) {
+            Decay<T> {b};
+         }) && ...);
 
       template<class... T>
       concept DescriptorMakableNoexcept = DescriptorMakable<T...>
@@ -430,9 +436,10 @@ namespace Langulus
 
       /// Check if the decayed T is copy-constructible                        
       template<class... T>
-      concept CopyMakable = (requires (const Decay<T>& a) { 
-         Decay<T> {a};
-      } && ...);
+      concept CopyMakable = ((Complete<Decay<T>> 
+         && requires (const Decay<T>& a) {
+            Decay<T> {a};
+         }) && ...);
 
       template<class... T>
       concept CopyMakableNoexcept = CopyMakable<T...>
@@ -440,9 +447,11 @@ namespace Langulus
          
       /// Check if the decayed T is move-constructible                        
       template<class... T>
-      concept MoveMakable = ((CT::Mutable<T> && requires (Decay<T>&& a) { 
-         Decay<T> {::std::forward<Decay<T>>(a)};
-      }) && ...);
+      concept MoveMakable = ((Complete<Decay<T>>
+         && CT::Mutable<T>
+         && requires (Decay<T>&& a) {
+            Decay<T> {::std::forward<Decay<T>>(a)};
+         }) && ...);
 
       template<class... T>
       concept MoveMakableNoexcept = MoveMakable<T...>
@@ -450,12 +459,12 @@ namespace Langulus
       
       /// Check if the decayed T is destructible                              
       template<class... T>
-      concept Destroyable = (::std::destructible<Decay<T>> && ...);
+      concept Destroyable = ((Complete<Decay<T>> && ::std::destructible<Decay<T>>) && ...);
    
       namespace Inner
       {
          template<class T>
-         concept Clonable = requires (Decay<T> a) {
+         concept Clonable = Complete<Decay<T>> && requires (Decay<T> a) {
             {a.Clone()} -> Exact<Decay<T>>;
          };
       }
@@ -467,7 +476,7 @@ namespace Langulus
       namespace Inner
       {
          template<class T>
-         concept Referencable = requires (const Decay<T> a) {
+         concept Referencable = Complete<Decay<T>> && requires (const Decay<T> a) {
             {a.Keep()};
             {a.Free()} -> Exact<Count>;
             {a.GetReferences()} -> Exact<Count>;
@@ -480,7 +489,9 @@ namespace Langulus
 
       /// Check if the decayed T is copy-assignable, if mutable               
       template<class... T>
-      concept Copyable = ((Mutable<T> && ::std::copyable<Decay<T>>) && ...);
+      concept Copyable = ((
+            Complete<Decay<T>> && Mutable<T> && ::std::copyable<Decay<T>>
+         ) && ...);
 
       template<class... T>
       concept CopyableNoexcept = Copyable<T...>
@@ -488,7 +499,9 @@ namespace Langulus
          
       /// Check if the decayed T is move-assignable                           
       template<class... T>
-      concept Movable = ((Mutable<T> && ::std::movable<Decay<T>>) && ...);
+      concept Movable = ((
+            Complete<Decay<T>> && Mutable<T> && ::std::movable<Decay<T>>
+         ) && ...);
 
       template<class... T>
       concept MovableNoexcept = Movable<T...>
@@ -496,7 +509,9 @@ namespace Langulus
          
       /// Check if T is swappable                                             
       template<class... T>
-      concept Swappable = ((Mutable<T> && ::std::is_swappable_v<T>) && ...);
+      concept Swappable = ((
+            Complete<Decay<T>> && Mutable<T> && ::std::is_swappable_v<T>
+         ) && ...);
 
       template<class... T>
       concept SwappableNoexcept = ((Mutable<T> && ::std::is_nothrow_swappable_v<T>) && ...);
@@ -504,7 +519,7 @@ namespace Langulus
       namespace Inner
       {
          template<class T>
-         concept Resolvable = requires (Decay<T> a) {
+         concept Resolvable = Complete<Decay<T>> && requires (Decay<T> a) {
             {a.GetType()} -> Exact<RTTI::DMeta>;
             {a.GetBlock()} -> Exact<Anyness::Block>;
          };
@@ -517,7 +532,7 @@ namespace Langulus
       namespace Inner
       {
          template<class T>
-         concept Hashable = requires (Decay<T> a) {
+         concept Hashable = Complete<Decay<T>> && requires (Decay<T> a) {
             {a.GetHash()} -> Same<Hash>;
             {a.GetHash()} -> Dense;
          };
@@ -529,7 +544,9 @@ namespace Langulus
 
       /// Check if the decayed T inherits BASE                                
       template<class T, class... BASE>
-      concept DerivedFrom = (::std::derived_from<Decay<T>, Decay<BASE>> && ...);
+      concept DerivedFrom = ((CT::Complete<Decay<T>, Decay<BASE>>
+            && ::std::derived_from<Decay<T>, Decay<BASE>>
+         ) && ...);
    
       /// Check if type has no reference/pointer/extent, etc.                 
       template<class... T>
