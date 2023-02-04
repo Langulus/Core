@@ -464,18 +464,6 @@ namespace Langulus
       namespace Inner
       {
          template<class T>
-         concept Clonable = Complete<Decay<T>> && requires (Decay<T> a) {
-            {a.Clone()} -> Exact<Decay<T>>;
-         };
-      }
-
-      /// Check if the decayed T is clonable                                  
-      template<class... T>
-      concept Clonable = (Inner::Clonable<T> && ...);
-
-      namespace Inner
-      {
-         template<class T>
          concept Referencable = Complete<Decay<T>> && requires (const Decay<T> a) {
             {a.Keep()};
             {a.Free()} -> Exact<Count>;

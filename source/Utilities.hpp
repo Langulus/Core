@@ -194,25 +194,39 @@ namespace Langulus
    /// Always returns a value reference to the argument                       
    /// If argument is an array, return a value reference to the first element 
    template<class T>
-   NOD() constexpr decltype(auto) DenseCast(T& a) noexcept {
+   NOD() constexpr decltype(auto) DenseCast(T& a) {
       if constexpr (CT::Array<T>)
          return DenseCast(a[0]);
-      else if constexpr (CT::Sparse<T> || requires(T t) { {*t} -> CT::Dense; })
-         return *a;
+      else if constexpr (CT::Sparse<T>) {
+         if (a == nullptr)
+            LANGULUS_THROW(Access, "Can't dereference nullptr");
+         return DenseCast(*a);
+      }
+      else if constexpr (requires(T t) { {*t} -> CT::Sparse; })
+         return DenseCast(*a);
+      else if constexpr (requires(T t) { {*t} -> CT::Dense; })
+         return (*a);
       else
-         return a;
+         return (a);
    }
 
    /// Always returns a value reference to the argument (const)               
    /// If argument is an array, return a value reference to the first element 
    template<class T>
-   NOD() constexpr decltype(auto) DenseCast(const T& a) noexcept {
+   NOD() constexpr decltype(auto) DenseCast(const T& a) {
       if constexpr (CT::Array<T>)
          return DenseCast(a[0]);
-      else if constexpr (CT::Sparse<T> || requires(T t) { {*t} -> CT::Dense; })
-         return *a;
+      else if constexpr (CT::Sparse<T>) {
+         if (a == nullptr)
+            LANGULUS_THROW(Access, "Can't dereference nullptr");
+         return DenseCast(*a);
+      }
+      else if constexpr (requires(T t) { {*t} -> CT::Sparse; })
+         return DenseCast(*a);
+      else if constexpr (requires(T t) { {*t} -> CT::Dense; })
+         return (*a);
       else
-         return a;
+         return (a);
    }
 
    /// Make a type constant reference or constant pointer                     
