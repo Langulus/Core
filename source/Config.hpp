@@ -29,10 +29,14 @@
    #define SAFETY(a) a
    // Some functions throw only in safe mode                            
    #define SAFETY_NOEXCEPT()
+   // Some functions are constexpr only when safe mode is disabled      
+   #define SAFETY_CONSTEXPR()
 #else
    #define SAFETY(a)
    // Some functions throw only in safe mode                            
    #define SAFETY_NOEXCEPT() noexcept
+   // Some functions are constexpr only when safe mode is disabled      
+   #define SAFETY_CONSTEXPR() constexpr
 #endif
 
 /// Testing mode exposes some otherwise private functions                     

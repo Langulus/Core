@@ -46,13 +46,23 @@
 #ifdef _MSC_VER
    /// Force no inlining                                                      
    #define LANGULUS_NOINLINE() __declspec(noinline)
-   /// Force always inlining                                                  
-   #define LANGULUS_ALWAYSINLINE() __forceinline
+
+   #if LANGULUS(DEBUG)
+      /// Force always inlining                                               
+      #define LANGULUS_ALWAYSINLINE() __forceinline
+   #else
+      #define LANGULUS_ALWAYSINLINE() inline
+   #endif
 #else
    /// Force no inlining                                                      
    #define LANGULUS_NOINLINE() __attribute__((noinline))
-   /// Force always inlining                                                  
-   #define LANGULUS_ALWAYSINLINE() __attribute__((always_inline)) inline
+
+   #if LANGULUS(DEBUG)
+      /// Force always inlining                                               
+      #define LANGULUS_ALWAYSINLINE() __attribute__((always_inline)) inline
+   #else
+      #define LANGULUS_ALWAYSINLINE() inline
+   #endif
 #endif
 
 namespace Langulus
