@@ -469,7 +469,9 @@ namespace Langulus
       
       /// Check if the decayed T is destructible                              
       template<class... T>
-      concept Destroyable = ((Complete<Decay<T>> && ::std::destructible<Decay<T>>) && ...);
+      concept Destroyable = (
+            (Complete<Decay<T>> && !Fundamental<T> && ::std::destructible<Decay<T>>
+         ) && ...);
    
       namespace Inner
       {
