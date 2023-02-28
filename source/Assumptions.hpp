@@ -19,11 +19,12 @@ namespace Langulus
    ///   @param location - the location of the error, if any                  
    template<unsigned LEVEL, class EXCEPTION = Except::Assertion>
    LANGULUS(ALWAYSINLINE)
+   SAFETY_CONSTEXPR()
    void Assume(
       bool condition, 
       const char* message = "<unknown assumption failure>", 
       const char* location = "<unknown location>"
-   ) {
+   ) noexcept (LEVEL > LANGULUS_SAFE()) {
       if constexpr (LEVEL <= LANGULUS_SAFE()) {
          if (!condition)
             Throw<EXCEPTION>(message, location);
