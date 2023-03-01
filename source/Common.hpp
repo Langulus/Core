@@ -100,9 +100,6 @@ namespace Langulus
    namespace Anyness
    {
       class Block;
-      class Trait;
-      class Any;
-      class Map;
    }
 
    /// Type for counting things, that depends on architecture                 
@@ -436,13 +433,13 @@ namespace Langulus
       /// Check if the decayed T is descriptor-constructible                  
       template<class... T>
       concept DescriptorMakable = ((Complete<Decay<T>> 
-         && requires (const Decay<T>& a, const ::Langulus::Anyness::Any& b) {
+         && requires (const Decay<T>& a, const ::Langulus::Anyness::Block& b) {
             Decay<T> {b};
          }) && ...);
 
       template<class... T>
       concept DescriptorMakableNoexcept = DescriptorMakable<T...>
-         && (noexcept(T{Uneval<const ::Langulus::Anyness::Any&>()}) && ...);
+         && (noexcept(T{Uneval<const ::Langulus::Anyness::Block&>()}) && ...);
 
       /// Check if the decayed T is copy-constructible                        
       template<class... T>
