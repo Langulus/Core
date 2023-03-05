@@ -44,6 +44,10 @@
 #define LANGULUS_ERROR(text) []<bool flag = false>() { static_assert(flag, "LANGULUS ERROR: " text); }()
 
 #ifdef _MSC_VER
+   /// Tag functions like std::move and std::forward, as well as any simple   
+   /// cast functions as intrinsic, to improve debugging experience           
+   #define LANGULUS_INTRINSIC() [[msvc::intrinsic]]
+
    /// Force no inlining                                                      
    #define LANGULUS_NOINLINE() __declspec(noinline)
 
@@ -54,6 +58,10 @@
       #define LANGULUS_ALWAYSINLINE() inline
    #endif
 #else
+   /// Tag functions like std::move and std::forward, as well as any simple   
+   /// cast functions as intrinsic, to improve debugging experience           
+   #define LANGULUS_INTRINSIC() 
+
    /// Force no inlining                                                      
    #define LANGULUS_NOINLINE() __attribute__((noinline))
 
