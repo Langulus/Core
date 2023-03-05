@@ -43,10 +43,15 @@
 /// https://stackoverflow.com/questions/38304847                              
 #define LANGULUS_ERROR(text) []<bool flag = false>() { static_assert(flag, "LANGULUS ERROR: " text); }()
 
-#ifdef _MSC_VER
-   /// Tag functions like std::move and std::forward, as well as any simple   
-   /// cast functions as intrinsic, to improve debugging experience           
-   #define LANGULUS_INTRINSIC() [[msvc::intrinsic]]
+#if LANGULUS_COMPILER(MSVC)
+   #if !LANGULUS_COMPILER(CLANG)
+      /// Tag functions like std::move and std::forward, as well as any simple
+      /// cast functions as intrinsic, to improve debugging experience        
+      #define LANGULUS_INTRINSIC() [[msvc::intrinsic]]
+   #else
+      /// Not implemented for clang-cl yet                                    
+      #define LANGULUS_INTRINSIC()
+   #endif
 
    /// Force no inlining                                                      
    #define LANGULUS_NOINLINE() __declspec(noinline)
@@ -448,29 +453,6 @@ namespace Langulus
       template<class... T>
       concept DescriptorMakableNoexcept = DescriptorMakable<T...>
          && (noexcept(T{Uneval<const ::Langulus::Anyness::Block&>()}) && ...);
-
-      /// Check if the decayed T is copy-constructible                        
-      template<class... T>
-      concept CopyMakable = ((Complete<Decay<T>> 
-         && requires (const Decay<T>& a) {
-            Decay<T> {a};
-         }) && ...);
-
-      template<class... T>
-      concept CopyMakableNoexcept = CopyMakable<T...>
-         && (noexcept(T{Uneval<const T&>()}) && ...);
-         
-      /// Check if the decayed T is move-constructible                        
-      template<class... T>
-      concept MoveMakable = ((Complete<Decay<T>>
-         && CT::Mutable<T>
-         && requires (Decay<T>&& a) {
-            Decay<T> {::std::forward<Decay<T>>(a)};
-         }) && ...);
-
-      template<class... T>
-      concept MoveMakableNoexcept = MoveMakable<T...>
-         && (noexcept(T{Uneval<T&&>()}) && ...);
       
       /// Check if the decayed T is destructible                              
       template<class... T>
@@ -491,27 +473,7 @@ namespace Langulus
       /// Check if the decayed T is referencable                              
       template<class... T>
       concept Referencable = (Inner::Referencable<T> && ...);
-
-      /// Check if the decayed T is copy-assignable, if mutable               
-      template<class... T>
-      concept Copyable = ((
-            Complete<Decay<T>> && Mutable<T> && ::std::copyable<Decay<T>>
-         ) && ...);
-
-      template<class... T>
-      concept CopyableNoexcept = Copyable<T...>
-         && (noexcept(Uneval<T&>() = Uneval<const T&>()) && ...);
-         
-      /// Check if the decayed T is move-assignable                           
-      template<class... T>
-      concept Movable = ((
-            Complete<Decay<T>> && Mutable<T> && ::std::movable<Decay<T>>
-         ) && ...);
-
-      template<class... T>
-      concept MovableNoexcept = Movable<T...>
-         && (noexcept(Uneval<T&>() = Uneval<T&&>()) && ...);
-         
+               
       /// Check if T is swappable                                             
       template<class... T>
       concept Swappable = ((
@@ -563,24 +525,6 @@ namespace Langulus
       template<class Lambda, int = (Lambda {}(), 0)>
       constexpr bool IsConstexpr(Lambda) { return true; }
       constexpr bool IsConstexpr(...) { return false; }
-      
-      /// Check if decayed T is either move-constructible, or move-assignable 
-      template<class... T>
-      concept MakableOrMovable = ((MoveMakable<T> || Movable<T>) && ...);
-
-      /// Check if decayed T is either move-constructible, or move-assignable 
-      /// (both being noexcept)                                               
-      template<class... T>
-      concept MakableOrMovableNoexcept = ((MoveMakableNoexcept<T> || MovableNoexcept<T>) && ...);
-
-      /// Check if decayed T is either copy-constructible, or copy-assignable 
-      template<class... T>
-      concept MakableOrCopyable = ((CopyMakable<T> || Copyable<T>) && ...);
-
-      /// Check if decayed T is either copy-constructible, or copy-assignable 
-      /// (both being noexcept)                                               
-      template<class... T>
-      concept MakableOrCopyableNoexcept = ((CopyMakableNoexcept<T> || CopyableNoexcept<T>) && ...);
          
       /// Check if type is a dense void                                       
       template<class... T>

@@ -91,29 +91,32 @@
 #endif
 
 /// Detect compiler                                                           
-#define LANGULUS_COMPILER_GCC() 0
-#define LANGULUS_COMPILER_MSVC() 0
-#define LANGULUS_COMPILER_CLANG() 0
-#define LANGULUS_COMPILER_MINGW() 0
-
 #if defined(__GNUC__) && !defined(__clang__)
    // We're on a GNUC Compiler!                                         
-   #undef LANGULUS_COMPILER_GCC
    #define LANGULUS_COMPILER_GCC() 1
-#elif defined(_MSC_VER)
+#else
+   #define LANGULUS_COMPILER_GCC() 0
+#endif
+
+#if defined(_MSC_VER)
    // We're on a microsoft visual c++ compiler!                         
-   #undef LANGULUS_COMPILER_MSVC
    #define LANGULUS_COMPILER_MSVC() 1
-#elif defined(__clang__)
+#else
+   #define LANGULUS_COMPILER_MSVC() 0
+#endif
+
+#if defined(__clang__)
    // We're on a clang compiler!                                        
-   #undef LANGULUS_COMPILER_CLANG
    #define LANGULUS_COMPILER_CLANG() 1
-#elif defined(__MINGW32__) || defined(__MINGW64__) 
+#else
+   #define LANGULUS_COMPILER_CLANG() 0
+#endif
+
+#if defined(__MINGW32__) || defined(__MINGW64__) 
    // We're on a mingw compiler!                                        
-   #undef LANGULUS_COMPILER_MINGW
    #define LANGULUS_COMPILER_MINGW() 1
 #else
-   #error Unrecognized compiler
+   #define LANGULUS_COMPILER_MINGW() 0
 #endif
 
 /// Checks if a given compiler is enabled                                     

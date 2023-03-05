@@ -228,6 +228,25 @@ namespace Langulus
       else
          return (a);
    }
+   
+   /// Always returns a mutable value reference to the argument               
+   /// If argument is an array, return a value reference to the first element 
+   template<class T>
+   NOD() constexpr decltype(auto) DenseCastMutable(const T& a) {
+      if constexpr (CT::Array<T>)
+         return DenseCastMutable(a[0]);
+      else if constexpr (CT::Sparse<T>) {
+         if (a == nullptr)
+            LANGULUS_THROW(Access, "Can't dereference nullptr");
+         return DenseCastMutable(*a);
+      }
+      else if constexpr (requires(T t) { {*t} -> CT::Sparse; })
+         return DenseCastMutable(*a);
+      else if constexpr (requires(T t) { {*t} -> CT::Dense; })
+         return DenseCastMutable(*a);
+      else
+         return const_cast<Decay<T>&>(a);
+   }
 
    /// Make a type constant reference or constant pointer                     
    template<class T>
