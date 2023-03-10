@@ -194,6 +194,9 @@ namespace Langulus
 
    namespace Inner
    {
+      /// Type used to detect unavailable stuff all over                      
+      struct Unsupported {};
+
       /// This function declaration is used to decompose a lambda             
       /// You can use it to extract the argument type of the lambda, using    
       /// decltype on the return type                                         
@@ -293,6 +296,14 @@ namespace Langulus
       /// True if T1 matches exactly one of T2, including density and cvq     
       template<class T1, class... T2>
       concept ExactAsOneOf = ((::std::same_as<T1, T2>) || ...);
+
+      /// Check if type is the built-in one that signifies lack of support    
+      template<class... T>
+      concept Unsupported = SameAsOneOf<::Langulus::Inner::Unsupported, T...>;
+
+      /// Check if type isn't the built-in one that signifies lack of support 
+      template<class... T>
+      concept Supported = !Unsupported<T...>;
 
       /// True if T is an array (has an extent with [])                       
       /// Sometimes a reference hides the pointer/extent, hence the deref     
