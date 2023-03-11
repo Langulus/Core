@@ -12,6 +12,12 @@
 namespace Langulus
 {
 
+   /// Similar to std::isalpha, but constexpr                                 
+   NOD() LANGULUS(ALWAYSINLINE)
+   constexpr Letter IsAlpha(const Letter a) noexcept {
+      return (a >= 'a' && a <= 'z') || (a >= 'A' && a <= 'Z');
+   }
+
    /// Forward lvalue as either lvalue or rvalue                              
    /// Same as ::std::forward, but avoid writing the namespace                
    template<class T>
