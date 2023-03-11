@@ -18,6 +18,12 @@ namespace Langulus
       return (a >= 'a' && a <= 'z') || (a >= 'A' && a <= 'Z');
    }
 
+   /// Similar to std::isspace, but constexpr                                 
+   NOD() LANGULUS(ALWAYSINLINE)
+   constexpr Letter IsSpace(const Letter a) noexcept {
+      return a == ' ' || a == '\t' || a == '\n' || a == '\r' || a == '\f' || a == '\v';
+   }
+
    /// Forward lvalue as either lvalue or rvalue                              
    /// Same as ::std::forward, but avoid writing the namespace                
    template<class T>
