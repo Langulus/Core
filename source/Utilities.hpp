@@ -214,9 +214,9 @@ namespace Langulus
             LANGULUS_THROW(Access, "Can't dereference nullptr");
          return DenseCast(*a);
       }
-      else if constexpr (requires(T t) { {*t} -> CT::Sparse; })
+      else if constexpr (requires(T& t) { {*t} -> CT::Sparse; })
          return DenseCast(*a);
-      else if constexpr (requires(T t) { {*t} -> CT::Dense; })
+      else if constexpr (requires(T& t) { {*t} -> CT::Dense; })
          return (*a);
       else
          return (a);
@@ -233,9 +233,9 @@ namespace Langulus
             LANGULUS_THROW(Access, "Can't dereference nullptr");
          return DenseCast(*a);
       }
-      else if constexpr (requires(T t) { {*t} -> CT::Sparse; })
+      else if constexpr (requires(const T& t) { {*t} -> CT::Sparse; })
          return DenseCast(*a);
-      else if constexpr (requires(T t) { {*t} -> CT::Dense; })
+      else if constexpr (requires(const T& t) { {*t} -> CT::Dense; })
          return (*a);
       else
          return (a);
@@ -252,9 +252,9 @@ namespace Langulus
             LANGULUS_THROW(Access, "Can't dereference nullptr");
          return DenseCastMutable(*a);
       }
-      else if constexpr (requires(T t) { {*t} -> CT::Sparse; })
+      else if constexpr (requires(T& t) { {*t} -> CT::Sparse; })
          return DenseCastMutable(*a);
-      else if constexpr (requires(T t) { {*t} -> CT::Dense; })
+      else if constexpr (requires(T& t) { {*t} -> CT::Dense; })
          return DenseCastMutable(*a);
       else
          return const_cast<Decay<T>&>(a);
