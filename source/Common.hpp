@@ -467,8 +467,8 @@ namespace Langulus
       
       /// Check if the decayed T is destructible                              
       template<class... T>
-      concept Destroyable = (
-            (Complete<Decay<T>> && !Fundamental<T> && ::std::destructible<Decay<T>>
+      concept Destroyable = Complete<Decay<T>...> && ((
+            !Fundamental<T> && ::std::destructible<Decay<T>>
          ) && ...);
    
       namespace Inner
@@ -487,12 +487,14 @@ namespace Langulus
                
       /// Check if T is swappable                                             
       template<class... T>
-      concept Swappable = ((
-            Complete<Decay<T>> && Mutable<T> && ::std::is_swappable_v<T>
-         ) && ...);
+      concept Swappable = Complete<Decay<T>...> && (
+            ::std::is_swappable_v<Decay<T>> && ...
+         );
 
       template<class... T>
-      concept SwappableNoexcept = ((Mutable<T> && ::std::is_nothrow_swappable_v<T>) && ...);
+      concept SwappableNoexcept = Complete<Decay<T>...> && (
+            ::std::is_nothrow_swappable_v<Decay<T>> && ...
+         );
          
       namespace Inner
       {
