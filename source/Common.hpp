@@ -399,136 +399,156 @@ namespace Langulus
 
       namespace Inner
       {
-         template<class T, class U>
-         concept Sortable = Complete<Decay<T>, Decay<U>>
-            && requires (Decay<T> t, Decay<U> u) {
+         template<class LHS, class RHS>
+         concept Sortable = requires (const LHS& t, const RHS& u) {
                { t < u } -> Exact<bool>;
                { t > u } -> Exact<bool>;
             };
-      }
 
-      /// Sortable concept for any decayed T and U, with an adequate <, >,    
-      /// or combined <=> operator                                            
-      template<class T, class... U>
-      concept Sortable = (Inner::Sortable<T, U> && ...);
-   
-      namespace Inner
-      {
-         template<class T, class U>
-         concept Comparable = Complete<Decay<T>, Decay<U>>
-            && ::std::equality_comparable_with<Decay<T>, Decay<U>>;
-      }
+         template<class LHS, class RHS>
+         concept Comparable = ::std::equality_comparable_with<LHS, RHS>;
 
-      /// Equality comparable concept for any decayed T and U, with an        
-      /// adequate == operator                                                
-      template<class T, class... U>
-      concept Comparable = (Inner::Comparable<T, U> && ...);
-
-      namespace Inner
-      {
          template<class FROM, class TO>
          concept Convertible = requires(const FROM& from) {
-            static_cast<TO>(from);
+               static_cast<TO>(from);
+            };
+
+         template<class T>
+         concept Fundamental = ::std::is_fundamental_v<T>;
+
+         template<class T>
+         concept Arithmetic = ::std::is_arithmetic_v<T>;
+
+         template<class T>
+         concept Defaultable = requires { T{}; };
+
+         template<class T>
+         concept DefaultableNoexcept = Defaultable<T> && noexcept(T {});
+
+         template<class T>
+         concept DescriptorMakable = 
+            requires (const ::Langulus::Anyness::Block& b) {
+               T {b};
+            };
+
+         template<class T>
+         concept DescriptorMakableNoexcept = DescriptorMakable<T>
+            && noexcept(T{Uneval<const ::Langulus::Anyness::Block&>()});
+
+         template<class T>
+         concept Destroyable = !Fundamental<T> && ::std::destructible<T>;
+
+         template<class T>
+         concept Referencable = requires (const T& a) {
+               {a.Keep()};
+               {a.Free()} -> Exact<Count>;
+               {a.GetReferences()} -> Exact<Count>;
+            };
+
+         template<class T>
+         concept Swappable = ::std::is_swappable_v<T>;
+
+         template<class T>
+         concept SwappableNoexcept = ::std::is_nothrow_swappable_v<T>;
+
+         template<class T>
+         concept Resolvable = requires (const T& a) {
+            {a.GetType()} -> Exact<RTTI::DMeta>;
+            {a.GetBlock()} -> Exact<Anyness::Block>;
          };
-      }
+
+         template<class T>
+         concept Hashable = requires (const T& a) {
+            {a.GetHash()} -> Same<Hash>;
+            {a.GetHash()} -> Dense;
+         };
+
+         template<class T, class BASE>
+         concept DerivedFrom = ::std::derived_from<T, BASE>;
+
+      } // namespace Langulus::CT::Inner
+
+      /// Sortable concept for any origin LHS and RHS, with an adequate       
+      /// <, > operators, or combined <=> operator                            
+      template<class LHS, class... RHS>
+      concept Sortable = Complete<Decay<LHS>, Decay<RHS>...>
+         && (Inner::Sortable<Decay<LHS>, Decay<RHS>> && ...);
+
+      /// Equality comparable concept for any origin LHS and RHS, with an     
+      /// adequate == operator                                                
+      template<class LHS, class... RHS>
+      concept Comparable = Complete<Decay<LHS>, Decay<RHS>...>
+         && (Inner::Comparable<Decay<LHS>, Decay<RHS>> && ...);
 
       /// Convertible concept                                                 
       /// Checks if a static_cast is possible between the provided types      
       template<class FROM, class... TO>
-      concept Convertible = (Inner::Convertible<FROM, TO> && ...);
+      concept Convertible = Complete<FROM, TO...>
+         && (Inner::Convertible<FROM, TO> && ...);
 
-      /// Check if T is a fundamental type (either sparse or dense)           
+      /// Check if the origin T is a fundamental type                         
       template<class... T>
-      concept Fundamental = ((Complete<Decay<T>>
-         && ::std::is_fundamental_v<Decay<T>>) && ...);
+      concept Fundamental = Complete<Decay<T>...>
+         && (Inner::Fundamental<Decay<T>> && ...);
 
-      /// Check if T is an arithmetic type (either sparse or dense)           
+      /// Check if the origin T is an arithmetic type                         
       template<class... T>
-      concept Arithmetic = ((Complete<Decay<T>>
-         && ::std::is_arithmetic_v<Decay<T>>) && ...);
+      concept Arithmetic = Complete<Decay<T>...>
+         && (Inner::Arithmetic<Decay<T>> && ...);
 
-      /// Check if the decayed T is default-constructible                     
+      /// Check if the origin T is default-constructible                      
       template<class... T>
-      concept Defaultable = ((Complete<Decay<T>> && requires { Decay<T>{}; }) && ...);
+      concept Defaultable = Complete<Decay<T>...>
+         && (Inner::Defaultable<Decay<T>> && ...);
 
       template<class... T>
-      concept DefaultableNoexcept = Defaultable<T...> && (noexcept(T{}) && ...);
+      concept DefaultableNoexcept = Complete<Decay<T>...>
+         && (Inner::DefaultableNoexcept<Decay<T>> && ...);
    
-      /// Check if the decayed T is descriptor-constructible                  
+      /// Check if the origin T is descriptor-constructible                   
       template<class... T>
-      concept DescriptorMakable = ((Complete<Decay<T>> 
-         && requires (const Decay<T>& a, const ::Langulus::Anyness::Block& b) {
-            Decay<T> {b};
-         }) && ...);
+      concept DescriptorMakable = Complete<Decay<T>...>
+         && (Inner::DescriptorMakable<Decay<T>> && ...);
 
       template<class... T>
-      concept DescriptorMakableNoexcept = DescriptorMakable<T...>
-         && (noexcept(T{Uneval<const ::Langulus::Anyness::Block&>()}) && ...);
+      concept DescriptorMakableNoexcept = Complete<Decay<T>...>
+         && (Inner::DescriptorMakableNoexcept<Decay<T>> && ...);
       
-      /// Check if the decayed T is destructible                              
+      /// Check if the origin T is destructible                               
       template<class... T>
-      concept Destroyable = Complete<Decay<T>...> && ((
-            !Fundamental<T> && ::std::destructible<Decay<T>>
-         ) && ...);
-   
-      namespace Inner
-      {
-         template<class T>
-         concept Referencable = Complete<Decay<T>> && requires (const Decay<T> a) {
-            {a.Keep()};
-            {a.Free()} -> Exact<Count>;
-            {a.GetReferences()} -> Exact<Count>;
-         };
-      }
+      concept Destroyable = Complete<Decay<T>...>
+         && (Inner::Destroyable<Decay<T>> && ...);
 
-      /// Check if the decayed T is referencable                              
+      /// Check if the origin T is referencable                               
       template<class... T>
-      concept Referencable = (Inner::Referencable<T> && ...);
+      concept Referencable = Complete<Decay<T>...>
+         && (Inner::Referencable<Decay<T>> && ...);
                
-      /// Check if T is swappable                                             
+      /// Check if the origin T is swappable                                  
       template<class... T>
-      concept Swappable = Complete<Decay<T>...> && (
-            ::std::is_swappable_v<Decay<T>> && ...
-         );
+      concept Swappable = Complete<Decay<T>...>
+         && (Inner::Swappable<Decay<T>> && ...);
 
       template<class... T>
-      concept SwappableNoexcept = Complete<Decay<T>...> && (
-            ::std::is_nothrow_swappable_v<Decay<T>> && ...
-         );
-         
-      namespace Inner
-      {
-         template<class T>
-         concept Resolvable = Complete<Decay<T>> && requires (Decay<T> a) {
-            {a.GetType()} -> Exact<RTTI::DMeta>;
-            {a.GetBlock()} -> Exact<Anyness::Block>;
-         };
-      }
+      concept SwappableNoexcept = Complete<Decay<T>...>
+         && (Inner::SwappableNoexcept<Decay<T>> && ...);
 
-      /// Check if the decayed T is resolvable at runtime                     
+      /// Check if the origin T is resolvable at runtime                      
       template<class... T>
-      concept Resolvable = (Inner::Resolvable<T> && ...);
+      concept Resolvable = Complete<Decay<T>...>
+         && (Inner::Resolvable<Decay<T>> && ...);
 
-      namespace Inner
-      {
-         template<class T>
-         concept Hashable = Complete<Decay<T>> && requires (Decay<T> a) {
-            {a.GetHash()} -> Same<Hash>;
-            {a.GetHash()} -> Dense;
-         };
-      }
-
-      /// Check if the decayed T has custom GetHash() method                  
+      /// Check if the origin T has custom GetHash() method                   
       template<class... T>
-      concept Hashable = (Inner::Hashable<T> && ...);
+      concept Hashable = Complete<Decay<T>...>
+         && (Inner::Hashable<Decay<T>> && ...);
 
-      /// Check if the decayed T inherits BASE                                
+      /// Check if the origin T inherits BASE                                 
       template<class T, class... BASE>
-      concept DerivedFrom = ((CT::Complete<Decay<T>, Decay<BASE>>
-            && ::std::derived_from<Decay<T>, Decay<BASE>>
-         ) && ...);
+      concept DerivedFrom = Complete<Decay<T>>
+         && (Inner::DerivedFrom<Decay<T>, Decay<BASE>> && ...);
    
-      /// Check if type has no reference/pointer/extent, etc.                 
+      /// Check if type has no reference/pointer/extent/const/volatile        
       template<class... T>
       concept Decayed = ((Dense<T> && !::std::is_reference_v<T> && Mutable<T>) && ...);
    
