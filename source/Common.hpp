@@ -409,7 +409,7 @@ namespace Langulus
          concept Comparable = ::std::equality_comparable_with<LHS, RHS>;
 
          template<class FROM, class TO>
-         concept Convertible = requires(const FROM& from) {
+         concept Convertible = requires (const FROM& from) {
                static_cast<TO>(from);
             };
 
@@ -483,8 +483,8 @@ namespace Langulus
       /// Convertible concept                                                 
       /// Checks if a static_cast is possible between the provided types      
       template<class FROM, class... TO>
-      concept Convertible = Complete<FROM, TO...>
-         && (Inner::Convertible<FROM, TO> && ...);
+      concept Convertible = Complete<Decay<FROM>, Decay<TO>...>
+         && (Inner::Convertible<Decay<FROM>, Decay<TO>> && ...);
 
       /// Check if the origin T is a fundamental type                         
       template<class... T>
