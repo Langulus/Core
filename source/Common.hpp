@@ -400,7 +400,7 @@ namespace Langulus
       namespace Inner
       {
          template<class LHS, class RHS>
-         concept Sortable = requires (const LHS& t, const RHS& u) {
+         concept Sortable = requires (LHS& t, RHS& u) {
                { t < u } -> Exact<bool>;
                { t > u } -> Exact<bool>;
             };
@@ -408,10 +408,12 @@ namespace Langulus
          template<class LHS, class RHS>
          concept Comparable = ::std::equality_comparable_with<LHS, RHS>;
 
+         /// Explicit conversion is a mess across many compilers, and the     
+         /// standard as a whole, so this concept enforces a new world order  
          template<class FROM, class TO>
-         concept Convertible = requires (const FROM& from) {
-               static_cast<TO>(from);
-            };
+         concept Convertible = requires (FROM& from) { TO {from}; }
+                            || requires (FROM& from) { TO {from.operator TO()}; }
+                            || requires (FROM& from) { static_cast<TO>(from); };
 
          template<class T>
          concept Fundamental = ::std::is_fundamental_v<T>;
@@ -439,7 +441,7 @@ namespace Langulus
          concept Destroyable = !Fundamental<T> && ::std::destructible<T>;
 
          template<class T>
-         concept Referencable = requires (const T& a) {
+         concept Referencable = requires (T& a) {
                {a.Keep()};
                {a.Free()} -> Exact<Count>;
                {a.GetReferences()} -> Exact<Count>;
@@ -452,13 +454,13 @@ namespace Langulus
          concept SwappableNoexcept = ::std::is_nothrow_swappable_v<T>;
 
          template<class T>
-         concept Resolvable = requires (const T& a) {
+         concept Resolvable = requires (T& a) {
             {a.GetType()} -> Exact<RTTI::DMeta>;
             {a.GetBlock()} -> Exact<Anyness::Block>;
          };
 
          template<class T>
-         concept Hashable = requires (const T& a) {
+         concept Hashable = requires (T& a) {
             {a.GetHash()} -> Same<Hash>;
             {a.GetHash()} -> Dense;
          };
