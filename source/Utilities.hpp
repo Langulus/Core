@@ -27,12 +27,14 @@ namespace Langulus
    /// Forward lvalue as either lvalue or rvalue                              
    /// Same as ::std::forward, but avoid writing the namespace                
    template<class T>
-   NOD() constexpr T&& Forward(Deref<T>& a) noexcept {
+   NOD() LANGULUS(ALWAYSINLINE) LANGULUS(INTRINSIC)
+   constexpr T&& Forward(Deref<T>& a) noexcept {
       return static_cast<T&&>(a);
    }
 
    template<class T>
-   NOD() constexpr T&& Forward(Deref<T>&& a) noexcept {
+   NOD() LANGULUS(ALWAYSINLINE) LANGULUS(INTRINSIC)
+   constexpr T&& Forward(Deref<T>&& a) noexcept {
       static_assert(!::std::is_lvalue_reference_v<T>, "Bad forward call");
       return static_cast<T&&>(a);
    }
@@ -42,7 +44,8 @@ namespace Langulus
    ///   @param n - value                                                     
    ///   @return the number of digits inside the value                        
    template<class T, T OFFSET = 10, Count RESULT = 1>
-   NOD() constexpr Count DigitsOf(const T& n) noexcept {
+   NOD() LANGULUS(ALWAYSINLINE)
+   constexpr Count DigitsOf(const T& n) noexcept {
       if constexpr (::std::numeric_limits<T>::digits10 + 1 > RESULT) {
          if constexpr (CT::Signed<T>) {
             // Get rid of negatives                                     
@@ -71,7 +74,8 @@ namespace Langulus
    ///   @param n - the number to test                                        
    ///   @return true if number has exactly one bit set                       
    template<CT::Unsigned T>
-   NOD() constexpr bool IsPowerOfTwo(const T& n) noexcept {
+   NOD() LANGULUS(ALWAYSINLINE)
+   constexpr bool IsPowerOfTwo(const T& n) noexcept {
       return ::std::has_single_bit(n);
    }
 
@@ -80,7 +84,8 @@ namespace Langulus
    ///   @param x - the value to scan                                         
    ///   @return the number of consecutive zero bits                          
    template<CT::Unsigned T>
-   NOD() constexpr int CountTrailingZeroes(const T& x) noexcept {
+   NOD() LANGULUS(ALWAYSINLINE)
+   constexpr int CountTrailingZeroes(const T& x) noexcept {
       return ::std::countr_zero(x);
    }
 
@@ -89,7 +94,8 @@ namespace Langulus
    ///   @param x - the value to scan                                         
    ///   @return the number of consecutive zero bits                          
    template<CT::Unsigned T>
-   NOD() constexpr int CountLeadingZeroes(const T& x) noexcept {
+   NOD() LANGULUS(ALWAYSINLINE)
+   constexpr int CountLeadingZeroes(const T& x) noexcept {
       return ::std::countl_zero(x);
    }
 
@@ -99,7 +105,8 @@ namespace Langulus
    ///   @param x - the unsigned integer to round up                          
    ///   @return the closest upper power-of-two to x                          
    template<bool SAFE = false, CT::Unsigned T>
-   NOD() constexpr T Roof2(const T& x) noexcept(!SAFE) {
+   NOD() LANGULUS(ALWAYSINLINE)
+   constexpr T Roof2(const T& x) noexcept(!SAFE) {
       if constexpr (SAFE) {
          constexpr T lastPowerOfTwo = (T {1}) << (T {sizeof(T) * 8 - 1});
          if (x > lastPowerOfTwo)
@@ -120,7 +127,8 @@ namespace Langulus
    ///   @param x - the unsigned integer to round up                          
    ///   @return the closest upper power-of-two to x                          
    template<bool SAFE = false, CT::Unsigned T>
-   NOD() constexpr T Roof2cexpr(const T& x) noexcept(!SAFE) {
+   NOD() LANGULUS(ALWAYSINLINE)
+   constexpr T Roof2cexpr(const T& x) noexcept(!SAFE) {
       if constexpr (SAFE) {
          constexpr T lastPowerOfTwo = (T {1}) << (T {sizeof(T) * 8 - 1});
          if (x > lastPowerOfTwo)
@@ -149,7 +157,8 @@ namespace Langulus
    ///   @param what - reference to reinterpret                               
    ///   @return the result of reinterpret_cast<TO&>                          
    template<CT::Dense TO, CT::Dense FROM>
-   NOD() constexpr Decay<TO>& ReinterpretCast(FROM& what) noexcept {
+   NOD() LANGULUS(ALWAYSINLINE) LANGULUS(INTRINSIC)
+   constexpr Decay<TO>& ReinterpretCast(FROM& what) noexcept {
       static_assert(sizeof(Decay<TO>) == sizeof(Decay<FROM>),
          "Size mismatch on a reference reinterpret_cast");
       return reinterpret_cast<Decay<TO>&>(what);
@@ -159,7 +168,8 @@ namespace Langulus
    ///   @param what - reference to reinterpret                               
    ///   @return the result of reinterpret_cast<const TO&>                    
    template<CT::Dense TO, CT::Dense FROM>
-   NOD() constexpr const Decay<TO>& ReinterpretCast(const FROM& what) noexcept {
+   NOD() LANGULUS(ALWAYSINLINE) LANGULUS(INTRINSIC)
+   constexpr const Decay<TO>& ReinterpretCast(const FROM& what) noexcept {
       static_assert(sizeof(Decay<TO>) == sizeof(Decay<FROM>),
          "Size mismatch on a reference reinterpret_cast");
       return reinterpret_cast<const Decay<TO>&>(what);
@@ -169,7 +179,8 @@ namespace Langulus
    ///   @param what - what to reinterpret                                    
    ///   @return the result of reinterpret_cast<TO*>                          
    template<CT::Dense TO, CT::Dense FROM>
-   NOD() constexpr Decay<TO>* ReinterpretCast(FROM* what) noexcept {
+   NOD() LANGULUS(ALWAYSINLINE) LANGULUS(INTRINSIC)
+   constexpr Decay<TO>* ReinterpretCast(FROM* what) noexcept {
       static_assert(sizeof(Decay<TO>) == sizeof(Decay<FROM>),
          "Size mismatch on a pointer reinterpret_cast");
       return reinterpret_cast<Decay<TO>*>(what);
@@ -179,7 +190,8 @@ namespace Langulus
    ///   @param what - what to reinterpret                                    
    ///   @return the result of reinterpret_cast<TO*>                          
    template<CT::Dense TO, CT::Dense FROM>
-   NOD() constexpr const Decay<TO>* ReinterpretCast(const FROM* what) noexcept {
+   NOD() LANGULUS(ALWAYSINLINE) LANGULUS(INTRINSIC)
+   constexpr const Decay<TO>* ReinterpretCast(const FROM* what) noexcept {
       static_assert(sizeof(Decay<TO>) == sizeof(Decay<FROM>),
          "Size mismatch on a pointer reinterpret_cast");
       return reinterpret_cast<const Decay<TO>*>(what);
@@ -187,7 +199,8 @@ namespace Langulus
 
    /// Always returns a pointer to the argument                               
    template<class T>
-   NOD() constexpr decltype(auto) SparseCast(T& a) noexcept {
+   NOD() LANGULUS(ALWAYSINLINE)
+   constexpr decltype(auto) SparseCast(T& a) noexcept {
       if constexpr (CT::Sparse<T>)
          return a;
       else
@@ -196,7 +209,8 @@ namespace Langulus
 
    /// Always returns a pointer to the argument (const)                       
    template<class T>
-   NOD() constexpr decltype(auto) SparseCast(const T& a) noexcept {
+   NOD() LANGULUS(ALWAYSINLINE)
+   constexpr decltype(auto) SparseCast(const T& a) noexcept {
       if constexpr (CT::Sparse<T>)
          return a;
       else
@@ -214,10 +228,10 @@ namespace Langulus
             LANGULUS_THROW(Access, "Can't dereference nullptr");
          return DenseCast(*a);
       }
-      else if constexpr (requires(T& t) { {*t} -> CT::Sparse; })
+      /*else if constexpr (requires(T& t) { {*t} -> CT::Sparse; })
          return DenseCast(*a);
       else if constexpr (requires(T& t) { {*t} -> CT::Dense; })
-         return (*a);
+         return (*a);*/
       else
          return (a);
    }
@@ -233,10 +247,10 @@ namespace Langulus
             LANGULUS_THROW(Access, "Can't dereference nullptr");
          return DenseCast(*a);
       }
-      else if constexpr (requires(const T& t) { {*t} -> CT::Sparse; })
+      /*else if constexpr (requires(const T& t) { {*t} -> CT::Sparse; })
          return DenseCast(*a);
       else if constexpr (requires(const T& t) { {*t} -> CT::Dense; })
-         return (*a);
+         return (*a);*/
       else
          return (a);
    }
@@ -252,10 +266,10 @@ namespace Langulus
             LANGULUS_THROW(Access, "Can't dereference nullptr");
          return DenseCastMutable(*a);
       }
-      else if constexpr (requires(T& t) { {*t} -> CT::Sparse; })
+      /*else if constexpr (requires(T& t) { {*t} -> CT::Sparse; })
          return DenseCastMutable(*a);
       else if constexpr (requires(T& t) { {*t} -> CT::Dense; })
-         return DenseCastMutable(*a);
+         return DenseCastMutable(*a);*/
       else
          return const_cast<Decay<T>&>(a);
    }
@@ -263,5 +277,17 @@ namespace Langulus
    /// Make a type constant reference or constant pointer                     
    template<class T>
    using ConstCast = Conditional<CT::Dense<T>, const Decay<T>&, const Decay<T>*>;
+
+   /// Align a value to an alignment                                          
+   ///   @tparam T - type of the value                                        
+   ///   @param v - the value to align                                        
+   ///   @param alignment - the alignment to use                              
+   ///   @return the aligned value                                            
+   template<class T>
+   NOD() LANGULUS(ALWAYSINLINE)
+   constexpr T Align(const T& v, const T& alignment) noexcept {
+      const auto r = v % alignment;
+      return r > 0 ? v + (alignment - r) : v;
+   }
 
 } // namespace Langulus
