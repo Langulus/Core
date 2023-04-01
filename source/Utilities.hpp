@@ -7,7 +7,6 @@
 ///                                                                           
 #pragma once
 #include "Common.hpp"
-#include "Assumptions.hpp"
 
 namespace Langulus
 {
@@ -110,7 +109,7 @@ namespace Langulus
       if constexpr (SAFE) {
          constexpr T lastPowerOfTwo = (T {1}) << (T {sizeof(T) * 8 - 1});
          if (x > lastPowerOfTwo)
-            LANGULUS_THROW(Overflow, "Roof2 overflowed");
+            throw Except::Overflow("Roof2 overflowed");
       }
 
       return x <= 1 ? x : T {1} << static_cast<T>(
@@ -132,7 +131,7 @@ namespace Langulus
       if constexpr (SAFE) {
          constexpr T lastPowerOfTwo = (T {1}) << (T {sizeof(T) * 8 - 1});
          if (x > lastPowerOfTwo)
-            LANGULUS_THROW(Overflow, "Roof2 overflowed");
+            throw Except::Overflow("Roof2 overflowed");
       }
 
       T n = x;
@@ -147,7 +146,7 @@ namespace Langulus
       if constexpr (sizeof(T) > 4)
          n |= n >> 32;
       if constexpr (sizeof(T) > 8)
-         TODO();
+         throw Except::TODO("Implement if struck");
 
       ++n;
       return n;
@@ -225,7 +224,8 @@ namespace Langulus
          return DenseCast(a[0]);
       else if constexpr (CT::Sparse<T>) {
          if (a == nullptr)
-            LANGULUS_THROW(Access, "Can't dereference nullptr");
+            throw Except::Access("Can't dereference nullptr");
+
          return DenseCast(*a);
       }
       else return (a);
@@ -239,7 +239,8 @@ namespace Langulus
          return DenseCast(a[0]);
       else if constexpr (CT::Sparse<T>) {
          if (a == nullptr)
-            LANGULUS_THROW(Access, "Can't dereference nullptr");
+            throw Except::Access("Can't dereference nullptr");
+
          return DenseCast(*a);
       }
       else return (a);
@@ -253,7 +254,8 @@ namespace Langulus
          return DenseCastMutable(a[0]);
       else if constexpr (CT::Sparse<T>) {
          if (a == nullptr)
-            LANGULUS_THROW(Access, "Can't dereference nullptr");
+            throw Except::Access("Can't dereference nullptr");
+
          return DenseCastMutable(*a);
       }
       else return const_cast<Decay<T>&>(a);

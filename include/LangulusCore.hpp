@@ -10,5 +10,4 @@
 #include "../source/Exceptions.hpp"
 #include "../source/TypeList.hpp"
 #include "../source/Utilities.hpp"
-#include "../source/Assumptions.hpp"
 
