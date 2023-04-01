@@ -27,13 +27,13 @@ namespace Langulus
    /// Forward lvalue as either lvalue or rvalue                              
    /// Same as ::std::forward, but avoid writing the namespace                
    template<class T>
-   NOD() LANGULUS(INTRINSIC) LANGULUS(ALWAYSINLINE)
+   NOD() LANGULUS(ALWAYSINLINE)
    constexpr T&& Forward(Deref<T>& a) noexcept {
       return static_cast<T&&>(a);
    }
 
    template<class T>
-   NOD() LANGULUS(INTRINSIC) LANGULUS(ALWAYSINLINE)
+   NOD() LANGULUS(ALWAYSINLINE)
    constexpr T&& Forward(Deref<T>&& a) noexcept {
       static_assert(!::std::is_lvalue_reference_v<T>, "Bad forward call");
       return static_cast<T&&>(a);
@@ -157,7 +157,7 @@ namespace Langulus
    ///   @param what - reference to reinterpret                               
    ///   @return the result of reinterpret_cast<TO&>                          
    template<CT::Dense TO, CT::Dense FROM>
-   NOD() LANGULUS(INTRINSIC) LANGULUS(ALWAYSINLINE)
+   NOD() LANGULUS(ALWAYSINLINE)
    constexpr Decay<TO>& ReinterpretCast(FROM& what) noexcept {
       static_assert(sizeof(Decay<TO>) == sizeof(Decay<FROM>),
          "Size mismatch on a reference reinterpret_cast");
@@ -168,7 +168,7 @@ namespace Langulus
    ///   @param what - reference to reinterpret                               
    ///   @return the result of reinterpret_cast<const TO&>                    
    template<CT::Dense TO, CT::Dense FROM>
-   NOD() LANGULUS(INTRINSIC) LANGULUS(ALWAYSINLINE)
+   NOD() LANGULUS(ALWAYSINLINE)
    constexpr const Decay<TO>& ReinterpretCast(const FROM& what) noexcept {
       static_assert(sizeof(Decay<TO>) == sizeof(Decay<FROM>),
          "Size mismatch on a reference reinterpret_cast");
@@ -179,7 +179,7 @@ namespace Langulus
    ///   @param what - what to reinterpret                                    
    ///   @return the result of reinterpret_cast<TO*>                          
    template<CT::Dense TO, CT::Dense FROM>
-   NOD() LANGULUS(INTRINSIC) LANGULUS(ALWAYSINLINE)
+   NOD() LANGULUS(ALWAYSINLINE)
    constexpr Decay<TO>* ReinterpretCast(FROM* what) noexcept {
       static_assert(sizeof(Decay<TO>) == sizeof(Decay<FROM>),
          "Size mismatch on a pointer reinterpret_cast");
@@ -190,7 +190,7 @@ namespace Langulus
    ///   @param what - what to reinterpret                                    
    ///   @return the result of reinterpret_cast<TO*>                          
    template<CT::Dense TO, CT::Dense FROM>
-   NOD() LANGULUS(INTRINSIC) LANGULUS(ALWAYSINLINE)
+   NOD() LANGULUS(ALWAYSINLINE)
    constexpr const Decay<TO>* ReinterpretCast(const FROM* what) noexcept {
       static_assert(sizeof(Decay<TO>) == sizeof(Decay<FROM>),
          "Size mismatch on a pointer reinterpret_cast");
@@ -228,12 +228,7 @@ namespace Langulus
             LANGULUS_THROW(Access, "Can't dereference nullptr");
          return DenseCast(*a);
       }
-      /*else if constexpr (requires(T& t) { {*t} -> CT::Sparse; })
-         return DenseCast(*a);
-      else if constexpr (requires(T& t) { {*t} -> CT::Dense; })
-         return (*a);*/
-      else
-         return (a);
+      else return (a);
    }
 
    /// Always returns a value reference to the argument (const)               
@@ -247,12 +242,7 @@ namespace Langulus
             LANGULUS_THROW(Access, "Can't dereference nullptr");
          return DenseCast(*a);
       }
-      /*else if constexpr (requires(const T& t) { {*t} -> CT::Sparse; })
-         return DenseCast(*a);
-      else if constexpr (requires(const T& t) { {*t} -> CT::Dense; })
-         return (*a);*/
-      else
-         return (a);
+      else return (a);
    }
    
    /// Always returns a mutable value reference to the argument               
@@ -266,12 +256,7 @@ namespace Langulus
             LANGULUS_THROW(Access, "Can't dereference nullptr");
          return DenseCastMutable(*a);
       }
-      /*else if constexpr (requires(T& t) { {*t} -> CT::Sparse; })
-         return DenseCastMutable(*a);
-      else if constexpr (requires(T& t) { {*t} -> CT::Dense; })
-         return DenseCastMutable(*a);*/
-      else
-         return const_cast<Decay<T>&>(a);
+      else return const_cast<Decay<T>&>(a);
    }
 
    /// Make a type constant reference or constant pointer                     
