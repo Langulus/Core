@@ -48,20 +48,20 @@
    #define LANGULUS_NOINLINE() __declspec(noinline)
 
    #if LANGULUS(DEBUG)
-      /// Force always inlining                                               
-      #define LANGULUS_ALWAYSINLINE() __forceinline
+      #define LANGULUS_INLINED() inline
    #else
-      #define LANGULUS_ALWAYSINLINE() inline
+      /// Force always inlining - significantly increases build time!         
+      #define LANGULUS_INLINED() __forceinline
    #endif
 #else
    /// Force no inlining                                                      
    #define LANGULUS_NOINLINE() __attribute__((noinline))
 
    #if LANGULUS(DEBUG)
-      /// Force always inlining                                               
-      #define LANGULUS_ALWAYSINLINE() __attribute__((always_inline)) inline
+      #define LANGULUS_INLINED() inline
    #else
-      #define LANGULUS_ALWAYSINLINE() inline
+      /// Force always inlining - significantly increases build time!         
+      #define LANGULUS_INLINED() __attribute__((always_inline)) inline
    #endif
 #endif
 
