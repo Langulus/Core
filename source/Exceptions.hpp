@@ -42,14 +42,14 @@ namespace Langulus
 
       /// Get exception message                                               
       ///   @return the message of the exception                              
-      LANGULUS(ALWAYSINLINE)
+      LANGULUS(INLINED)
       const Token& GetMessage() const noexcept {
          return mMessage;
       }
 
       /// Get exception location                                              
       ///   @return the location of the exception                             
-      LANGULUS(ALWAYSINLINE)
+      LANGULUS(INLINED)
       const Token& GetLocation() const noexcept {
          return mLocation;
       }
