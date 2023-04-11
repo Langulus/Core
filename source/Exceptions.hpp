@@ -72,7 +72,7 @@ namespace Langulus
 #define LANGULUS_EXCEPTION(name) \
    namespace Langulus::Except \
    { \
-      struct name : public ::Langulus::Exception { \
+      struct name : ::Langulus::Exception { \
          using Exception::Exception; \
          Token GetName() const noexcept override { \
             return #name; \
