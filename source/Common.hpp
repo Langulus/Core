@@ -399,8 +399,12 @@ namespace Langulus
          /// standard as a whole, so this concept enforces a new world order  
          template<class FROM, class TO>
          concept Convertible = requires (FROM& from) { TO {from}; }
+                            || requires (const FROM& from) { TO {from.operator TO()}; }
                             || requires (FROM& from) { TO {from.operator TO()}; }
-                            || requires (FROM& from) { static_cast<TO>(from); };
+                            || requires (const FROM& from) { TO {from.operator TO()}; }
+                            || requires (FROM& from) { static_cast<TO>(from); }
+                            || requires (const FROM& from) { static_cast<TO>(from); }
+                            || ::std::convertible_to<FROM, TO>;
 
          template<class T>
          concept Fundamental = ::std::is_fundamental_v<T>;
