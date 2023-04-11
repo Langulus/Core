@@ -386,13 +386,13 @@ namespace Langulus
 
       namespace Inner
       {
-         template<class LHS, class RHS>
+         template<class LHS, class RHS = LHS>
          concept Sortable = requires (LHS& t, RHS& u) {
                { t < u } -> Exact<bool>;
                { t > u } -> Exact<bool>;
             };
 
-         template<class LHS, class RHS>
+         template<class LHS, class RHS = LHS>
          concept Comparable = requires (LHS& lhs, RHS& rhs) {
                {lhs == rhs} -> Exact<bool>;
             };
