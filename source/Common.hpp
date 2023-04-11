@@ -393,17 +393,16 @@ namespace Langulus
             };
 
          template<class LHS, class RHS>
-         concept Comparable = ::std::equality_comparable_with<LHS, RHS>;
+         concept Comparable = requires (LHS& lhs, RHS& rhs) {
+               {lhs == rhs} -> Exact<bool>;
+            };
 
          /// Explicit conversion is a mess across many compilers, and the     
          /// standard as a whole, so this concept enforces a new world order  
          template<class FROM, class TO>
          concept Convertible = requires (FROM& from) { TO {from}; }
-                            || requires (const FROM& from) { TO {from.operator TO()}; }
                             || requires (FROM& from) { TO {from.operator TO()}; }
-                            || requires (const FROM& from) { TO {from.operator TO()}; }
                             || requires (FROM& from) { static_cast<TO>(from); }
-                            || requires (const FROM& from) { static_cast<TO>(from); }
                             || ::std::convertible_to<FROM, TO>;
 
          template<class T>
