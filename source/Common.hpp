@@ -116,6 +116,9 @@ namespace Langulus
 
    /// Type that holds a hash, depends on architecture                        
    struct Hash {
+      static constexpr bool CTTI_POD = true;
+      static constexpr bool CTTI_Nullifiable = true;
+
       ::std::size_t mHash {};
 
       explicit constexpr operator bool() const noexcept { return mHash != 0; }
