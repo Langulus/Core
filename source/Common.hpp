@@ -561,6 +561,10 @@ namespace Langulus
       /// A reflected data type is any type that is not a dense void          
       template<class... T>
       concept Data = (!Void<T> && ...);
+      
+      /// Check for std::nullptr_t                                            
+      template<class... T>
+      concept Nullptr = Exact<::std::nullptr_t, T...>;
 
    } // namespace Langulus::CT
 
