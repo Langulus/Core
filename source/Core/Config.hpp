@@ -224,3 +224,6 @@
 
 /// Used to define imports/exports per module                                 
 #define LANGULUS_API(a) LANGULUS_API_##a()
+
+/// Make the rest of the code aware, that Langulus::Core has been included    
+#define LANGULUS_LIBRARY_CORE() 1

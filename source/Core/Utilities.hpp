@@ -146,7 +146,7 @@ namespace Langulus
       if constexpr (sizeof(T) > 4)
          n |= n >> 32;
       if constexpr (sizeof(T) > 8)
-         throw Except::TODO("Implement if struck");
+         throw Except::ToDo("Implement if struck");
 
       ++n;
       return n;

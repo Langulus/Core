@@ -126,6 +126,8 @@ namespace Langulus
    }; 
 
    /// Type for wrapping a function                                           
+   /// std::function is 80x times slower costlier in terms of compile time    
+   /// and RAM requirements - use sparingly!                                  
    template<class T>
    using TFunctor = ::std::function<T>;
 
@@ -172,14 +174,14 @@ namespace Langulus
 
    /// Same as ::std::declval, but conveniently named                         
    template<class T>
-   ::std::add_rvalue_reference_t<T> Uneval() noexcept {
-      LANGULUS_ERROR("Calling Uneval is ill-formed");
+   ::std::add_rvalue_reference_t<T> Fake() noexcept {
+      LANGULUS_ERROR("Calling Fake is ill-formed");
    }
 
    /// Same as ::std::declval, but deduces type via argument                  
    template<class T>
-   ::std::add_rvalue_reference_t<T> Uneval(T) noexcept {
-      LANGULUS_ERROR("Calling Uneval is ill-formed");
+   ::std::add_rvalue_reference_t<T> Fake(T) noexcept {
+      LANGULUS_ERROR("Calling Fake is ill-formed");
    }
 
    namespace Inner
@@ -212,12 +214,12 @@ namespace Langulus
    /// Get the type of the argument of a function                             
    ///   @tparam F - anything invokable, like functor/member function/lambda  
    template<class F>
-   using ArgumentOf = decltype(Inner::GetFunctionArgument(Uneval<F>()));
+   using ArgumentOf = decltype(Inner::GetFunctionArgument(Fake<F>()));
 
    /// Get the return type of a function                                      
    ///   @tparam F - anything invokable, like functor/member function/lambda  
    template<class F>
-   using ReturnOf = decltype((Uneval<F>()) (Uneval<ArgumentOf<F>>()));
+   using ReturnOf = decltype((Fake<F>()) (Fake<ArgumentOf<F>>()));
 
    /// Remove a reference from type                                           
    template<class T>
@@ -428,7 +430,7 @@ namespace Langulus
 
          template<class T>
          concept DescriptorMakableNoexcept = DescriptorMakable<T>
-            && noexcept(T{Uneval<const ::Langulus::Anyness::Block&>()});
+            && noexcept(T{Fake<const ::Langulus::Anyness::Block&>()});
 
          template<class T>
          concept Destroyable = !Fundamental<T> && ::std::destructible<T>;

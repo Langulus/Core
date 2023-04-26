@@ -7,4 +7,4 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/source LANGULUS_CORE_SOURCES)
 add_library(Langulus.Core INTERFACE)
 
-target_include_directories(Langulus.Core INTERFACE include)
+target_include_directories(Langulus.Core INTERFACE source)
