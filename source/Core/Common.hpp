@@ -123,13 +123,7 @@ namespace Langulus
 
       explicit constexpr operator bool() const noexcept { return mHash != 0; }
       constexpr bool operator == (const Hash&) const noexcept = default;
-   }; 
-
-   /// Type for wrapping a function                                           
-   /// std::function is 80x times slower costlier in terms of compile time    
-   /// and RAM requirements - use sparingly!                                  
-   template<class T>
-   using TFunctor = ::std::function<T>;
+   };
 
    /// Type for a character                                                   
    using Letter = char;
