@@ -69,13 +69,16 @@ namespace Langulus
 {
 
    ///                                                                        
-   ///   Fundamental types, some of them across multiple submodules           
+   ///   Fundamental types, some of them across multiple libraries            
    ///                                                                        
    namespace Flow
    {
+
       class Verb;
+
       template<class VERB>
       struct StaticVerb;
+
       template<class VERB, bool NOEXCEPT>
       struct ArithmeticVerb;
    }
@@ -100,6 +103,7 @@ namespace Langulus
    namespace Anyness
    {
       class Block;
+      struct Descriptor;
    }
 
    /// Type for counting things, that depends on architecture                 
@@ -121,7 +125,10 @@ namespace Langulus
 
       ::std::size_t mHash {};
 
-      explicit constexpr operator bool() const noexcept { return mHash != 0; }
+      explicit constexpr operator bool() const noexcept {
+         return mHash != 0;
+      }
+
       constexpr bool operator == (const Hash&) const noexcept = default;
    };
 
@@ -417,14 +424,11 @@ namespace Langulus
          concept DefaultableNoexcept = Defaultable<T> && noexcept(T {});
 
          template<class T>
-         concept DescriptorMakable = 
-            requires (const ::Langulus::Anyness::Block& b) {
-               T {b};
-            };
+         concept DescriptorMakable = ::std::constructible_from<T, const Anyness::Descriptor&>;
 
          template<class T>
          concept DescriptorMakableNoexcept = DescriptorMakable<T>
-            && noexcept(T{Fake<const ::Langulus::Anyness::Block&>()});
+            && noexcept(T{Fake<const Anyness::Descriptor&>()});
 
          template<class T>
          concept Destroyable = !Fundamental<T> && ::std::destructible<T>;
@@ -556,7 +560,7 @@ namespace Langulus
 
       /// A reflected data type is any type that is not a dense void          
       template<class... T>
-      concept Data = (!Void<T> && ...);
+      concept Data = !Void<T...> && !Same<Anyness::Descriptor, T...>;
       
       /// Check for std::nullptr_t                                            
       template<class... T>
