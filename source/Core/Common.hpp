@@ -558,9 +558,22 @@ namespace Langulus
       template<class... T>
       concept Void = (::std::is_void_v<T> && ...);
 
-      /// A reflected data type is any type that is not a dense void          
+      /// A data type is any type that is not a dense void, or                
+      /// related to Anyness::Descriptor                                      
       template<class... T>
       concept Data = !Void<T...> && !Same<Anyness::Descriptor, T...>;
+      
+      /// Dense data concept                                                  
+      template<class... T>
+      concept DenseData = Dense<T...> && Data<T...> && !(::std::is_reference_v<T> || ...);
+      
+      /// Sparse data concept                                                 
+      template<class... T>
+      concept SparseData = Sparse<T...> && Data<T...> && !(::std::is_reference_v<T> || ...);
+      
+      /// Data reference concept                                              
+      template<class... T>
+      concept DataReference = Data<T...> && (::std::is_reference_v<T> && ...);
       
       /// Check for std::nullptr_t                                            
       template<class... T>
