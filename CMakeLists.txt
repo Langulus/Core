@@ -1,10 +1,6 @@
-cmake_minimum_required(VERSION 3.22)
-project(Langulus.Core)
+cmake_minimum_required(VERSION 3.24)
+project(Langulus::Core)
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/source LANGULUS_CORE_SOURCES)
-add_library(Langulus.Core INTERFACE)
-
-target_include_directories(Langulus.Core INTERFACE source)
+add_library(LangulusCore INTERFACE)
+target_compile_features(LangulusCore INTERFACE cxx_std_20)
+target_include_directories(LangulusCore INTERFACE source)
