@@ -356,7 +356,7 @@ namespace Langulus
 
       /// Built-in character concept (either sparse or dense)                 
       template<class... T>
-      concept BuiltinCharacter = ((SameAsOneOf<T, char, unsigned char, char8_t, char16_t, char32_t, wchar_t>) && ...);
+      concept BuiltinCharacter = ((SameAsOneOf<T, char, char8_t, char16_t, char32_t, wchar_t>) && ...);
 
       /// Built-in integer number concept (either sparse or dense)            
       ///   @attention excludes boolean types and char types                  
