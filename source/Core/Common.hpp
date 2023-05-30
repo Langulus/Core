@@ -43,6 +43,9 @@
 /// https://stackoverflow.com/questions/38304847                              
 #define LANGULUS_ERROR(text) []<bool flag = false>() { static_assert(flag, "LANGULUS ERROR: " text); }()
 
+/// Exploits [[deprecated("warning")]] to log template instantiations         
+#define LANGULUS_TEMPLATE() [[deprecated("template intantiation")]]
+
 #if LANGULUS_COMPILER(MSVC)
    /// Force no inlining                                                      
    #define LANGULUS_NOINLINE() __declspec(noinline)

@@ -15,8 +15,20 @@ namespace Langulus
    ///   Compile-time type list                                               
    ///                                                                        
    template<class...T>
-   class TTypeList {
-   public:
+   struct TTypeList;
+
+   template<class T>
+   struct TTypeList<T> {
+      using First = T;
+   };
+
+   template<class HEAD, class... TAIL>
+   struct TTypeList<HEAD, TAIL...> {
+      using First = HEAD;
+   };
+
+
+   /*public:
       static constexpr Count GetCount() noexcept {
          return sizeof...(T);
       }
@@ -44,8 +56,8 @@ namespace Langulus
 
       template<class... MORE>
       static constexpr auto Push(TTypeList<MORE...>)
-         -> TTypeList<T..., MORE...>;
-   };
+         -> TTypeList<T..., MORE...>;*/
+   //};
 
 
    ///                                                                        
@@ -63,7 +75,7 @@ namespace Langulus
    /// At this point VectorTypes will contain:                                
    /// TTypeList<TVector<int>, TVector<float>>                                
    ///                                                                        
-#define TYPE_GENERATOR(name, format) \
+/*#define TYPE_GENERATOR(name, format) \
       template<Count SIZE> \
       struct name { \
          template<class... T> \
@@ -71,7 +83,7 @@ namespace Langulus
       }
 
    #define GENERATE_TYPELIST(a, ...) \
-      decltype(a::ForEach(TTypeList<__VA_ARGS__>{}))
+      decltype(a::ForEach(TTypeList<__VA_ARGS__>{}))*/
 
 
 } // namespace Langulus
