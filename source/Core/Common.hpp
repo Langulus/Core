@@ -469,58 +469,58 @@ namespace Langulus
       /// Sortable concept for any origin LHS and RHS, with an adequate       
       /// <, > operators, or combined <=> operator                            
       template<class LHS, class... RHS>
-      concept Sortable = ((Complete<Decay<LHS>> && Complete<Decay<RHS>>
-         && Inner::Sortable<Decay<LHS>, Decay<RHS>>) && ...);
+      concept Sortable = Complete<Decay<LHS>> && Complete<Decay<RHS>...> 
+         && (Inner::Sortable<Decay<LHS>, Decay<RHS>> && ...);
 
       /// Equality comparable concept for any origin LHS and RHS, with an     
       /// adequate == operator                                                
       template<class LHS, class... RHS>
-      concept Comparable = ((Complete<Decay<LHS>> && Complete<Decay<RHS>>
-         && Inner::Comparable<Decay<LHS>, Decay<RHS>>) && ...);
+      concept Comparable = Complete<Decay<LHS>> && Complete<Decay<RHS>...>
+         && (Inner::Comparable<Decay<LHS>, Decay<RHS>> && ...);
 
       /// Convertible concept                                                 
       /// Checks if a static_cast is possible between the provided types      
       template<class FROM, class... TO>
-      concept Convertible = ((Complete<Decay<FROM>> && Complete<Decay<TO>>
-         && Inner::Convertible<Decay<FROM>, Decay<TO>>) && ...);
+      concept Convertible = Complete<Decay<FROM>> && Complete<Decay<TO>...>
+         && (Inner::Convertible<Decay<FROM>, Decay<TO>> && ...);
 
       /// Check if the origin T is a fundamental type                         
       template<class... T>
-      concept Fundamental = ((Complete<Decay<T>>
-         && Inner::Fundamental<Decay<T>>) && ...);
+      concept Fundamental = Complete<Decay<T>...>
+         && (Inner::Fundamental<Decay<T>> && ...);
 
       /// Check if the origin T is an arithmetic type                         
       template<class... T>
-      concept Arithmetic = ((Complete<Decay<T>>
-         && Inner::Arithmetic<Decay<T>>) && ...);
+      concept Arithmetic = Complete<Decay<T>...>
+         && (Inner::Arithmetic<Decay<T>> && ...);
 
       /// Check if the origin T is default-constructible                      
       template<class... T>
-      concept Defaultable = ((Complete<Decay<T>>
-         && Inner::Defaultable<Decay<T>>) && ...);
+      concept Defaultable = Complete<Decay<T>...>
+         && (Inner::Defaultable<Decay<T>> && ...);
 
       template<class... T>
-      concept DefaultableNoexcept = ((Complete<Decay<T>>
-         && Inner::DefaultableNoexcept<Decay<T>>) && ...);
+      concept DefaultableNoexcept = Complete<Decay<T>...>
+         && (Inner::DefaultableNoexcept<Decay<T>> && ...);
    
       /// Check if the origin T is descriptor-constructible                   
       template<class... T>
-      concept DescriptorMakable = ((Complete<Decay<T>>
-         && Inner::DescriptorMakable<Decay<T>>) && ...);
+      concept DescriptorMakable = Complete<Decay<T>...>
+         && (Inner::DescriptorMakable<Decay<T>> && ...);
 
       template<class... T>
-      concept DescriptorMakableNoexcept = ((Complete<Decay<T>>
-         && Inner::DescriptorMakableNoexcept<Decay<T>>) && ...);
+      concept DescriptorMakableNoexcept = Complete<Decay<T>...>
+         && (Inner::DescriptorMakableNoexcept<Decay<T>> && ...);
       
       /// Check if the origin T is destructible                               
       template<class... T>
-      concept Destroyable = ((Complete<Decay<T>>
-         && Inner::Destroyable<Decay<T>>) && ...);
+      concept Destroyable = Complete<Decay<T>...>
+         && (Inner::Destroyable<Decay<T>> && ...);
 
       /// Check if the origin T is referencable                               
       template<class... T>
-      concept Referencable = ((Complete<Decay<T>>
-         && Inner::Referencable<Decay<T>>) && ...);
+      concept Referencable = Complete<Decay<T>...>
+         && (Inner::Referencable<Decay<T>> && ...);
                
       /// Check if the origin T is swappable                                  
       template<class... T>
@@ -533,18 +533,18 @@ namespace Langulus
 
       /// Check if the origin T is resolvable at runtime                      
       template<class... T>
-      concept Resolvable = ((Complete<Decay<T>>
-         && Inner::Resolvable<Decay<T>>) && ...);
+      concept Resolvable = Complete<Decay<T>...>
+         && (Inner::Resolvable<Decay<T>> && ...);
 
       /// Check if the origin T has custom GetHash() method                   
       template<class... T>
-      concept Hashable = ((Complete<Decay<T>>
-         && Inner::Hashable<Decay<T>>) && ...);
+      concept Hashable = Complete<Decay<T>...>
+         && (Inner::Hashable<Decay<T>> && ...);
 
       /// Check if the origin T inherits BASE                                 
       template<class T, class... BASE>
-      concept DerivedFrom = ((Complete<Decay<T>>
-         && Inner::DerivedFrom<Decay<T>, Decay<BASE>>) && ...);
+      concept DerivedFrom = Complete<Decay<T>>
+         && (Inner::DerivedFrom<Decay<T>, Decay<BASE>> && ...);
    
       /// Check if type has no reference/pointer/extent/const/volatile        
       template<class... T>
