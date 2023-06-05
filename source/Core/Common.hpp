@@ -295,11 +295,11 @@ namespace Langulus
 
       /// Check if type is the built-in one that signifies lack of support    
       template<class... T>
-      concept Unsupported = SameAsOneOf<::Langulus::Inner::Unsupported, T...>;
+      concept Unsupported = (Same<::Langulus::Inner::Unsupported, T> || ...);
 
       /// Check if type isn't the built-in one that signifies lack of support 
       template<class... T>
-      concept Supported = !Unsupported<T...>;
+      concept Supported = (!Same<::Langulus::Inner::Unsupported, T> && ...);
 
       /// True if T is an array (has an extent with [])                       
       /// Sometimes a reference hides the pointer/extent, hence the deref     
@@ -469,58 +469,58 @@ namespace Langulus
       /// Sortable concept for any origin LHS and RHS, with an adequate       
       /// <, > operators, or combined <=> operator                            
       template<class LHS, class... RHS>
-      concept Sortable = Complete<Decay<LHS>, Decay<RHS>...>
-         && (Inner::Sortable<Decay<LHS>, Decay<RHS>> && ...);
+      concept Sortable = ((Complete<Decay<LHS>> && Complete<Decay<RHS>>
+         && Inner::Sortable<Decay<LHS>, Decay<RHS>>) && ...);
 
       /// Equality comparable concept for any origin LHS and RHS, with an     
       /// adequate == operator                                                
       template<class LHS, class... RHS>
-      concept Comparable = Complete<Decay<LHS>, Decay<RHS>...>
-         && (Inner::Comparable<Decay<LHS>, Decay<RHS>> && ...);
+      concept Comparable = ((Complete<Decay<LHS>> && Complete<Decay<RHS>>
+         && Inner::Comparable<Decay<LHS>, Decay<RHS>>) && ...);
 
       /// Convertible concept                                                 
       /// Checks if a static_cast is possible between the provided types      
       template<class FROM, class... TO>
-      concept Convertible = Complete<Decay<FROM>, Decay<TO>...>
-         && (Inner::Convertible<Decay<FROM>, Decay<TO>> && ...);
+      concept Convertible = ((Complete<Decay<FROM>> && Complete<Decay<TO>>
+         && Inner::Convertible<Decay<FROM>, Decay<TO>>) && ...);
 
       /// Check if the origin T is a fundamental type                         
       template<class... T>
-      concept Fundamental = Complete<Decay<T>...>
-         && (Inner::Fundamental<Decay<T>> && ...);
+      concept Fundamental = ((Complete<Decay<T>>
+         && Inner::Fundamental<Decay<T>>) && ...);
 
       /// Check if the origin T is an arithmetic type                         
       template<class... T>
-      concept Arithmetic = Complete<Decay<T>...>
-         && (Inner::Arithmetic<Decay<T>> && ...);
+      concept Arithmetic = ((Complete<Decay<T>>
+         && Inner::Arithmetic<Decay<T>>) && ...);
 
       /// Check if the origin T is default-constructible                      
       template<class... T>
-      concept Defaultable = Complete<Decay<T>...>
-         && (Inner::Defaultable<Decay<T>> && ...);
+      concept Defaultable = ((Complete<Decay<T>>
+         && Inner::Defaultable<Decay<T>>) && ...);
 
       template<class... T>
-      concept DefaultableNoexcept = Complete<Decay<T>...>
-         && (Inner::DefaultableNoexcept<Decay<T>> && ...);
+      concept DefaultableNoexcept = ((Complete<Decay<T>>
+         && Inner::DefaultableNoexcept<Decay<T>>) && ...);
    
       /// Check if the origin T is descriptor-constructible                   
       template<class... T>
-      concept DescriptorMakable = Complete<Decay<T>...>
-         && (Inner::DescriptorMakable<Decay<T>> && ...);
+      concept DescriptorMakable = ((Complete<Decay<T>>
+         && Inner::DescriptorMakable<Decay<T>>) && ...);
 
       template<class... T>
-      concept DescriptorMakableNoexcept = Complete<Decay<T>...>
-         && (Inner::DescriptorMakableNoexcept<Decay<T>> && ...);
+      concept DescriptorMakableNoexcept = ((Complete<Decay<T>>
+         && Inner::DescriptorMakableNoexcept<Decay<T>>) && ...);
       
       /// Check if the origin T is destructible                               
       template<class... T>
-      concept Destroyable = Complete<Decay<T>...>
-         && (Inner::Destroyable<Decay<T>> && ...);
+      concept Destroyable = ((Complete<Decay<T>>
+         && Inner::Destroyable<Decay<T>>) && ...);
 
       /// Check if the origin T is referencable                               
       template<class... T>
-      concept Referencable = Complete<Decay<T>...>
-         && (Inner::Referencable<Decay<T>> && ...);
+      concept Referencable = ((Complete<Decay<T>>
+         && Inner::Referencable<Decay<T>>) && ...);
                
       /// Check if the origin T is swappable                                  
       template<class... T>
@@ -533,22 +533,23 @@ namespace Langulus
 
       /// Check if the origin T is resolvable at runtime                      
       template<class... T>
-      concept Resolvable = Complete<Decay<T>...>
-         && (Inner::Resolvable<Decay<T>> && ...);
+      concept Resolvable = ((Complete<Decay<T>>
+         && Inner::Resolvable<Decay<T>>) && ...);
 
       /// Check if the origin T has custom GetHash() method                   
       template<class... T>
-      concept Hashable = Complete<Decay<T>...>
-         && (Inner::Hashable<Decay<T>> && ...);
+      concept Hashable = ((Complete<Decay<T>>
+         && Inner::Hashable<Decay<T>>) && ...);
 
       /// Check if the origin T inherits BASE                                 
       template<class T, class... BASE>
-      concept DerivedFrom = Complete<Decay<T>>
-         && (Inner::DerivedFrom<Decay<T>, Decay<BASE>> && ...);
+      concept DerivedFrom = ((Complete<Decay<T>>
+         && Inner::DerivedFrom<Decay<T>, Decay<BASE>>) && ...);
    
       /// Check if type has no reference/pointer/extent/const/volatile        
       template<class... T>
-      concept Decayed = ((Dense<T> && !::std::is_reference_v<T> && Mutable<T>) && ...);
+      concept Decayed = ((Dense<T>
+         && !::std::is_reference_v<T> && Mutable<T>) && ...);
    
       /// Check if a function encapsulated in a lambda is a constexpr         
       /// Leverages that lambda expressions can be constexpr as of C++17      
@@ -564,23 +565,25 @@ namespace Langulus
       /// A data type is any type that is not a dense void, or                
       /// related to Anyness::Descriptor                                      
       template<class... T>
-      concept Data = !Void<T...> && !Same<Anyness::Descriptor, T...>;
+      concept Data = ((!Void<T> && !Same<Anyness::Descriptor, T>) && ...);
       
       /// Dense data concept                                                  
       template<class... T>
-      concept DenseData = Dense<T...> && Data<T...> && !(::std::is_reference_v<T> || ...);
+      concept DenseData = ((Dense<T> && Data<T>
+         && !::std::is_reference_v<T>) && ...);
       
       /// Sparse data concept                                                 
       template<class... T>
-      concept SparseData = Sparse<T...> && Data<T...> && !(::std::is_reference_v<T> || ...);
+      concept SparseData = ((Sparse<T> && Data<T>
+         && !::std::is_reference_v<T>) && ...);
       
       /// Data reference concept                                              
       template<class... T>
-      concept DataReference = Data<T...> && (::std::is_reference_v<T> && ...);
+      concept DataReference = ((Data<T> && ::std::is_reference_v<T>) && ...);
       
       /// Check for std::nullptr_t                                            
       template<class... T>
-      concept Nullptr = Exact<::std::nullptr_t, T...>;
+      concept Nullptr = (Exact<::std::nullptr_t, T> && ...);
 
    } // namespace Langulus::CT
 
