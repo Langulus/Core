@@ -397,8 +397,8 @@ namespace Langulus
       {
          template<class LHS, class RHS = LHS>
          concept Sortable = requires (LHS& t, RHS& u) {
-               { t < u } -> Exact<bool>;
-               { t > u } -> Exact<bool>;
+               {t < u} -> Exact<bool>;
+               {t > u} -> Exact<bool>;
             };
 
          template<class LHS, class RHS = LHS>

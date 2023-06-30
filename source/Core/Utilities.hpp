@@ -22,6 +22,12 @@ namespace Langulus
    constexpr Letter IsSpace(const Letter a) noexcept {
       return a == ' ' || a == '\t' || a == '\n' || a == '\r' || a == '\f' || a == '\v';
    }
+   
+   /// Similar to std::isdigit, but constexpr                                 
+   NOD() LANGULUS(INLINED)
+   constexpr Letter IsDigit(const Letter a) noexcept {
+      return a >= '0' && a <= '9';
+   }
 
    /// Forward lvalue as either lvalue or rvalue                              
    /// Same as ::std::forward, but avoid writing the namespace                
