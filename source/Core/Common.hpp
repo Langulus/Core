@@ -128,6 +128,7 @@ namespace Langulus
 
       ::std::size_t mHash {};
 
+      LANGULUS(INLINED)
       explicit constexpr operator bool() const noexcept {
          return mHash != 0;
       }
@@ -158,6 +159,17 @@ namespace Langulus
    #else
       using Real = Float;
    #endif
+
+   LANGULUS(INLINED)
+   constexpr Real operator "" _real(unsigned long long n) noexcept {
+      return static_cast<Real>(n);
+   }
+   
+   LANGULUS(INLINED)
+   constexpr Real operator "" _real(long double n) noexcept {
+      return static_cast<Real>(n);
+   }
+
 
 
    /// Check endianness at compile-time                                       
