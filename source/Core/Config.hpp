@@ -43,27 +43,23 @@
 /// Overhead is unlikely                                                      
 #ifdef LANGULUS_ENABLE_TESTING
    #define LANGULUS_TESTING() 1
+   #define IF_LANGULUS_TESTING(a) a
+   #define IF_NOT_LANGULUS_TESTING(a)
 #else
    #define LANGULUS_TESTING() 0
-#endif
-
-#if LANGULUS_TESTING()
-   #define TESTING(a) a
-#else
-   #define TESTING(a)
+   #define IF_LANGULUS_TESTING(a)
+   #define IF_NOT_LANGULUS_TESTING(a) a
 #endif
 
 /// Paranoid mode introduces overhead, but zeroes any freed memory            
 #ifdef LANGULUS_ENABLE_PARANOIA
    #define LANGULUS_PARANOID() 1
+   #define IF_LANGULUS_PARANOID(a) a
+   #define IF_NOT_LANGULUS_PARANOID(a)
 #else
    #define LANGULUS_PARANOID() 0
-#endif
-
-#if LANGULUS_PARANOID()
-   #define PARANOIA(a) a
-#else
-   #define PARANOIA(a)
+   #define IF_LANGULUS_PARANOID(a)
+   #define IF_NOT_LANGULUS_PARANOID(a) a
 #endif
 
 /// Detect debug builds                                                       
@@ -72,12 +68,6 @@
    #define DEBUGGERY(a) a
 #else
    #define LANGULUS_DEBUG() 0
-   #define DEBUGGERY(a)
-#endif
-
-#if LANGULUS_DEBUG()
-   #define DEBUGGERY(a) a
-#else
    #define DEBUGGERY(a)
 #endif
 
