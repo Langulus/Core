@@ -14,19 +14,26 @@ namespace Langulus
    /// Similar to std::isalpha, but constexpr                                 
    NOD() LANGULUS(INLINED)
    constexpr Letter IsAlpha(const Letter a) noexcept {
-      return (a >= 'a' && a <= 'z') || (a >= 'A' && a <= 'Z');
+      return (a >= 'a' and a <= 'z')
+          or (a >= 'A' and a <= 'Z');
    }
 
    /// Similar to std::isspace, but constexpr                                 
    NOD() LANGULUS(INLINED)
    constexpr Letter IsSpace(const Letter a) noexcept {
-      return a == ' ' || a == '\t' || a == '\n' || a == '\r' || a == '\f' || a == '\v';
+      return a == ' '
+          or a == '\t'
+          or a == '\n'
+          or a == '\r'
+          or a == '\f'
+          or a == '\v';
    }
    
    /// Similar to std::isdigit, but constexpr                                 
    NOD() LANGULUS(INLINED)
    constexpr Letter IsDigit(const Letter a) noexcept {
-      return a >= '0' && a <= '9';
+      return a >= '0'
+         and a <= '9';
    }
 
    /// Forward lvalue as either lvalue or rvalue                              
@@ -40,7 +47,7 @@ namespace Langulus
    template<class T>
    NOD() LANGULUS(INLINED)
    constexpr T&& Forward(Deref<T>&& a) noexcept {
-      static_assert(!::std::is_lvalue_reference_v<T>, "Bad forward call");
+      static_assert(not ::std::is_lvalue_reference_v<T>, "Bad forward call");
       return static_cast<T&&>(a);
    }
    
@@ -291,11 +298,15 @@ namespace Langulus
    template<class TO, class FROM>
    LANGULUS(INLINED)
    void CopyMemory(TO* to, const FROM* from) noexcept {
-      static_assert(CT::Void<TO> || CT::Sparse<TO> || CT::POD<TO> || ::std::is_trivial_v<TO>, 
+      static_assert(CT::Void<TO>
+                 or CT::Sparse<TO>
+                 or CT::POD<TO>
+                 or ::std::is_trivial_v<TO>, 
          "TO must be either pointer, reflected as POD, or trivial. "
          "(you can suppress this error by casting pointer to void*)");
 
-      static_assert(CT::Void<TO> || (CT::Same<TO, FROM> && CT::Sparse<TO> == CT::Sparse<FROM>),
+      static_assert(CT::Void<TO> 
+                 or(CT::Same<TO, FROM> and CT::Sparse<TO> == CT::Sparse<FROM>),
          "TO and FROM must be the exact same types"
          "(you can suppress this error by casting pointer to void*)");
 
@@ -319,11 +330,15 @@ namespace Langulus
    template<class TO, class FROM>
    LANGULUS(INLINED)
    void CopyMemory(TO* to, const FROM* from, const Count& count) noexcept {
-      static_assert(CT::Void<TO> || CT::Sparse<TO> || CT::POD<TO> || ::std::is_trivial_v<TO>, 
+      static_assert(CT::Void<TO>
+                 or CT::Sparse<TO>
+                 or CT::POD<TO>
+                 or ::std::is_trivial_v<TO>, 
          "TO must be either pointer, reflected as POD, or trivial. "
          "(you can suppress this error by casting pointer to void*)");
 
-      static_assert(CT::Void<TO> || (CT::Same<TO, FROM> && CT::Sparse<TO> == CT::Sparse<FROM>),
+      static_assert(CT::Void<TO>
+                 or(CT::Same<TO, FROM> and CT::Sparse<TO> == CT::Sparse<FROM>),
          "TO and FROM must be the exact same types"
          "(you can suppress this error by casting pointer to void*)");
 
@@ -350,11 +365,18 @@ namespace Langulus
    template<int FILLER, class TO>
    LANGULUS(INLINED)
    void FillMemory(TO* to) noexcept {
-      static_assert(CT::Void<TO> || CT::Sparse<TO> || CT::POD<TO> || ::std::is_trivial_v<TO>,
+      static_assert(CT::Void<TO>
+                 or CT::Sparse<TO>
+                 or CT::POD<TO>
+                 or ::std::is_trivial_v<TO>,
          "TO must be either pointer, reflected as POD, or trivial. "
          "(you can suppress this error by casting to void*)");
 
-      static_assert(FILLER || CT::Nullifiable<TO> || CT::Void<TO> || CT::Sparse<TO> || CT::Fundamental<TO>,
+      static_assert(FILLER
+                 or CT::Nullifiable<TO>
+                 or CT::Void<TO>
+                 or CT::Sparse<TO>
+                 or CT::Fundamental<TO>,
          "Filling with zeroes requires the type to be reflected as nullifiable, "
          "or be a pointer/fundamental (you can suppress this error by casting to void*)");
 
@@ -373,11 +395,18 @@ namespace Langulus
    template<int FILLER, class TO>
    LANGULUS(INLINED)
    void FillMemory(TO* to, const Count& count) noexcept {
-      static_assert(CT::Void<TO> || CT::Sparse<TO> || CT::POD<TO> || ::std::is_trivial_v<TO>,
+      static_assert(CT::Void<TO>
+                 or CT::Sparse<TO>
+                 or CT::POD<TO>
+                 or ::std::is_trivial_v<TO>,
          "TO must be either pointer, reflected as POD, or trivial. "
          "(you can suppress this error by casting to void*)");
 
-      static_assert(FILLER || CT::Nullifiable<TO> || CT::Void<TO> || CT::Sparse<TO> || CT::Fundamental<TO>,
+      static_assert(FILLER
+                 or CT::Nullifiable<TO>
+                 or CT::Void<TO>
+                 or CT::Sparse<TO>
+                 or CT::Fundamental<TO>,
          "Filling with zeroes requires the type to be reflected as nullifiable, "
          "or be a pointer/fundamental (you can suppress this error by casting to void*)");
 
@@ -415,11 +444,15 @@ namespace Langulus
    template<class TO, class FROM>
    LANGULUS(INLINED)
    void MoveMemory(TO* to, const FROM* from) noexcept {
-      static_assert(CT::Void<TO> || CT::Sparse<TO> || CT::POD<TO> || ::std::is_trivial_v<TO>,
+      static_assert(CT::Void<TO>
+                 or CT::Sparse<TO>
+                 or CT::POD<TO>
+                 or ::std::is_trivial_v<TO>,
          "TO must be either pointer, reflected as POD, or trivial. "
          "(You can suppress this error by casting pointer to void*)");
 
-      static_assert(CT::Void<TO> || (CT::Same<TO, FROM> && CT::Sparse<TO> == CT::Sparse<FROM>),
+      static_assert(CT::Void<TO>
+                 or(CT::Same<TO, FROM> and CT::Sparse<TO> == CT::Sparse<FROM>),
          "TO and FROM must be the exact same types"
          "(you can suppress this error by casting pointer to void*)");
 
@@ -447,11 +480,15 @@ namespace Langulus
    template<class TO, class FROM>
    LANGULUS(INLINED)
    void MoveMemory(TO* to, const FROM* from, const Count& count) noexcept {
-      static_assert(CT::Void<TO> || CT::Sparse<TO> || CT::POD<TO> || ::std::is_trivial_v<TO>,
+      static_assert(CT::Void<TO>
+                 or CT::Sparse<TO>
+                 or CT::POD<TO>
+                 or ::std::is_trivial_v<TO>,
          "TO must be either pointer, reflected as POD, or trivial. "
          "(You can suppress this error by casting pointer to void*)");
 
-      static_assert(CT::Void<TO> || (CT::Same<TO, FROM> && CT::Sparse<TO> == CT::Sparse<FROM>),
+      static_assert(CT::Void<TO>
+                 or(CT::Same<TO, FROM> and CT::Sparse<TO> == CT::Sparse<FROM>),
          "TO and FROM must be the exact same types"
          "(you can suppress this error by casting pointer to void*)");
 

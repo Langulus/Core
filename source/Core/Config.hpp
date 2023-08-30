@@ -15,7 +15,7 @@
 
 /// Safe mode enables assumption checks all over the code                     
 /// High overhead, usually enabled only when testing in debug builds          
-#if defined(LANGULUS_ENABLE_SAFE_MODE) || defined(LANGULUS_ENABLE_ASSERTION_LEVEL)
+#if defined(LANGULUS_ENABLE_SAFE_MODE) or defined(LANGULUS_ENABLE_ASSERTION_LEVEL)
    #ifdef LANGULUS_ENABLE_ASSERTION_LEVEL
       #define LANGULUS_SAFE() LANGULUS_ENABLE_ASSERTION_LEVEL
    #else
@@ -63,7 +63,10 @@
 #endif
 
 /// Detect debug builds                                                       
-#if defined(DEBUG) || !defined(NDEBUG) || defined(_DEBUG) || defined(CB_DEBUG) || defined(QT_QML_DEBUG) || defined(LANGULUS_ENABLE_DEBUGGING)
+#if defined(LANGULUS_ENABLE_DEBUGGING) or defined(DEBUG) \
+                                       or defined(_DEBUG) \
+                                       or defined(CB_DEBUG) \
+                                       or defined(QT_QML_DEBUG)
    #define LANGULUS_DEBUG() 1
    #define DEBUGGERY(a) a
 #else
@@ -114,21 +117,21 @@
 
 /// Shamelessly stolen from boost and extended to my liking                   
 /// Dumps the current function name                                           
-#if defined(__GNUC__) || (defined(__MWERKS__) && (__MWERKS__ >= 0x3000)) || (defined(__ICC) && (__ICC >= 600)) || defined(__ghs__)
+#if defined(__GNUC__) or (defined(__MWERKS__) and (__MWERKS__ >= 0x3000)) or (defined(__ICC) and (__ICC >= 600)) or defined(__ghs__)
    #define LANGULUS_FUNCTION() __PRETTY_FUNCTION__
 #elif defined(__clang__)
    #define LANGULUS_FUNCTION() __PRETTY_FUNCTION__
-#elif defined(__DMC__) && (__DMC__ >= 0x810)
+#elif defined(__DMC__) and (__DMC__ >= 0x810)
    #define LANGULUS_FUNCTION() __PRETTY_FUNCTION__
-#elif defined(__FUNCSIG__) || defined(_MSC_VER)
+#elif defined(__FUNCSIG__) or defined(_MSC_VER)
    #define LANGULUS_FUNCTION() __FUNCSIG__
-#elif (defined(__INTEL_COMPILER) && (__INTEL_COMPILER >= 600)) || (defined(__IBMCPP__) && (__IBMCPP__ >= 500))
+#elif (defined(__INTEL_COMPILER) and (__INTEL_COMPILER >= 600)) or (defined(__IBMCPP__) and (__IBMCPP__ >= 500))
    #define LANGULUS_FUNCTION() __FUNCTION__
-#elif defined(__BORLANDC__) && (__BORLANDC__ >= 0x550)
+#elif defined(__BORLANDC__) and (__BORLANDC__ >= 0x550)
    #define LANGULUS_FUNCTION() __FUNC__
-#elif defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901)
+#elif defined(__STDC_VERSION__) and (__STDC_VERSION__ >= 199901)
    #define LANGULUS_FUNCTION() __func__
-#elif defined(__cplusplus) && (__cplusplus >= 201103)
+#elif defined(__cplusplus) and (__cplusplus >= 201103)
    #define LANGULUS_FUNCTION() __func__
 #else
    #error Not implemented
@@ -145,7 +148,7 @@
 
 #define LANGULUS_OS(a) LANGULUS_OS_##a()
 
-#if defined(_WIN32) || defined(__CYGWIN__)
+#if defined(_WIN32) or defined(__CYGWIN__)
    #define LANGULUS_OS_WINDOWS() 1
 #else 
    #define LANGULUS_OS_WINDOWS() 0
@@ -183,7 +186,7 @@
 
 /// Shared object export/import attributes                                    
 #ifdef LANGULUS_BUILD_SHARED_LIBRARIES
-   #if LANGULUS_COMPILER(GCC) || LANGULUS_COMPILER(CLANG)
+   #if LANGULUS_COMPILER(GCC) or LANGULUS_COMPILER(CLANG)
       #if LANGULUS_OS(WINDOWS)
 	      #define LANGULUS_EXPORT() __attribute__ ((dllexport))
 	      #define LANGULUS_IMPORT() __attribute__ ((dllimport))
@@ -193,7 +196,7 @@
       #else
          #error Not implemented
       #endif
-   #elif LANGULUS_COMPILER(MSVC) || LANGULUS_COMPILER(MINGW)
+   #elif LANGULUS_COMPILER(MSVC) or LANGULUS_COMPILER(MINGW)
 	   #define LANGULUS_EXPORT() __declspec(dllexport)
 	   #define LANGULUS_IMPORT() __declspec(dllimport)
    #else 
