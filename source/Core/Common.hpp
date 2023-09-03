@@ -289,21 +289,25 @@ namespace Langulus
 
       /// True if decayed T1 matches all decayed T2                           
       ///   @attention ignores type density and cv-qualifications             
-      template<class T1, class... T2>
-      concept Same = ((::std::same_as<Decay<T1>, Decay<T2>>) and ...);
+      template<class T1, class T2, class... TN>
+      concept Same = ::std::same_as<Decay<T1>, Decay<T2>>
+          and ((::std::same_as<Decay<T1>, Decay<TN>>) and ...);
 
       /// True if T1 matches exactly T2, including density and cv-qualifiers  
-      template<class T1, class... T2>
-      concept Exact = ((::std::same_as<T1, T2>) and ...);
+      template<class T1, class T2, class... TN>
+      concept Exact = ::std::same_as<T1, T2>
+          and ((::std::same_as<T1, TN>) and ...);
 
       /// True if decayed T1 matches any of decayed T2                        
       ///   @attention ignores type density and cv-qualifications             
-      template<class T1, class... T2>
-      concept SameAsOneOf = ((::std::same_as<Decay<T1>, Decay<T2>>) or ...);
+      template<class T1, class T2, class... TN>
+      concept SameAsOneOf = ::std::same_as<Decay<T1>, Decay<T2>> 
+           or ((::std::same_as<Decay<T1>, Decay<TN>>) or ...);
 
       /// True if T1 matches exactly one of T2, including density and cvq     
-      template<class T1, class... T2>
-      concept ExactAsOneOf = ((::std::same_as<T1, T2>) or ...);
+      template<class T1, class T2, class... TN>
+      concept ExactAsOneOf = ::std::same_as<T1, T2>
+           or ((::std::same_as<T1, TN>) or ...);
 
       /// Check if type is the built-in one that signifies lack of support    
       template<class... T>
