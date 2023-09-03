@@ -27,4 +27,7 @@ namespace Langulus
       using First = HEAD;
    };
 
+   template<class... T>
+   using FirstOf = typename TTypeList<T...>::First;
+
 } // namespace Langulus
