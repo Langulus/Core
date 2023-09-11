@@ -53,6 +53,19 @@
    #define IF_NOT_LANGULUS_TESTING(a) a
 #endif
 
+/// Benchmarking                                                              
+/// Tests will become radically slower                                        
+#ifdef LANGULUS_BENCHMARK
+   #undef LANGULUS_BENCHMARK
+   #define LANGULUS_BENCHMARK() 1
+   #define IF_LANGULUS_BENCHMARK(a) a
+   #define IF_NOT_LANGULUS_BENCHMARK(a)
+#else
+   #define LANGULUS_BENCHMARK() 0
+   #define IF_LANGULUS_BENCHMARK(a)
+   #define IF_NOT_LANGULUS_BENCHMARK(a) a
+#endif
+
 /// Paranoid mode introduces overhead, but zeroes any freed memory            
 #ifdef LANGULUS_PARANOIA
    #undef LANGULUS_PARANOIA
@@ -136,6 +149,45 @@
    #define LANGULUS_FEATURE_NEWDELETE() 0
    #define IF_LANGULUS_NEWDELETE(a) 
    #define IF_NOT_LANGULUS_NEWDELETE(a) a
+#endif
+
+/// Enables utf support and utilities for Text container                      
+/// No runtime overhead                                                       
+#ifdef LANGULUS_FEATURE_UNICODE
+   #undef LANGULUS_FEATURE_UNICODE
+   #define LANGULUS_FEATURE_UNICODE() 1
+   #define IF_LANGULUS_UNICODE(a) a
+   #define IF_NOT_LANGULUS_UNICODE(a)
+#else
+   #define LANGULUS_FEATURE_UNICODE() 0
+   #define IF_LANGULUS_UNICODE(a) 
+   #define IF_NOT_LANGULUS_UNICODE(a) a
+#endif
+
+/// Enable memory compression utilities for containers                        
+/// Gives a bit of general runtime overhead, zstd will be linked              
+#ifdef LANGULUS_FEATURE_COMPRESSION
+   #undef LANGULUS_FEATURE_COMPRESSION
+   #define LANGULUS_FEATURE_COMPRESSION() 1
+   #define IF_LANGULUS_COMPRESSION(a) a
+   #define IF_NOT_LANGULUS_COMPRESSION(a)
+#else
+   #define LANGULUS_FEATURE_COMPRESSION() 0
+   #define IF_LANGULUS_COMPRESSION(a) 
+   #define IF_NOT_LANGULUS_COMPRESSION(a) a
+#endif
+
+/// Enable memory encryption and decryption                                   
+/// Gives a tiny runtime overhead, no dependencies                            
+#ifdef LANGULUS_FEATURE_ENCRYPTION
+   #undef LANGULUS_FEATURE_ENCRYPTION
+   #define LANGULUS_FEATURE_ENCRYPTION() 1
+   #define IF_LANGULUS_ENCRYPTION(a) a
+   #define IF_NOT_LANGULUS_ENCRYPTION(a)
+#else
+   #define LANGULUS_FEATURE_ENCRYPTION() 0
+   #define IF_LANGULUS_ENCRYPTION(a) 
+   #define IF_NOT_LANGULUS_ENCRYPTION(a) a
 #endif
 
 /// Detect architecture                                                       
