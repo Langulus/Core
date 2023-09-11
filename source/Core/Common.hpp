@@ -1,6 +1,7 @@
 ///                                                                           
 /// Langulus::Core                                                            
-/// Copyright(C) 2012 Dimo Markov <langulusteam@gmail.com>                    
+/// Copyright (c) 2012 Dimo Markov <team@langulus.com>                        
+/// Part of the Langulus framework, see https://langulus.com                  
 ///                                                                           
 /// Distributed under GNU General Public License v3+                          
 /// See LICENSE file, or https://www.gnu.org/licenses                         
@@ -584,7 +585,7 @@ namespace Langulus
       /// A data type is any type that is not a dense void, or                
       /// related to Anyness::Neat                                            
       template<class... T>
-      concept Data = ((not Void<T> /*and not Same<Anyness::Neat, T>*/) and ...);
+      concept Data = (not Void<T> and ...);
       
       /// Dense data concept                                                  
       template<class... T>

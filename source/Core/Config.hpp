@@ -1,6 +1,7 @@
 ///                                                                           
 /// Langulus::Core                                                            
-/// Copyright(C) 2012 Dimo Markov <langulusteam@gmail.com>                    
+/// Copyright (c) 2012 Dimo Markov <team@langulus.com>                        
+/// Part of the Langulus framework, see https://langulus.com                  
 ///                                                                           
 /// Distributed under GNU General Public License v3+                          
 /// See LICENSE file, or https://www.gnu.org/licenses                         
@@ -9,15 +10,15 @@
 #include <cstdint>
 
 /// Sorry, Langulus is designed for at least C++20                            
-#if __cplusplus <= 201703L && !defined(_MSC_VER)
+#if __cplusplus <= 201703L and not defined(_MSC_VER)
    #error Langulus requires at least a C++20 compliant compiler in order to build
 #endif
 
 /// Safe mode enables assumption checks all over the code                     
 /// High overhead, usually enabled only when testing in debug builds          
-#if defined(LANGULUS_ENABLE_SAFE_MODE) or defined(LANGULUS_ENABLE_ASSERTION_LEVEL)
-   #ifdef LANGULUS_ENABLE_ASSERTION_LEVEL
-      #define LANGULUS_SAFE() LANGULUS_ENABLE_ASSERTION_LEVEL
+#if defined(LANGULUS_SAFE_MODE) or defined(LANGULUS_ASSERTION_LEVEL)
+   #ifdef LANGULUS_ASSERTION_LEVEL
+      #define LANGULUS_SAFE() LANGULUS_ASSERTION_LEVEL
    #else
       #define LANGULUS_SAFE() 1
    #endif
@@ -41,7 +42,8 @@
 
 /// Testing mode exposes some otherwise private functions                     
 /// Overhead is unlikely                                                      
-#ifdef LANGULUS_ENABLE_TESTING
+#ifdef LANGULUS_TESTING
+   #undef LANGULUS_TESTING
    #define LANGULUS_TESTING() 1
    #define IF_LANGULUS_TESTING(a) a
    #define IF_NOT_LANGULUS_TESTING(a)
@@ -52,7 +54,8 @@
 #endif
 
 /// Paranoid mode introduces overhead, but zeroes any freed memory            
-#ifdef LANGULUS_ENABLE_PARANOIA
+#ifdef LANGULUS_PARANOIA
+   #undef LANGULUS_PARANOIA
    #define LANGULUS_PARANOID() 1
    #define IF_LANGULUS_PARANOID(a) a
    #define IF_NOT_LANGULUS_PARANOID(a)
@@ -63,15 +66,76 @@
 #endif
 
 /// Detect debug builds                                                       
-#if defined(LANGULUS_ENABLE_DEBUGGING) or defined(DEBUG) \
-                                       or defined(_DEBUG) \
-                                       or defined(CB_DEBUG) \
-                                       or defined(QT_QML_DEBUG)
+#if defined(LANGULUS_DEBUGGING) or defined(DEBUG) \
+                                or defined(_DEBUG) \
+                                or defined(CB_DEBUG) \
+                                or defined(QT_QML_DEBUG)
+   #undef LANGULUS_DEBUGGING
    #define LANGULUS_DEBUG() 1
    #define DEBUGGERY(a) a
 #else
    #define LANGULUS_DEBUG() 0
    #define DEBUGGERY(a)
+#endif
+
+/// Reflections will be registered in a centralized location, allowing for    
+/// runtime type modification. Meta primitives will always be in the same     
+/// place in memory regardless of translation unit, which significantly       
+/// speeds up meta definition comparisons.                                    
+/// Naming collisions will be detected upon type registration                 
+/// Gives a significant overhead on program launch, no dependencies           
+#ifdef LANGULUS_FEATURE_MANAGED_REFLECTION
+   #undef LANGULUS_FEATURE_MANAGED_REFLECTION
+   #define LANGULUS_FEATURE_MANAGED_REFLECTION() 1
+   #define IF_LANGULUS_MANAGED_REFLECTION(a) a
+   #define IF_NOT_LANGULUS_MANAGED_REFLECTION(a)
+#else
+   #define LANGULUS_FEATURE_MANAGED_REFLECTION() 0
+   #define IF_LANGULUS_MANAGED_REFLECTION(a)
+   #define IF_NOT_LANGULUS_MANAGED_REFLECTION(a) a
+#endif
+
+/// Memory allocations will be pooled, authority will be tracked,             
+/// memory will be reused whenever possible, and you can also tweak           
+/// runtime allocation strategies on per-type basis                           
+/// Significantly improves performance, no dependencies                       
+#ifdef LANGULUS_FEATURE_MANAGED_MEMORY
+   #undef LANGULUS_FEATURE_MANAGED_MEMORY
+   #define LANGULUS_FEATURE_MANAGED_MEMORY() 1
+   #define IF_LANGULUS_MANAGED_MEMORY(a) a
+   #define IF_NOT_LANGULUS_MANAGED_MEMORY(a)
+#else
+   #define LANGULUS_FEATURE_MANAGED_MEMORY() 0
+   #define IF_LANGULUS_MANAGED_MEMORY(a)
+   #define IF_NOT_LANGULUS_MANAGED_MEMORY(a) a
+#endif
+
+/// Memory manager shall keep track of statistics                             
+/// Some overhead upon allocation/deallocation/reallocation                   
+/// Some methods, like string null-termination will pick more memory-         
+/// consitent, but less performant approaches (see Text::Terminate())         
+#ifdef LANGULUS_FEATURE_MEMORY_STATISTICS
+   #undef LANGULUS_FEATURE_MEMORY_STATISTICS
+   #define LANGULUS_FEATURE_MEMORY_STATISTICS() 1
+   #define IF_LANGULUS_MEMORY_STATISTICS(a) a
+   #define IF_NOT_LANGULUS_MEMORY_STATISTICS(a)
+#else
+   #define LANGULUS_FEATURE_MEMORY_STATISTICS() 0
+   #define IF_LANGULUS_MEMORY_STATISTICS(a)
+   #define IF_NOT_LANGULUS_MEMORY_STATISTICS(a) a
+#endif
+
+/// Replace the default new-delete operators with custom ones                 
+/// No overhead, no dependencies                                              
+#ifdef LANGULUS_FEATURE_NEWDELETE
+   #undef LANGULUS_FEATURE_NEWDELETE
+   #define LANGULUS_FEATURE_NEWDELETE() 1
+   #define IF_LANGULUS_NEWDELETE(a) a
+   #define IF_NOT_LANGULUS_NEWDELETE(a)
+#else
+   #define LANGULUS_FEATURE_NEWDELETE() 0
+   #define IF_LANGULUS_NEWDELETE(a) 
+   #define IF_NOT_LANGULUS_NEWDELETE(a) a
 #endif
 
 /// Detect architecture                                                       
@@ -84,7 +148,7 @@
 #endif
 
 /// Detect compiler                                                           
-#if defined(__GNUC__) && !defined(__clang__)
+#if defined(__GNUC__) and not defined(__clang__)
    // We're on a GNUC Compiler!                                         
    #define LANGULUS_COMPILER_GCC() 1
 #else
@@ -105,7 +169,7 @@
    #define LANGULUS_COMPILER_CLANG() 0
 #endif
 
-#if defined(__MINGW32__) || defined(__MINGW64__) 
+#if defined(__MINGW32__) or defined(__MINGW64__) 
    // We're on a mingw compiler!                                        
    #define LANGULUS_COMPILER_MINGW() 1
 #else
@@ -185,7 +249,7 @@
 #endif
 
 /// Shared object export/import attributes                                    
-#ifdef LANGULUS_BUILD_SHARED_LIBRARIES
+#ifdef LANGULUS_SHARED_LIBRARIES
    #if LANGULUS_COMPILER(GCC) or LANGULUS_COMPILER(CLANG)
       #if LANGULUS_OS(WINDOWS)
 	      #define LANGULUS_EXPORT() __attribute__ ((dllexport))
