@@ -79,10 +79,11 @@
 #endif
 
 /// Detect debug builds                                                       
-#if defined(LANGULUS_DEBUGGING) or defined(DEBUG) \
+#if defined(LANGULUS_DEBUGGING) or (not defined(NDEBUG) \
+                                or defined(DEBUG) \
                                 or defined(_DEBUG) \
                                 or defined(CB_DEBUG) \
-                                or defined(QT_QML_DEBUG)
+                                or defined(QT_QML_DEBUG))
    #undef LANGULUS_DEBUGGING
    #define LANGULUS_DEBUG() 1
    #define DEBUGGERY(a) a

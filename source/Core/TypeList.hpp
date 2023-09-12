@@ -31,4 +31,6 @@ namespace Langulus
    template<class... T>
    using FirstOf = typename TTypeList<T...>::First;
 
+   using EmptyTypeList = TTypeList<void>;
+
 } // namespace Langulus

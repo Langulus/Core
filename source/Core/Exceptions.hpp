@@ -14,46 +14,67 @@ namespace Langulus
 {
 
    ///                                                                        
-   ///   Common Langulus exception                                            
+   ///   General exception                                                    
+   ///                                                                        
+   /// It is an equivalent to std::runtime_error, but with additional info    
+   /// for debug builds, like message and location strings                    
    ///                                                                        
    class Exception {
-   protected:
-      // Exception message                                              
-      Token mMessage;
-      // Exception location, as a separate literal to avoid concat      
-      Token mLocation;
+      #if LANGULUS(DEBUG)
+      protected:
+         // Exception message                                           
+         Token mMessage;
+         // Exception location, as a separate literal to avoid concat   
+         Token mLocation;
+      #endif
 
    public:
+      /// Get exception name                                                  
+      ///   @return the name of the exception                                 
+      virtual Token GetName() const noexcept {
+         return "Unspecified";
+      }
+
+   #if LANGULUS(DEBUG)
       /// Default exception constructor                                       
+      LANGULUS(INLINED)
       constexpr Exception() noexcept
          : mMessage {"<no information provided>"} { }
 
       /// Manual exception constructor                                        
       ///   @param what - custom message about the exception                  
       ///   @param location - location of exception, see LANGULUS_LOCATION()  
-      constexpr Exception(const char* what, const char* location = "<unknown location>") noexcept
+      LANGULUS(INLINED)
+      constexpr Exception(
+         const char* what,
+         const char* location = "<unknown location>"
+      ) noexcept
          : mMessage {what}
          , mLocation {location} { }
-
-      /// Get exception name                                                  
-      ///   @return the name of the exception                                 
-      virtual Token GetName() const noexcept {
-         return "Unknown";
-      }
 
       /// Get exception message                                               
       ///   @return the message of the exception                              
       LANGULUS(INLINED)
-      const Token& GetMessage() const noexcept {
+      constexpr const Token& GetMessage() const noexcept {
          return mMessage;
       }
 
       /// Get exception location                                              
       ///   @return the location of the exception                             
       LANGULUS(INLINED)
-      const Token& GetLocation() const noexcept {
+      constexpr const Token& GetLocation() const noexcept {
          return mLocation;
       }
+   #else
+      /// Default exception constructor                                       
+      constexpr Exception() noexcept = default;
+
+      /// Manual exception constructor                                        
+      ///   @param what - custom message about the exception                  
+      ///   @param location - location of exception, see LANGULUS_LOCATION()  
+      LANGULUS(INLINED)
+      constexpr Exception(const char*, const char* = "<unknown location>") noexcept { }
+   #endif
    };
 
    /// Make sure this is not inlined as it is slow and dramatically enlarges  
