@@ -36,7 +36,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_compile_options(LangulusCore INTERFACE -Wno-trigraphs)
 endif()
 
-# Configure the features you require, all these are disabled by default 
+# Configure the features you require                                    
 option(LANGULUS_SHARED_LIBRARIES 
     "Will build shared libraries (DLL/SO) if enabled, \
     true by default" ON)
@@ -149,7 +149,7 @@ option(LANGULUS_LOGGER_ENABLE_PROMPTS
 option(LANGULUS_LOGGER_ENABLE_VERBOSE
     "Enables verbose logging via Logger::Verbose()" ${LANGULUS_DEBUGGING})
 option(LANGULUS_LOGGER_ENABLE_SPECIALS
-    "Enables special message logging via Logger::Secial()" ${LANGULUS_DEBUGGING})
+    "Enables special message logging via Logger::Special()" ${LANGULUS_DEBUGGING})
 option(LANGULUS_LOGGER_ENABLE_FLOWS
     "Enables flow logging via Logger::Flow()" ${LANGULUS_DEBUGGING})
 option(LANGULUS_LOGGER_ENABLE_INPUTS
