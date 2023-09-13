@@ -182,9 +182,10 @@ namespace Langulus
    #ifndef LANGULUS_ALIGNMENT
       #define LANGULUS_ALIGNMENT 16
    #endif
-
+   
    /// The default alignment, depends on configuration and enabled SIMD       
    constexpr Size Alignment = LANGULUS_ALIGNMENT;
+   #define LANGULUS_ALIGNED() alignas(::Langulus::Alignment)
 
    /// The bitness                                                            
    constexpr Size Bitness = LANGULUS(BITNESS);

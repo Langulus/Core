@@ -27,17 +27,11 @@
 #endif
 
 #if LANGULUS_SAFE()
-   #define SAFETY(a) a
-   // Some functions throw only in safe mode                            
-   #define SAFETY_NOEXCEPT()
-   // Some functions are constexpr only when safe mode is disabled      
-   #define SAFETY_CONSTEXPR()
+   #define IF_SAFE(a) a
+   #define IF_UNSAFE(a)
 #else
-   #define SAFETY(a)
-   // Some functions throw only in safe mode                            
-   #define SAFETY_NOEXCEPT() noexcept
-   // Some functions are constexpr only when safe mode is disabled      
-   #define SAFETY_CONSTEXPR() constexpr
+   #define IF_SAFE(a)
+   #define IF_UNSAFE(a) a
 #endif
 
 /// Testing mode exposes some otherwise private functions                     
