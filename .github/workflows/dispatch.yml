@@ -2,7 +2,7 @@ name: Dispatch to dependents
 on:
   push:
     branches:
-    - main
+    - stable
 jobs:
   build:
     strategy:
