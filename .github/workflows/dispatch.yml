@@ -2,10 +2,11 @@ name: Dispatch to dependents
 on:
   push:
     branches:
-    - stable
+    - main
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         dependents: [Logger, RTTI, SIMD, Fractalloc, Anyness, Flow, Math, Entity]
     name: Trigger Langulus::${{matrix.dependents}}'s workflow
