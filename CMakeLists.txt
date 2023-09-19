@@ -5,6 +5,13 @@ project(LangulusCore
     HOMEPAGE_URL    https://langulus.com
 )
 
+# Disable the FetchContent requests for langulus libraries from here on 
+set(LANGULUS ON CACHE INTERNAL 
+    "Defines the build tree as a part of Langulus,  \
+    thus prevents the downloading of base Langulus libraries. \
+    They should be in the build tree already" FORCE
+)
+
 add_library(LangulusCore INTERFACE)
 target_compile_features(LangulusCore INTERFACE cxx_std_20)
 target_include_directories(LangulusCore INTERFACE source)
