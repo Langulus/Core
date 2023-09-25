@@ -47,6 +47,12 @@
 /// Exploits [[deprecated("warning")]] to log template instantiations         
 #define LANGULUS_TEMPLATE() [[deprecated("template intantiation")]]
 
+/// Checks if code is executed at compile-time                                
+///   @attention must be followed by {...}                                    
+/// TODO when we transition to C++23, we should replace                       
+/// if (std::is_constant_evaluated()) statements with if consteval ones       
+#define IF_CONSTEXPR() if (std::is_constant_evaluated())
+
 #if LANGULUS_COMPILER(MSVC)
    /// Force no inlining                                                      
    #define LANGULUS_NOINLINE() __declspec(noinline)
@@ -433,6 +439,9 @@ namespace Langulus
                             or ::std::convertible_to<FROM, TO>;
 
          template<class T>
+         concept Enum = ::std::is_enum_v<T>;
+
+         template<class T>
          concept Fundamental = ::std::is_fundamental_v<T>;
 
          template<class T>
@@ -504,6 +513,11 @@ namespace Langulus
       concept Convertible = Complete<Decay<FROM>>
          and Complete<Decay<TO>...>
          and (Inner::Convertible<Decay<FROM>, Decay<TO>> and ...);
+
+      /// Check if the origin T is an enum type                               
+      template<class... T>
+      concept Enum = Complete<Decay<T>...>
+         and (Inner::Enum<Decay<T>> and ...);
 
       /// Check if the origin T is a fundamental type                         
       template<class... T>
