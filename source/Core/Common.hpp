@@ -341,7 +341,15 @@ namespace Langulus
 
       /// Check if type is constant-qualified                                 
       template<class... T>
-      concept Constant = (::std::is_const_v<Deptr<Deref<T>>> and ...);
+      concept Constant = (::std::is_const_v<Deref<T>> and ...);
+
+      /// Check if type is volatile-qualified                                 
+      template<class... T>
+      concept Volatile = (::std::is_volatile_v<Deref<T>> and ...);
+
+      /// Check if type is either const- or volatile-qualified                
+      template<class... T>
+      concept Convoluted = ((Constant<T> or Volatile<T>) and ...);
 
       /// Check if type is not constant-qualified                             
       template<class... T>
@@ -584,7 +592,7 @@ namespace Langulus
       /// Check if type has no reference/pointer/extent/const/volatile        
       template<class... T>
       concept Decayed = ((Dense<T>
-         and not ::std::is_reference_v<T> and Mutable<T>) and ...);
+         and not ::std::is_reference_v<T> and not Convoluted<T>) and ...);
    
       /// Check if a function encapsulated in a lambda is a constexpr         
       /// Leverages that lambda expressions can be constexpr as of C++17      
