@@ -13,7 +13,7 @@ function(fetch_external_module NAME GIT_REPOSITORY REPO GIT_TAG TAG)
         GIT_REPOSITORY  ${REPO}
         GIT_TAG         ${TAG}
         SOURCE_DIR      "${LANGULUS_EXTERNAL_DIRECTORY}/${NAME}-src"
-        SUBBUILD_DIR    "${LANGULUS_EXTERNAL_DIRECTORY}/${NAME}-subbuild"
+        SUBBUILD_DIR    "${CMAKE_BINARY_DIR}/external/${NAME}-subbuild"
         ${ARGN}
     )
     FetchContent_MakeAvailable(${NAME})
