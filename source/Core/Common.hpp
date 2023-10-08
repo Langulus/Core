@@ -301,6 +301,12 @@ namespace Langulus
       concept Same = ::std::same_as<Decay<T1>, Decay<T2>>
           and ((::std::same_as<Decay<T1>, Decay<TN>>) and ...);
 
+      /// True if unqualified T1 matches all unqualified T2                   
+      ///   @attention ignores cv-qualifications only                         
+      template<class T1, class T2, class... TN>
+      concept Similar = ::std::same_as<Decvq<Deref<T1>>, Decvq<Deref<T2>>>
+          and ((::std::same_as<Decvq<Deref<T1>>, Decvq<Deref<TN>>>) and ...);
+
       /// True if T1 matches exactly T2, including density and cv-qualifiers  
       template<class T1, class T2, class... TN>
       concept Exact = ::std::same_as<T1, T2>
@@ -311,6 +317,12 @@ namespace Langulus
       template<class T1, class T2, class... TN>
       concept SameAsOneOf = ::std::same_as<Decay<T1>, Decay<T2>> 
            or ((::std::same_as<Decay<T1>, Decay<TN>>) or ...);
+
+      /// True if unqualified T1 matches any of unqualified T2                
+      ///   @attention ignores cv-qualifications only                         
+      template<class T1, class T2, class... TN>
+      concept SimilarAsOneOf = ::std::same_as< Decvq<Deref<T1>>, Decvq<Deref<T2>>>
+           or ((::std::same_as< Decvq<Deref<T1>>, Decvq<Deref<TN>>>) or ...);
 
       /// True if T1 matches exactly one of T2, including density and cvq     
       template<class T1, class T2, class... TN>
