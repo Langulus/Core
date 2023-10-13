@@ -42,7 +42,9 @@
 /// Trigger a static assert (without condition)                               
 /// This form is required in order of it to work in 'if constexpr - else'     
 /// https://stackoverflow.com/questions/38304847                              
-#define LANGULUS_ERROR(text) []<bool flag = false>() { static_assert(flag, "LANGULUS ERROR: " text); }()
+#define LANGULUS_ERROR(text) []<bool flag = false>() { \
+      static_assert(flag, "LANGULUS ERROR: " text); \
+   }()
 
 /// Exploits [[deprecated("warning")]] to log template instantiations         
 #define LANGULUS_TEMPLATE() [[deprecated("template intantiation")]]
@@ -50,7 +52,7 @@
 /// Checks if code is executed at compile-time                                
 ///   @attention must be followed by {...}                                    
 /// TODO when we transition to C++23, we should replace                       
-/// if (std::is_constant_evaluated()) statements with if consteval ones       
+/// if (std::is_constant_evaluated()) statements with `if consteval` ones     
 #define IF_CONSTEXPR() if (std::is_constant_evaluated())
 
 #if LANGULUS_COMPILER(MSVC)
@@ -405,6 +407,12 @@ namespace Langulus
       template<class... T>
       concept BuiltinCharacter = ((SameAsOneOf<T, char, char8_t, char16_t, char32_t, wchar_t>) and ...);
 
+      /// String literal concept                                              
+      template<class... T>
+      concept StringLiteral = ((CT::Array<T>
+           and CT::SimilarAsOneOf<Deext<T>, char, char8_t, char16_t, char32_t, wchar_t>
+         ) and ...);
+
       /// Built-in integer number concept (either sparse or dense)            
       ///   @attention excludes boolean types and char types                  
       template<class... T>
@@ -466,22 +474,6 @@ namespace Langulus
 
          template<class T>
          concept Arithmetic = ::std::is_arithmetic_v<T>;
-
-         template<class T>
-         concept Defaultable = requires { T{}; };
-
-         template<class T>
-         concept DefaultableNoexcept = Defaultable<T> and noexcept(T {});
-
-         template<class T>
-         concept DescriptorMakable = ::std::constructible_from<T, const Anyness::Neat&>;
-
-         template<class T>
-         concept DescriptorMakableNoexcept = DescriptorMakable<T>
-            and noexcept(T{Fake<const Anyness::Neat&>()});
-
-         template<class T>
-         concept Destroyable = not Fundamental<T> and ::std::destructible<T>;
 
          template<class T>
          concept Referencable = requires (T& a) {
@@ -548,30 +540,7 @@ namespace Langulus
       template<class... T>
       concept Arithmetic = Complete<Decay<T>...>
          and (Inner::Arithmetic<Decay<T>> and ...);
-
-      /// Check if the origin T is default-constructible                      
-      template<class... T>
-      concept Defaultable = Complete<Decay<T>...>
-         and (Inner::Defaultable<Decay<T>> and ...);
-
-      template<class... T>
-      concept DefaultableNoexcept = Complete<Decay<T>...>
-         and (Inner::DefaultableNoexcept<Decay<T>> and ...);
-   
-      /// Check if the origin T is descriptor-constructible                   
-      template<class... T>
-      concept DescriptorMakable = Complete<Decay<T>...>
-         and (Inner::DescriptorMakable<Decay<T>> and ...);
-
-      template<class... T>
-      concept DescriptorMakableNoexcept = Complete<Decay<T>...>
-         and (Inner::DescriptorMakableNoexcept<Decay<T>> and ...);
       
-      /// Check if the origin T is destructible                               
-      template<class... T>
-      concept Destroyable = Complete<Decay<T>...>
-         and (Inner::Destroyable<Decay<T>> and ...);
-
       /// Check if the origin T is referencable                               
       template<class... T>
       concept Referencable = Complete<Decay<T>...>
