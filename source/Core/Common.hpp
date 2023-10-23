@@ -494,12 +494,6 @@ namespace Langulus
             {a.GetBlock()} -> Exact<Anyness::Block>;
          };
 
-         template<class T>
-         concept Hashable = requires (T& a) {
-            {a.GetHash()} -> Same<Hash>;
-            {a.GetHash()} -> Dense;
-         };
-
          template<class T, class BASE>
          concept DerivedFrom = ::std::derived_from<T, BASE>;
 
@@ -559,11 +553,6 @@ namespace Langulus
       template<class... T>
       concept Resolvable = Complete<Decay<T>...>
          and (Inner::Resolvable<Decay<T>> and ...);
-
-      /// Check if the origin T has custom GetHash() method                   
-      template<class... T>
-      concept Hashable = Complete<Decay<T>...>
-         and (Inner::Hashable<Decay<T>> and ...);
 
       /// Check if the origin T inherits BASE                                 
       template<class T, class... BASE>
