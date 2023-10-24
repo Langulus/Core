@@ -447,16 +447,6 @@ namespace Langulus
 
       namespace Inner
       {
-         template<class LHS, class RHS = LHS>
-         concept Sortable = requires (LHS& t, RHS& u) {
-               {t < u} -> Exact<bool>;
-               {t > u} -> Exact<bool>;
-            };
-
-         template<class LHS, class RHS = LHS>
-         concept Comparable = requires (LHS& lhs, RHS& rhs) {
-               {lhs == rhs} -> Exact<bool>;
-            };
 
          /// Explicit conversion is a mess across many compilers, and the     
          /// standard as a whole, so this concept enforces a new world order  
@@ -465,6 +455,17 @@ namespace Langulus
                             or requires (FROM& from) { TO {from.operator TO()}; }
                             or requires (FROM& from) { static_cast<TO>(from); }
                             or ::std::convertible_to<FROM, TO>;
+
+         template<class LHS, class RHS = LHS>
+         concept Sortable = requires (LHS& t, RHS& u) {
+               {t < u} -> Convertible<bool>;
+               {t > u} -> Convertible<bool>;
+            };
+
+         template<class LHS, class RHS = LHS>
+         concept Comparable = requires (LHS& lhs, RHS& rhs) {
+               {lhs == rhs} -> Convertible<bool>;
+            };
 
          template<class T>
          concept Enum = ::std::is_enum_v<T>;
