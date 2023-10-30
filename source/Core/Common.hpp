@@ -413,6 +413,12 @@ namespace Langulus
            and CT::SimilarAsOneOf<Deext<T>, char, char8_t, char16_t, char32_t, wchar_t>
          ) and ...);
 
+      /// String pointer concept                                              
+      template<class... T>
+      concept StringPointer = ((CT::Sparse<T>
+           and CT::SimilarAsOneOf<Deptr<T>, char, char8_t, char16_t, char32_t, wchar_t>
+         ) and ...);
+
       /// Built-in integer number concept (either sparse or dense)            
       ///   @attention excludes boolean types and char types                  
       template<class... T>
