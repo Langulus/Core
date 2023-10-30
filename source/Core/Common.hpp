@@ -566,10 +566,14 @@ namespace Langulus
       concept DerivedFrom = Complete<Decay<T>>
          and (Inner::DerivedFrom<Decay<T>, Decay<BASE>> and ...);
    
-      /// Check if type has no reference/pointer/extent/const/volatile        
+      /// Check if types have no reference/pointer/extent/const/volatile      
       template<class... T>
       concept Decayed = ((Dense<T>
          and not ::std::is_reference_v<T> and not Convoluted<T>) and ...);
+   
+      /// Check if types have reference/pointer/extent/const/volatile         
+      template<class... T>
+      concept NotDecayed = not Decayed<T...>;
    
       /// Check if a function encapsulated in a lambda is a constexpr         
       /// Leverages that lambda expressions can be constexpr as of C++17      
