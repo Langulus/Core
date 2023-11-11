@@ -37,7 +37,7 @@ else()
     target_compile_options(LangulusCore INTERFACE -Wall -Wextra -Wno-comment)
 endif()
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
     target_compile_options(LangulusCore INTERFACE -Wno-trigraphs)
 endif()
 
@@ -101,7 +101,7 @@ set(LANGULUS_ALIGNMENT 16 CACHE STRING "Default langulus alignment")
 message(STATUS "[FEATURE] Alignment was set to ${LANGULUS_ALIGNMENT}")
 target_compile_definitions(LangulusCore INTERFACE LANGULUS_ALIGNMENT=${LANGULUS_ALIGNMENT})
 
-if(LANGULUS_DEBUGGING OR CMAKE_BUILD_TYPE STREQUAL "Debug")
+if(LANGULUS_DEBUGGING OR CMAKE_BUILD_TYPE MATCHES "Debug")
 	message(STATUS "[FEATURE] Debug mode, all assertions are enabled")
     set(LANGULUS_SAFE_MODE ON CACHE BOOL "Debug mode detected" FORCE)
     set(LANGULUS_DEBUGGING ON CACHE BOOL "Debug mode detected" FORCE)
