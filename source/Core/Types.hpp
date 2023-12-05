@@ -21,7 +21,7 @@ namespace Langulus
    template<class...T>
    struct Types;
 
-   /// Type list that contains only one type, which isn't void                
+   /// Type list that contains exactly one type, which isn't void             
    template<CT::Data T>
    struct Types<T> {
       static constexpr bool Empty = false;
@@ -29,29 +29,32 @@ namespace Langulus
    };
 
    /// Type list that contains multiple non-void types                        
-   template<CT::Data HEAD, CT::Data... TAIL>
-   struct Types<HEAD, TAIL...> {
+   template<CT::Data T1, CT::Data T2, CT::Data... TAIL>
+   struct Types<T1, T2, TAIL...> {
       static constexpr bool Empty = false;
-      using First = HEAD;
+      using First = T1;
+      using Second = T2;
    };
 
    /// Type list, that contains only one void item - a canonical empty list   
    template <>
    struct Types<void> {
       static constexpr bool Empty = true;
-      using First = void;
    };
 
    /// Retrieve the first type from a type list                               
-   ///   @attention type will be void, if type list is empty                  
-   template<class... T>
+   template<class...T>
    using FirstOf = typename Types<T...>::First;
+
+   /// Retrieve the second type from a type list                              
+   template<class...T>
+   using SecondOf = typename Types<T...>::Second;
 
    /// CTAD calls to constructor Types() will instantiate as an empty list    
    /// https://stackoverflow.com/questions/62847200                           
    template<class...> Types() -> Types<void>;
 
-   template<CT::Data... T>
+   template<CT::Data...T>
    constexpr auto CreateTypeList() {
       if constexpr (sizeof...(T))
          return Types<T...> {};
