@@ -105,11 +105,6 @@ namespace Langulus
       struct MetaVerb;
       struct MetaTrait;
       struct MetaConst;
-
-      using DMeta = const MetaData*;
-      using TMeta = const MetaTrait*;
-      using VMeta = const MetaVerb*;
-      using CMeta = const MetaConst*;
    }
 
    namespace Anyness
@@ -273,6 +268,19 @@ namespace Langulus
          else
             return NestedDecay<Stripped>();
       }
+
+      template<class T1, class T2>
+      NOD() constexpr bool NestedSimilar() noexcept {
+         using Stripped1 = Decvq<Deref<T1>>;
+         using Stripped2 = Decvq<Deref<T2>>;
+         if constexpr (::std::same_as<Stripped1, Stripped2>)
+            return true;
+         else if constexpr (::std::is_pointer_v<Stripped1>
+                        and ::std::is_pointer_v<Stripped2>)
+            return NestedSimilar<::std::remove_pointer_t<Stripped1>,
+                                 ::std::remove_pointer_t<Stripped2>>();
+         else return false;
+      }
    }
 
    /// Strip a typename to its origin type, removing qualifiers/pointers/etc. 
@@ -306,8 +314,8 @@ namespace Langulus
       /// True if unqualified T1 matches all unqualified T2                   
       ///   @attention ignores cv-qualifications only                         
       template<class T1, class T2, class... TN>
-      concept Similar = ::std::same_as<Decvq<Deref<T1>>, Decvq<Deref<T2>>>
-          and ((::std::same_as<Decvq<Deref<T1>>, Decvq<Deref<TN>>>) and ...);
+      concept Similar = Inner::NestedSimilar<T1, T2>()
+          and (Inner::NestedSimilar<T1, TN>() and ...);
 
       /// True if T1 matches exactly T2, including density and cv-qualifiers  
       template<class T1, class T2, class... TN>
@@ -323,8 +331,8 @@ namespace Langulus
       /// True if unqualified T1 matches any of unqualified T2                
       ///   @attention ignores cv-qualifications only                         
       template<class T1, class T2, class... TN>
-      concept SimilarAsOneOf = ::std::same_as< Decvq<Deref<T1>>, Decvq<Deref<T2>>>
-           or ((::std::same_as< Decvq<Deref<T1>>, Decvq<Deref<TN>>>) or ...);
+      concept SimilarAsOneOf = Inner::NestedSimilar<T1, T2>()
+           or (Inner::NestedSimilar<T1, TN>() or ...);
 
       /// True if T1 matches exactly one of T2, including density and cvq     
       template<class T1, class T2, class... TN>
@@ -495,12 +503,6 @@ namespace Langulus
          template<class T>
          concept SwappableNoexcept = ::std::is_nothrow_swappable_v<T>;
 
-         template<class T>
-         concept Resolvable = requires (T& a) {
-            {a.GetType()} -> Exact<RTTI::DMeta>;
-            {a.GetBlock()} -> Exact<Anyness::Block>;
-         };
-
          template<class T, class BASE>
          concept DerivedFrom = ::std::derived_from<T, BASE>;
 
@@ -555,11 +557,6 @@ namespace Langulus
       template<class... T>
       concept SwappableNoexcept = Complete<Decay<T>...>
          and (Inner::SwappableNoexcept<Decay<T>> and ...);
-
-      /// Check if the origin T is resolvable at runtime                      
-      template<class... T>
-      concept Resolvable = Complete<Decay<T>...>
-         and (Inner::Resolvable<Decay<T>> and ...);
 
       /// Check if the origin T inherits BASE                                 
       template<class T, class... BASE>
