@@ -38,7 +38,9 @@ else()
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
-    target_compile_options(LangulusCore INTERFACE -Wno-trigraphs)
+    target_compile_options(LangulusCore INTERFACE -Wno-trigraphs
+	                                              -fvisibility=hidden
+												  -fvisibility-inlines-hidden)
 endif()
 
 # Configure the features you require                                    
