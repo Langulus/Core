@@ -256,13 +256,14 @@ namespace Langulus
 
    /// Remove an array extent from a type                                     
    template<class T>
-   using Deext = ::std::remove_extent_t<T>;
+   using Deext = ::std::remove_extent_t<Deref<T>>;
 
    namespace Inner
    {
+
       template<class T>
       NOD() constexpr auto NestedDecay() noexcept {
-         using Stripped = Decvq<Deptr<Deext<Deref<T>>>>;
+         using Stripped = Decvq<Deptr<Deext<T>>>;
          if constexpr (::std::same_as<T, Stripped>)
             return static_cast<Stripped*>(nullptr);
          else
@@ -281,7 +282,8 @@ namespace Langulus
                                  ::std::remove_pointer_t<Stripped2>>();
          else return false;
       }
-   }
+
+   } // namespace Langulus::Inner
 
    /// Strip a typename to its origin type, removing qualifiers/pointers/etc. 
    /// This strongly guarantees, that it strips EVERYTHING, including nested  
@@ -301,49 +303,54 @@ namespace Langulus
       /// Usefulness of this is limited to the first instantiation, and       
       /// that is how it is used upon reflection by RTTI. Any other use is    
       /// undefined and might produce wrong results on some compilers.        
+      /// Thankfully, most modern compilers do detect, if a definition        
+      /// changes between completeness checks, so it is unlikely to cause any 
+      /// real harm                                                           
       /// https://stackoverflow.com/questions/21119281                        
       template<class... T>
       concept Complete = ((sizeof(T) == sizeof(T)) and ...);
 
-      /// True if decayed T1 matches all decayed T2                           
+      /// True if decayed T1 matches all decayed types                        
       ///   @attention ignores type density and cv-qualifications             
       template<class T1, class T2, class... TN>
       concept Same = ::std::same_as<Decay<T1>, Decay<T2>>
           and ((::std::same_as<Decay<T1>, Decay<TN>>) and ...);
 
-      /// True if unqualified T1 matches all unqualified T2                   
+      /// True if unqualified T1 matches all unqualified types                
       ///   @attention ignores cv-qualifications only                         
       template<class T1, class T2, class... TN>
-      concept Similar = Inner::NestedSimilar<T1, T2>()
-          and (Inner::NestedSimilar<T1, TN>() and ...);
+      concept Similar = Langulus::Inner::NestedSimilar<T1, T2>()
+          and (Langulus::Inner::NestedSimilar<T1, TN>() and ...);
 
-      /// True if T1 matches exactly T2, including density and cv-qualifiers  
+      /// True if T1 matches exactly all the provided types, including        
+      /// density and cv-qualifiers                                           
       template<class T1, class T2, class... TN>
       concept Exact = ::std::same_as<T1, T2>
           and ((::std::same_as<T1, TN>) and ...);
 
-      /// True if decayed T1 matches any of decayed T2                        
+      /// True if decayed T1 matches at least one of the decayed types        
       ///   @attention ignores type density and cv-qualifications             
       template<class T1, class T2, class... TN>
       concept SameAsOneOf = ::std::same_as<Decay<T1>, Decay<T2>> 
            or ((::std::same_as<Decay<T1>, Decay<TN>>) or ...);
 
-      /// True if unqualified T1 matches any of unqualified T2                
+      /// True if unqualified T1 matches at least one of the unqualified types
       ///   @attention ignores cv-qualifications only                         
       template<class T1, class T2, class... TN>
-      concept SimilarAsOneOf = Inner::NestedSimilar<T1, T2>()
-           or (Inner::NestedSimilar<T1, TN>() or ...);
+      concept SimilarAsOneOf = Langulus::Inner::NestedSimilar<T1, T2>()
+           or (Langulus::Inner::NestedSimilar<T1, TN>() or ...);
 
-      /// True if T1 matches exactly one of T2, including density and cvq     
+      /// True if T1 matches exactly at least one of the types, including     
+      /// density and cv-qualifications                                       
       template<class T1, class T2, class... TN>
       concept ExactAsOneOf = ::std::same_as<T1, T2>
            or ((::std::same_as<T1, TN>) or ...);
 
-      /// Check if type is the built-in one that signifies lack of support    
+      /// Check if any T is the built-in one that signifies lack of support   
       template<class... T>
       concept Unsupported = (Same<::Langulus::Inner::Unsupported, T> or ...);
 
-      /// Check if type isn't the built-in one that signifies lack of support 
+      /// Check if all T are supported                                        
       template<class... T>
       concept Supported = (not Same<::Langulus::Inner::Unsupported, T> and ...);
 
@@ -413,7 +420,9 @@ namespace Langulus
 
       /// Built-in character concept (either sparse or dense)                 
       template<class... T>
-      concept BuiltinCharacter = ((SameAsOneOf<T, char, char8_t, char16_t, char32_t, wchar_t>) and ...);
+      concept BuiltinCharacter = (
+            (SameAsOneOf<T, char, char8_t, char16_t, char32_t, wchar_t>
+         ) and ...);
 
       /// String literal concept                                              
       template<class... T>
@@ -427,10 +436,25 @@ namespace Langulus
            and CT::SimilarAsOneOf<Deptr<T>, char, char8_t, char16_t, char32_t, wchar_t>
          ) and ...);
 
+      /// Standard container concept                                          
+      /// You can get container type using TypeOf, if CT::Typed               
+      template<class... T>
+      concept StandardContainer = (::std::ranges::range<T> and ...);
+
+      /// Standard cintiguous container concept                               
+      /// You can get container type using TypeOf, if CT::Typed               
+      template<class... T>
+      concept StandardContiguousContainer = ((::std::ranges::contiguous_range<T>
+            and requires (T c) { {c.data()} -> CT::Sparse; }
+            and requires (T c) { {c.size()} -> CT::Exact<::std::size_t>; }
+         ) and ...);
+
       /// Built-in integer number concept (either sparse or dense)            
       ///   @attention excludes boolean types and char types                  
       template<class... T>
-      concept BuiltinInteger = ((::std::integral<Decay<T>> and not BuiltinBool<T> and not BuiltinCharacter<T>) and ...);
+      concept BuiltinInteger = ((::std::integral<Decay<T>>
+            and not BuiltinBool<T> and not BuiltinCharacter<T>
+         ) and ...);
 
       /// Check if type is any signed integer (either sparse or dense)			
       template<class... T>
