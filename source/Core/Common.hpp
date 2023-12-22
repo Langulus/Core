@@ -86,7 +86,7 @@ namespace Langulus
    namespace Flow
    {
 
-      class Verb;
+      struct Verb;
 
       template<class VERB>
       struct StaticVerb;
