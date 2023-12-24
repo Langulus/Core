@@ -137,6 +137,9 @@ namespace Langulus
          return mHash != 0;
       }
 
+      constexpr Hash() noexcept = default;
+      constexpr Hash(const Hash&) noexcept = default;
+
       constexpr bool operator == (const Hash&) const noexcept = default;
    };
 
@@ -530,6 +533,13 @@ namespace Langulus
          template<class T, class BASE>
          concept DerivedFrom = ::std::derived_from<T, BASE>;
 
+         template<class T1, class T2>
+         concept Related = DerivedFrom<T1, T2> or DerivedFrom<T2, T1>;
+
+         template<class T1, class T2>
+         concept BinaryCompatible = Similar<T1, T2>
+              or (Related<T1, T2> and sizeof(T1) == sizeof(T2));
+
       } // namespace Langulus::CT::Inner
 
       /// Sortable concept for any origin LHS and RHS, with an adequate       
@@ -554,27 +564,27 @@ namespace Langulus
          and (Inner::Convertible<Decay<FROM>, Decay<TO>> and ...);
 
       /// Check if the origin T is an enum type                               
-      template<class... T>
+      template<class...T>
       concept Enum = Complete<Decay<T>...>
          and (Inner::Enum<Decay<T>> and ...);
 
       /// Check if the origin T is a fundamental type                         
-      template<class... T>
+      template<class...T>
       concept Fundamental = Complete<Decay<T>...>
          and (Inner::Fundamental<Decay<T>> and ...);
 
       /// Check if the origin T is an arithmetic type                         
-      template<class... T>
+      template<class...T>
       concept Arithmetic = Complete<Decay<T>...>
          and (Inner::Arithmetic<Decay<T>> and ...);
       
       /// Check if the origin T is referencable                               
-      template<class... T>
+      template<class...T>
       concept Referencable = Complete<Decay<T>...>
          and (Inner::Referencable<Decay<T>> and ...);
                
       /// Check if the origin T is swappable                                  
-      template<class... T>
+      template<class...T>
       concept Swappable = Complete<Decay<T>...>
          and (Inner::Swappable<Decay<T>> and ...);
 
@@ -583,17 +593,27 @@ namespace Langulus
          and (Inner::SwappableNoexcept<Decay<T>> and ...);
 
       /// Check if the origin T inherits BASE                                 
-      template<class T, class... BASE>
+      template<class T, class...BASE>
       concept DerivedFrom = Complete<Decay<T>>
          and (Inner::DerivedFrom<Decay<T>, Decay<BASE>> and ...);
    
+      /// Check if T1 is somehow related to all of the provided types         
+      template<class T1, class T2, class...TN>
+      concept Related = Inner::Related<Decay<T1>, Decay<T2>>
+          and (Inner::Related<Decay<T1>, Decay<TN>> and ...);
+   
+      /// Binary compatibility check between T1 and the provided types        
+      template<class T1, class T2, class...TN>
+      concept BinaryCompatible = Inner::BinaryCompatible<Decay<T1>, Decay<T2>>
+          and (Inner::BinaryCompatible<Decay<T1>, Decay<TN>> and ...);
+
       /// Check if types have no reference/pointer/extent/const/volatile      
-      template<class... T>
+      template<class...T>
       concept Decayed = ((Dense<T>
          and not ::std::is_reference_v<T> and not Convoluted<T>) and ...);
    
       /// Check if types have reference/pointer/extent/const/volatile         
-      template<class... T>
+      template<class...T>
       concept NotDecayed = not Decayed<T...>;
    
       /// Check if a function encapsulated in a lambda is a constexpr         
@@ -604,30 +624,30 @@ namespace Langulus
       constexpr bool IsConstexpr(...) { return false; }
          
       /// Check if type is a dense void                                       
-      template<class... T>
+      template<class...T>
       concept Void = (::std::is_void_v<T> and ...);
 
       /// A data type is any type that is not a dense void, or                
       /// related to Anyness::Neat                                            
-      template<class... T>
+      template<class...T>
       concept Data = (not Void<T> and ...);
       
       /// Dense data concept                                                  
-      template<class... T>
+      template<class...T>
       concept DenseData = ((Dense<T> and Data<T>
          and not ::std::is_reference_v<T>) and ...);
       
       /// Sparse data concept                                                 
-      template<class... T>
+      template<class...T>
       concept SparseData = ((Sparse<T> and Data<T>
          and not ::std::is_reference_v<T>) and ...);
       
       /// Data reference concept                                              
-      template<class... T>
+      template<class...T>
       concept DataReference = ((Data<T> and ::std::is_reference_v<T>) and ...);
       
       /// Check for std::nullptr_t                                            
-      template<class... T>
+      template<class...T>
       concept Nullptr = (Exact<::std::nullptr_t, T> and ...);
 
    } // namespace Langulus::CT
