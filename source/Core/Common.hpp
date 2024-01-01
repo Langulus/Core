@@ -546,56 +546,56 @@ namespace Langulus
       /// <, > operators, or combined <=> operator                            
       template<class LHS, class... RHS>
       concept Sortable = Complete<Decay<LHS>>
-         and Complete<Decay<RHS>...>
-         and (Inner::Sortable<Decay<LHS>, Decay<RHS>> and ...);
+          and Complete<Decay<RHS>...>
+          and (Inner::Sortable<Decay<LHS>, Decay<RHS>> and ...);
 
       /// Equality comparable concept for any origin LHS and RHS, with an     
       /// adequate == operator                                                
       template<class LHS, class... RHS>
       concept Comparable = Complete<Decay<LHS>>
-         and Complete<Decay<RHS>...>
-         and (Inner::Comparable<Decay<LHS>, Decay<RHS>> and ...);
+          and Complete<Decay<RHS>...>
+          and (Inner::Comparable<Decay<LHS>, Decay<RHS>> and ...);
 
       /// Convertible concept                                                 
       /// Checks if a static_cast is possible between the provided types      
       template<class FROM, class... TO>
       concept Convertible = Complete<Decay<FROM>>
-         and Complete<Decay<TO>...>
-         and (Inner::Convertible<Decay<FROM>, Decay<TO>> and ...);
+          and Complete<Decay<TO>...>
+          and (Inner::Convertible<Decay<FROM>, Decay<TO>> and ...);
 
       /// Check if the origin T is an enum type                               
       template<class...T>
       concept Enum = Complete<Decay<T>...>
-         and (Inner::Enum<Decay<T>> and ...);
+          and (Inner::Enum<Decay<T>> and ...);
 
       /// Check if the origin T is a fundamental type                         
       template<class...T>
       concept Fundamental = Complete<Decay<T>...>
-         and (Inner::Fundamental<Decay<T>> and ...);
+          and (Inner::Fundamental<Decay<T>> and ...);
 
       /// Check if the origin T is an arithmetic type                         
       template<class...T>
       concept Arithmetic = Complete<Decay<T>...>
-         and (Inner::Arithmetic<Decay<T>> and ...);
+          and (Inner::Arithmetic<Decay<T>> and ...);
       
       /// Check if the origin T is referencable                               
       template<class...T>
       concept Referencable = Complete<Decay<T>...>
-         and (Inner::Referencable<Decay<T>> and ...);
+          and (Inner::Referencable<Decay<T>> and ...);
                
       /// Check if the origin T is swappable                                  
       template<class...T>
       concept Swappable = Complete<Decay<T>...>
-         and (Inner::Swappable<Decay<T>> and ...);
+          and (Inner::Swappable<Decay<T>> and ...);
 
       template<class... T>
       concept SwappableNoexcept = Complete<Decay<T>...>
-         and (Inner::SwappableNoexcept<Decay<T>> and ...);
+          and (Inner::SwappableNoexcept<Decay<T>> and ...);
 
       /// Check if the origin T inherits BASE                                 
       template<class T, class...BASE>
       concept DerivedFrom = Complete<Decay<T>>
-         and (Inner::DerivedFrom<Decay<T>, Decay<BASE>> and ...);
+          and (Inner::DerivedFrom<Decay<T>, Decay<BASE>> and ...);
    
       /// Check if T1 is somehow related to all of the provided types         
       template<class T1, class T2, class...TN>
@@ -610,7 +610,7 @@ namespace Langulus
       /// Check if types have no reference/pointer/extent/const/volatile      
       template<class...T>
       concept Decayed = ((Dense<T>
-         and not ::std::is_reference_v<T> and not Convoluted<T>) and ...);
+          and not ::std::is_reference_v<T> and not Convoluted<T>) and ...);
    
       /// Check if types have reference/pointer/extent/const/volatile         
       template<class...T>
@@ -627,28 +627,50 @@ namespace Langulus
       template<class...T>
       concept Void = (::std::is_void_v<T> and ...);
 
+      /// Check if type-erased                                                
+      template<class...T>
+      concept TypeErased = Void<T...>;
+
       /// A data type is any type that is not a dense void, or                
       /// related to Anyness::Neat                                            
       template<class...T>
-      concept Data = (not Void<T> and ...);
+      concept Data = not Void<T...>;
       
       /// Dense data concept                                                  
       template<class...T>
       concept DenseData = ((Dense<T> and Data<T>
-         and not ::std::is_reference_v<T>) and ...);
+          and not ::std::is_reference_v<T>) and ...);
       
       /// Sparse data concept                                                 
       template<class...T>
       concept SparseData = ((Sparse<T> and Data<T>
-         and not ::std::is_reference_v<T>) and ...);
+          and not ::std::is_reference_v<T>) and ...);
       
       /// Data reference concept                                              
       template<class...T>
       concept DataReference = ((Data<T> and ::std::is_reference_v<T>) and ...);
       
-      /// Check for std::nullptr_t                                            
+      /// Check if all provided types match std::nullptr_t exactly            
       template<class...T>
       concept Nullptr = (Exact<::std::nullptr_t, T> and ...);
+
+      namespace Inner
+      {
+
+         template<class T>
+         NOD() constexpr auto NestedDecvq() noexcept {
+            using Stripped = Decvq<Deref<T>>;
+            if constexpr (Decayed<Stripped>)
+               return (Stripped*) nullptr;
+            else if constexpr (Array<Stripped>)
+               return (Deptr<decltype(NestedDecvq<Deext<Stripped>>())> (*) [::std::extent_v<Stripped>]) nullptr;
+            else if constexpr (Sparse<Stripped>)
+               return (decltype(NestedDecvq<Deptr<Stripped>>())*) nullptr;
+            else
+               LANGULUS_ERROR("Shouldn't be possible");
+         }
+
+      } // namespace Langulus::CT::Inner
 
    } // namespace Langulus::CT
 
@@ -659,5 +681,12 @@ namespace Langulus
    /// Get the extent of an array, or 1 if T is not an array                  
    template<class T>
    constexpr Count ExtentOf = CT::Array<T> ? ::std::extent_v<Deref<T>> : 1;
+
+   /// Strip all qualifiers on all levels of indirection of a type            
+   /// const volatile void * const * const becomes void**                     
+   /// This strongly guarantees, that it strips EVERYTHING, including nested  
+   /// pointer/array constness/volatileness, etc.                             
+   template<class T>
+   using DecvqAll = Deptr<decltype(CT::Inner::NestedDecvq<T>())>;
 
 } // namespace Langulus
