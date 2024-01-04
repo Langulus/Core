@@ -631,8 +631,7 @@ namespace Langulus
       template<class...T>
       concept TypeErased = Void<T...>;
 
-      /// A data type is any type that is not a dense void, or                
-      /// related to Anyness::Neat                                            
+      /// A data type is any type that is not a dense void                    
       template<class...T>
       concept Data = not Void<T...>;
       
