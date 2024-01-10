@@ -109,7 +109,7 @@ namespace Langulus
 
    namespace Anyness
    {
-      class Block;
+      struct Block;
       class Neat;
    }
 
