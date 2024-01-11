@@ -552,13 +552,13 @@ namespace Langulus
 
       /// Equality comparable concept for any origin LHS and RHS, with an     
       /// adequate == operator                                                
-      template<class LHS, class... RHS>
+      template<class LHS, class...RHS>
       concept Comparable = Complete<Decay<LHS>, Decay<RHS>...>
           and (Inner::Comparable<Decay<LHS>, Decay<RHS>> and ...);
 
       /// Convertible concept                                                 
       /// Checks if a static_cast is possible between the provided types      
-      template<class FROM, class... TO>
+      template<class FROM, class...TO>
       concept Convertible = Complete<Decay<FROM>, Decay<TO>...>
           and (Inner::Convertible<Decay<FROM>, Decay<TO>> and ...);
 
