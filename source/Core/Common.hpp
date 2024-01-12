@@ -432,13 +432,13 @@ namespace Langulus
       /// String literal concept                                              
       template<class...T>
       concept StringLiteral = ((CT::Array<T>
-           and CT::SimilarAsOneOf<Deext<T>, char, char8_t, char16_t, char32_t, wchar_t>
+           and CT::SimilarAsOneOf<Deext<Deref<T>>, char, char8_t, char16_t, char32_t, wchar_t>
          ) and ...);
 
       /// String pointer concept                                              
       template<class...T>
       concept StringPointer = ((CT::Sparse<T>
-           and CT::SimilarAsOneOf<Deptr<T>, char, char8_t, char16_t, char32_t, wchar_t>
+           and CT::SimilarAsOneOf<Deptr<Deref<T>>, char, char8_t, char16_t, char32_t, wchar_t>
          ) and ...);
 
       /// Standard container concept                                          
