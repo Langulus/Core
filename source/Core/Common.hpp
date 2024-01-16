@@ -606,10 +606,13 @@ namespace Langulus
       concept BinaryCompatible = Inner::BinaryCompatible<Decay<T1>, Decay<T2>>
           and (Inner::BinaryCompatible<Decay<T1>, Decay<TN>> and ...);
 
+      /// Reference concept                                                   
+      template<class...T>
+      concept Reference = (::std::is_reference_v<T> and ...);
+
       /// Check if types have no reference/pointer/extent/const/volatile      
       template<class...T>
-      concept Decayed = ((Dense<T>
-          and not ::std::is_reference_v<T> and not Convoluted<T>) and ...);
+      concept Decayed = Dense<T...> and not Reference<T...> and not Convoluted<T...>;
    
       /// Check if types have reference/pointer/extent/const/volatile         
       template<class...T>
@@ -636,17 +639,15 @@ namespace Langulus
       
       /// Dense data concept                                                  
       template<class...T>
-      concept DenseData = Dense<T...> and Data<T...>
-          and (not ::std::is_reference_v<T> and ...);
+      concept DenseData = Dense<T...> and Data<T...> and not Reference<T...>;
       
       /// Sparse data concept                                                 
       template<class...T>
-      concept SparseData = Sparse<T...> and Data<T...>
-          and (not ::std::is_reference_v<T> and ...);
+      concept SparseData = Sparse<T...> and Data<T...> and not Reference<T...>;
       
       /// Data reference concept                                              
       template<class...T>
-      concept DataReference = ((Data<T> and ::std::is_reference_v<T>) and ...);
+      concept DataReference = Data<T...> and Reference<T...>;
       
       /// Check if all provided types match std::nullptr_t exactly            
       template<class T1, class...TN>
