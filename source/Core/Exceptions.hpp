@@ -85,6 +85,12 @@ namespace Langulus
       throw E {::std::forward<Args>(args)...};
    }
 
+   namespace CT
+   {
+      template<class...T>
+      concept Exception = (CT::DerivedFrom<T, ::Langulus::Exception> and ...);
+   }
+
 } // namespace Langulus
 
 
