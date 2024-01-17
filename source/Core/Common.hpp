@@ -441,15 +441,19 @@ namespace Langulus
            and CT::SimilarAsOneOf<Deptr<Deref<T>>, char, char8_t, char16_t, char32_t, wchar_t>
          ) and ...);
 
+      /// String pointer concept                                              
+      template<class...T>
+      concept String = ((StringLiteral<T> or StringPointer<T>) and ...);
+
       /// Standard container concept                                          
       /// You can get container type using TypeOf, if CT::Typed               
       template<class...T>
-      concept StandardContainer = (::std::ranges::range<T> and ...);
+      concept StdContainer = (::std::ranges::range<T> and ...);
 
       /// Standard cintiguous container concept                               
       /// You can get container type using TypeOf, if CT::Typed               
       template<class...T>
-      concept StandardContiguousContainer = ((::std::ranges::contiguous_range<T>
+      concept StdContiguousContainer = ((::std::ranges::contiguous_range<T>
             and requires (T c) { {c.data()} -> CT::Sparse; }
             and requires (T c) { {c.size()} -> CT::Exact<::std::size_t>; }
          ) and ...);
