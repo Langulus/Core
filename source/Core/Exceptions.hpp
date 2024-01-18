@@ -10,6 +10,7 @@
 #include "Common.hpp"
 #include <stdexcept>
 
+
 namespace Langulus
 {
 
