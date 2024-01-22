@@ -113,19 +113,19 @@ namespace Langulus
    ///   @param x - the unsigned integer to round up                          
    ///   @return the closest upper power-of-two to x                          
    template<bool SAFE = false, CT::Unsigned T> NOD() LANGULUS(INLINED)
-   constexpr T Roof2(const T& x) noexcept(!SAFE) {
+   constexpr T Roof2(const T& x) noexcept(not SAFE) {
       if constexpr (SAFE) {
          constexpr T lastPowerOfTwo = (T {1}) << (T {sizeof(T) * 8 - 1});
          if (x > lastPowerOfTwo)
             throw Except::Overflow("Roof2 overflowed");
       }
 
-      return x <= 1 ? x : T {1} << static_cast<T>(
+      return x <= T {1} ? x : T {1} << T {
          ::std::size_t {sizeof(::std::size_t) * 8} -
          CountLeadingZeroes<::std::size_t>(
             static_cast<::std::size_t>(x) - ::std::size_t {1}
          )
-      );
+      };
    }
 
    /// Round to the upper power-of-two (constexpr variant)                    
@@ -134,7 +134,8 @@ namespace Langulus
    ///   @param x - the unsigned integer to round up                          
    ///   @return the closest upper power-of-two to x                          
    template<bool SAFE = false, CT::Unsigned T> NOD() LANGULUS(INLINED)
-   constexpr T Roof2cexpr(const T& x) noexcept(!SAFE) {
+   constexpr T Roof2cexpr(const T& x) noexcept(not SAFE) {
+      //TODO can be detected at compile time, use one combined func
       if constexpr (SAFE) {
          constexpr T lastPowerOfTwo = (T {1}) << (T {sizeof(T) * 8 - 1});
          if (x > lastPowerOfTwo)
