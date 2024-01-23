@@ -120,12 +120,9 @@ namespace Langulus
             throw Except::Overflow("Roof2 overflowed");
       }
 
-      return x <= T {1} ? x : T {1} << T {
-         ::std::size_t {sizeof(::std::size_t) * 8} -
-         CountLeadingZeroes<::std::size_t>(
-            static_cast<::std::size_t>(x) - ::std::size_t {1}
-         )
-      };
+      return x <= 1 ? x : static_cast<T>(::std::size_t {1} <<
+         (sizeof(::std::size_t) * 8 - CountLeadingZeroes<::std::size_t>(x - 1))
+      );
    }
 
    /// Round to the upper power-of-two (constexpr variant)                    
