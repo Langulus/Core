@@ -281,11 +281,11 @@ namespace Langulus
    #endif
    
    /// The default alignment, depends on configuration and enabled SIMD       
-   constexpr Size Alignment = LANGULUS_ALIGNMENT;
+   constexpr Offset Alignment = LANGULUS_ALIGNMENT;
    #define LANGULUS_ALIGNED() alignas(::Langulus::Alignment)
 
    /// The bitness                                                            
-   constexpr Size Bitness = LANGULUS(BITNESS);
+   constexpr Offset Bitness = LANGULUS(BITNESS);
 
    /// Same as ::std::declval, but conveniently named                         
    template<class T>
@@ -452,6 +452,10 @@ namespace Langulus
       /// Sometimes a reference hides the pointer/extent, hence the deref     
       template<class...T>
       concept Array = (::std::is_bounded_array_v<Deref<T>> and ...);
+
+      /// Check whether T is a raw function signature                         
+      template<class...T>
+      concept Function = (::std::is_function_v<T> and ...);
 
       /// True if T is a pointer (or has an extent with [])                   
       /// Sometimes a reference hides the pointer/extent, hence the deref     
