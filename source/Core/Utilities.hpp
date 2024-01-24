@@ -56,7 +56,7 @@ namespace Langulus
    ///   @param n - value                                                     
    ///   @return the number of digits inside the value                        
    template<class T, T OFFSET = 10, Count RESULT = 1> NOD() LANGULUS(INLINED)
-   constexpr Count DigitsOf(const T& n) noexcept {
+   constexpr Count DigitsOf(const T n) noexcept {
       if constexpr (::std::numeric_limits<T>::digits10 + 1 > RESULT) {
          if constexpr (CT::Signed<T>) {
             // Get rid of negatives                                     
@@ -85,7 +85,7 @@ namespace Langulus
    ///   @param n - the number to test                                        
    ///   @return true if number has exactly one bit set                       
    NOD() LANGULUS(INLINED)
-   constexpr bool IsPowerOfTwo(const CT::Unsigned auto& n) noexcept {
+   constexpr bool IsPowerOfTwo(const CT::Unsigned auto n) noexcept {
       return ::std::has_single_bit(n);
    }
 
@@ -94,7 +94,7 @@ namespace Langulus
    ///   @param x - the value to scan                                         
    ///   @return the number of consecutive zero bits                          
    NOD() LANGULUS(INLINED)
-   constexpr int CountTrailingZeroes(const CT::Unsigned auto& x) noexcept {
+   constexpr int CountTrailingZeroes(const CT::Unsigned auto x) noexcept {
       return ::std::countr_zero(x);
    }
 
@@ -103,7 +103,7 @@ namespace Langulus
    ///   @param x - the value to scan                                         
    ///   @return the number of consecutive zero bits                          
    NOD() LANGULUS(INLINED)
-   constexpr int CountLeadingZeroes(const CT::Unsigned auto& x) noexcept {
+   constexpr int CountLeadingZeroes(const CT::Unsigned auto x) noexcept {
       return ::std::countl_zero(x);
    }
 
@@ -113,14 +113,14 @@ namespace Langulus
    ///   @param x - the unsigned integer to round up                          
    ///   @return the closest upper power-of-two to x                          
    template<bool SAFE = false, CT::Unsigned T> NOD() LANGULUS(INLINED)
-   constexpr T Roof2(const T& x) noexcept(not SAFE) {
+   constexpr T Roof2(const T x) noexcept(not SAFE) {
       if constexpr (SAFE) {
-         constexpr T lastPowerOfTwo = (T {1}) << (T {sizeof(T) * 8 - 1});
+         constexpr T lastPowerOfTwo = T {1} << T {sizeof(T) * 8 - 1};
          if (x > lastPowerOfTwo)
             throw Except::Overflow("Roof2 overflowed");
       }
 
-      return x <= 1 ? x : static_cast<T>(::std::size_t {1} <<
+      return x <= 1 ? x : static_cast<T>(1 <<
          (sizeof(::std::size_t) * 8 - CountLeadingZeroes<::std::size_t>(x - 1))
       );
    }
@@ -131,7 +131,7 @@ namespace Langulus
    ///   @param x - the unsigned integer to round up                          
    ///   @return the closest upper power-of-two to x                          
    template<bool SAFE = false, CT::Unsigned T> NOD() LANGULUS(INLINED)
-   constexpr T Roof2cexpr(const T& x) noexcept(not SAFE) {
+   constexpr T Roof2cexpr(const T x) noexcept(not SAFE) {
       //TODO can be detected at compile time, use one combined func
       if constexpr (SAFE) {
          constexpr T lastPowerOfTwo = (T {1}) << (T {sizeof(T) * 8 - 1});
