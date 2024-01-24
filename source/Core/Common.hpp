@@ -393,14 +393,13 @@ namespace Langulus
       ///   Concepts                                                          
       ///                                                                     
 
-      /// Check if T is complete (defined), by exploiting sizeof              
+      /// Check if all T are complete (defined), by exploiting sizeof         
       /// Usefulness of this is limited to the first instantiation, and       
       /// that is how it is used upon reflection by RTTI. Any other use is    
       /// undefined and might produce wrong results on some compilers.        
       /// Thankfully, most modern compilers do detect, if a definition        
       /// changes between completeness checks, so it is unlikely to cause any 
-      /// real harm                                                           
-      /// https://stackoverflow.com/questions/21119281                        
+      /// real harm: https://stackoverflow.com/questions/21119281             
       template<class...T>
       concept Complete = ((sizeof(T) == sizeof(T)) and ...);
 
@@ -453,7 +452,7 @@ namespace Langulus
       template<class...T>
       concept Array = (::std::is_bounded_array_v<Deref<T>> and ...);
 
-      /// Check whether T is a raw function signature                         
+      /// Check whether all T are raw function signatures                     
       template<class...T>
       concept Function = (::std::is_function_v<T> and ...);
 

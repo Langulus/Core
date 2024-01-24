@@ -32,7 +32,7 @@ if(CMAKE_CXX_FLAGS)
 endif()
 
 if(MSVC)
-    target_compile_options(LangulusCore INTERFACE /utf-8 /W3 /bigobj /EHsc)
+    target_compile_options(LangulusCore INTERFACE /utf-8 /W3 /bigobj /EHsc /wd4180)
 else()
     target_compile_options(LangulusCore INTERFACE -Wall -Wextra -Wno-comment 
 	                                              -fvisibility=hidden
