@@ -34,7 +34,8 @@ endif()
 if(MSVC)
     target_compile_options(LangulusCore INTERFACE /utf-8 /W3 /bigobj /EHsc /wd4180)
 else()
-    target_compile_options(LangulusCore INTERFACE -Wall -Wextra -Wno-comment 
+    target_compile_options(LangulusCore INTERFACE -Wall -Wextra -Wno-comment
+												  -fmax-errors=5
 	                                              -fvisibility=hidden
 												  -fvisibility-inlines-hidden)
 endif()
