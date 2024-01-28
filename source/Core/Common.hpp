@@ -214,7 +214,7 @@ namespace Langulus
    using Offset = ::std::size_t;
    constexpr Offset OffsetMax = ::std::numeric_limits<Offset>::max();
 
-   /// Type that holds a hash, depends on architecture                        
+   /// Type that holds a hash - size depends on architecture                  
    struct Hash {
       static constexpr bool CTTI_POD = true;
       static constexpr bool CTTI_Nullifiable = true;
@@ -232,6 +232,8 @@ namespace Langulus
          : mHash {a} {}
 
       constexpr bool operator == (const Hash&) const noexcept = default;
+
+      constexpr Hash& operator = (const Hash&) noexcept = default;
    };
 
    /// Type for a character                                                   
