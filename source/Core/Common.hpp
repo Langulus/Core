@@ -443,11 +443,11 @@ namespace Langulus
 
       /// Check if any T is the built-in one that signifies lack of support   
       template<class...T>
-      concept Unsupported = (Same<::Langulus::Inner::Unsupported, T> or ...);
+      concept Unsupported = ((Same<::Langulus::Inner::Unsupported, T>) or ...);
 
       /// Check if all T are supported                                        
       template<class...T>
-      concept Supported = (not Same<::Langulus::Inner::Unsupported, T> and ...);
+      concept Supported = ((not Unsupported<T>) and ...);
 
       /// True if T is an array (has an extent with [])                       
       /// Sometimes a reference hides the pointer/extent, hence the deref     
@@ -465,7 +465,7 @@ namespace Langulus
 
       /// True if T is not a pointer (and has no extent with [])              
       template<class...T>
-      concept Dense = not Sparse<T...>;
+      concept Dense = ((not Sparse<T>) and ...);
 
       /// Check if type is constant-qualified                                 
       template<class...T>
@@ -481,7 +481,7 @@ namespace Langulus
 
       /// Check if type is not constant-qualified                             
       template<class...T>
-      concept Mutable = not Constant<T...>;
+      concept Mutable = ((not Constant<T>) and ...);
 
       /// Check if type is signed (either sparse or dense)                    
       ///   @attention doesn't apply to numbers only, but anything negatable  
@@ -501,7 +501,7 @@ namespace Langulus
       /// Check if type is unsigned (either sparse or dense)                  
       ///   @attention doesn't apply to numbers only, but anything negatable  
       template<class...T>
-      concept Unsigned = not Signed<T...>;
+      concept Unsigned = ((not Signed<T>) and ...);
 
       /// Check if type is unsigned and dense                                 
       ///   @attention doesn't apply to numbers only, but anything negatable  
@@ -710,11 +710,12 @@ namespace Langulus
 
       /// Check if types have no reference/pointer/extent/const/volatile      
       template<class...T>
-      concept Decayed = Dense<T...> and not Reference<T...> and not Convoluted<T...>;
+      concept Decayed = Dense<T...>
+          and ((not Reference<T> and not Convoluted<T>) and ...);
    
       /// Check if types have reference/pointer/extent/const/volatile         
       template<class...T>
-      concept NotDecayed = not Decayed<T...>;
+      concept NotDecayed = ((not Decayed<T>) and ...);
    
       /// Check if a function encapsulated in a lambda is a constexpr         
       /// Leverages that lambda expressions can be constexpr as of C++17      
@@ -733,15 +734,17 @@ namespace Langulus
 
       /// A data type is any type that is not a dense void                    
       template<class...T>
-      concept Data = not Void<T...>;
+      concept Data = ((not Void<T>) and ...);
       
       /// Dense data concept                                                  
       template<class...T>
-      concept DenseData = Dense<T...> and Data<T...> and not Reference<T...>;
+      concept DenseData = Dense<T...> and Data<T...>
+          and ((not Reference<T>) and ...);
       
       /// Sparse data concept                                                 
       template<class...T>
-      concept SparseData = Sparse<T...> and Data<T...> and not Reference<T...>;
+      concept SparseData = Sparse<T...> and Data<T...>
+          and ((not Reference<T>) and ...);
       
       /// Data reference concept                                              
       template<class...T>
