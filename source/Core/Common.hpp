@@ -89,7 +89,7 @@ namespace Langulus
       struct Verb;
 
       template<class VERB>
-      struct StaticVerb;
+      struct TVerb;
 
       template<class VERB, bool NOEXCEPT>
       struct ArithmeticVerb;
@@ -523,13 +523,13 @@ namespace Langulus
             (SameAsOneOf<T, char, char8_t, char16_t, char32_t, wchar_t>
          ) and ...);
 
-      /// String literal concept                                              
+      /// String literal concept - a bounded array with an extent             
       template<class...T>
       concept StringLiteral = ((CT::Array<T>
            and CT::SimilarAsOneOf<Deext<Deref<T>>, char, char8_t, char16_t, char32_t, wchar_t>
          ) and ...);
 
-      /// String pointer concept                                              
+      /// String pointer concept, aka null-terminated string                  
       template<class...T>
       concept StringPointer = ((CT::Sparse<T>
            and CT::SimilarAsOneOf<Deptr<Deref<T>>, char, char8_t, char16_t, char32_t, wchar_t>
