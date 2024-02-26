@@ -143,7 +143,7 @@ namespace Langulus
 
    /// Byte count literal                                                     
    constexpr Size operator"" _B(unsigned long long int num) noexcept {
-      return Size {num};
+      return Size {static_cast<::std::size_t>(num)};
    }
 
 	/// Floating-point bytesize literals, like 5.5_kB                          
