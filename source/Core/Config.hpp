@@ -15,7 +15,6 @@
 #endif
 
 #include <cstdint>
-#include <source_location>
 
 /// Safe mode enables assumption checks all over the code                     
 /// High overhead, usually enabled only when testing in debug builds          
@@ -229,9 +228,35 @@
 /// Checks if a given compiler is enabled                                     
 #define LANGULUS_COMPILER(a) LANGULUS_COMPILER_##a()
 
+/// Dumps the current function name                                           
+///   @attention GCC and Clang give me grief in the form of weird outputs and 
+///      unpredictable segfaults, so we'll enable this after they sort their  
+///      things out                                                           
+//#include <source_location>
+//#define LANGULUS_FUNCTION() std::source_location::current().function_name()
+
+/// Here's an alternative well-tested solution for now:                       
 /// Shamelessly stolen from boost and extended to my liking                   
 /// Dumps the current function name                                           
-#define LANGULUS_FUNCTION() std::source_location::current().function_name()
+#if defined(__GNUC__) or (defined(__MWERKS__) and (__MWERKS__ >= 0x3000)) or (defined(__ICC) and (__ICC >= 600)) or defined(__ghs__)
+   #define LANGULUS_FUNCTION() __PRETTY_FUNCTION__
+#elif defined(__clang__)
+   #define LANGULUS_FUNCTION() __PRETTY_FUNCTION__
+#elif defined(__DMC__) and (__DMC__ >= 0x810)
+   #define LANGULUS_FUNCTION() __PRETTY_FUNCTION__
+#elif defined(__FUNCSIG__) or defined(_MSC_VER)
+   #define LANGULUS_FUNCTION() __FUNCSIG__
+#elif (defined(__INTEL_COMPILER) and (__INTEL_COMPILER >= 600)) or (defined(__IBMCPP__) and (__IBMCPP__ >= 500))
+   #define LANGULUS_FUNCTION() __FUNCTION__
+#elif defined(__BORLANDC__) and (__BORLANDC__ >= 0x550)
+   #define LANGULUS_FUNCTION() __FUNC__
+#elif defined(__STDC_VERSION__) and (__STDC_VERSION__ >= 199901)
+   #define LANGULUS_FUNCTION() __func__
+#elif defined(__cplusplus) and (__cplusplus >= 201103)
+   #define LANGULUS_FUNCTION() __func__
+#else
+   #error Not implemented
+#endif
 
 /// Utility macro, that turns its argument to a string literal (inner)        
 #define LANGULUS_STRINGIFY_INNER(x)		#x
