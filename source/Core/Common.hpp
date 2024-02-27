@@ -130,12 +130,15 @@ namespace Langulus
       constexpr Size& operator = (Size&&) noexcept = default;
 
       constexpr ::std::string_view GetSuffix() const noexcept {
-         if      (mSize < 1'000LL)                 return "B";
-         else if (mSize < 1'000'000LL)             return "KB";
-         else if (mSize < 1'000'000'000LL)         return "MB";
-         else if (mSize < 1'000'000'000'000LL)     return "GB";
-         else if (mSize < 1'000'000'000'000'000LL) return "TB";
-         else return " PB";
+         if      (mSize < 1'024LL)                 return "B";
+         else if (mSize < 1'048'576LL)             return "KB";
+         else if (mSize < 1'073'741'824LL)         return "MB";
+         else if constexpr (sizeof(mSize) > 4) {
+            if      (mSize < 1'099'511'627'776LL)     return "GB";
+            else if (mSize < 1'125'899'906'842'624LL) return "TB";
+            else return " PB";
+         }
+         else return "GB";
       }
    };
 
@@ -147,7 +150,7 @@ namespace Langulus
    }
 
 	/// Floating-point bytesize literals, like 5.5_kB                          
-   constexpr Size operator"" _kiB(long double num) noexcept {
+   constexpr Size operator"" _KiB(long double num) noexcept {
       return Size {(size_t)((1LL << 10) * num)};
    }
    constexpr Size operator"" _MiB(long double num) noexcept {
@@ -162,24 +165,27 @@ namespace Langulus
    constexpr Size operator"" _PiB(long double num) noexcept {
       return Size {(size_t)((1LL << 50) * num)};
    }
-   constexpr Size operator"" _kB(long double num) noexcept {
-      return Size {(size_t)(1'000LL * num)};
+   constexpr Size operator"" _KB(long double num) noexcept {
+      return Size {(size_t)(1'024LL * num)};
    }
    constexpr Size operator"" _MB(long double num) noexcept {
-      return Size {(size_t)(1'000'000LL * num)};
+      return Size {(size_t)(1'048'576LL * num)};
    }
    constexpr Size operator"" _GB(long double num) noexcept {
-      return Size {(size_t)(1'000'000'000LL * num)};
-   }
-   constexpr Size operator"" _TB(long double num) noexcept {
-      return Size {(size_t)(1'000'000'000'000LL * num)};
-   }
-   constexpr Size operator"" _PB(long double num) noexcept {
-      return Size {(size_t)(1'000'000'000'000'000LL * num)};
+      return Size {(size_t)(1'073'741'824LL * num)};
    }
 
+#if LANGULUS_BITNESS() > 32
+   constexpr Size operator"" _TB(long double num) noexcept {
+      return Size {(size_t)(1'099'511'627'776LL * num)};
+   }
+   constexpr Size operator"" _PB(long double num) noexcept {
+      return Size {(size_t)(1'125'899'906'842'624LL * num)};
+   }
+#endif
+
 	/// Integer bytesize literals, like 5_kB                                   
-   constexpr Size operator"" _kiB(unsigned long long int num) noexcept {
+   constexpr Size operator"" _KiB(unsigned long long int num) noexcept {
       return Size {(size_t)((1LL << 10) * num)};
    }
    constexpr Size operator"" _MiB(unsigned long long int num) noexcept {
@@ -194,21 +200,24 @@ namespace Langulus
    constexpr Size operator"" _PiB(unsigned long long int num) noexcept {
       return Size {(size_t)((1LL << 50) * num)};
    }
-   constexpr Size operator"" _kB(unsigned long long int num) noexcept {
-      return Size {(size_t)(1'000LL * num)};
+   constexpr Size operator"" _KB(unsigned long long int num) noexcept {
+      return Size {(size_t)(1'024LL * num)};
    }
    constexpr Size operator"" _MB(unsigned long long int num) noexcept {
-      return Size {(size_t)(1'000'000LL * num)};
+      return Size {(size_t)(1'048'576LL * num)};
    }
    constexpr Size operator"" _GB(unsigned long long int num) noexcept {
-      return Size {(size_t)(1'000'000'000LL * num)};
+      return Size {(size_t)(1'073'741'824LL * num)};
    }
+
+#if LANGULUS_BITNESS() > 32
    constexpr Size operator"" _TB(unsigned long long int num) noexcept {
-      return Size {(size_t)(1'000'000'000'000LL * num)};
+      return Size {(size_t)(1'099'511'627'776LL * num)};
    }
    constexpr Size operator"" _PB(unsigned long long int num) noexcept {
-      return Size {(size_t)(1'000'000'000'000'000LL * num)};
+      return Size {(size_t)(1'125'899'906'842'624LL * num)};
    }
+#endif
 
    /// Type for offsetting pointers, depends on architecture                  
    using Offset = ::std::size_t;

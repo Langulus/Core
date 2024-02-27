@@ -35,13 +35,16 @@ if(MSVC)
     target_compile_options(LangulusCore INTERFACE /utf-8 /W3 /bigobj /EHsc /wd4180)
 else()
     target_compile_options(LangulusCore INTERFACE -Wall -Wextra -Wno-comment
-												  -fmax-errors=5
 	                                              -fvisibility=hidden
 												  -fvisibility-inlines-hidden)
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
     target_compile_options(LangulusCore INTERFACE -Wno-trigraphs)
+endif()
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+    target_compile_options(LangulusCore INTERFACE -fmax-errors=5)
 endif()
 
 # Configure the features you require                                    
