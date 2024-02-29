@@ -10,6 +10,7 @@
 #include "Config.hpp"
 #include <cstddef>
 #include <string_view>
+#include <limits>
 
 
 namespace Langulus
