@@ -120,41 +120,28 @@ namespace Langulus
             throw Except::Overflow("Roof2 overflowed");
       }
 
-      return x <= 1 ? x : static_cast<T>((::std::size_t {1}) <<
-         (sizeof(::std::size_t) * 8 - CountLeadingZeroes<::std::size_t>(x - 1))
-      );
-   }
+      IF_CONSTEXPR() {
+         T n = x;
+         --n;
+         n |= n >> 1;
+         n |= n >> 2;
+         n |= n >> 4;
+         if constexpr (sizeof(T) > 1)
+            n |= n >> 8;
+         if constexpr (sizeof(T) > 2)
+            n |= n >> 16;
+         if constexpr (sizeof(T) > 4)
+            n |= n >> 32;
+         if constexpr (sizeof(T) > 8)
+            throw Except::ToDo("Implement if struck");
 
-   /// Round to the upper power-of-two (constexpr variant)                    
-   ///   @tparam SAFE - set to true if you want it to throw on overflow       
-   ///   @tparam T - the unsigned integer type (deducible)                    
-   ///   @param x - the unsigned integer to round up                          
-   ///   @return the closest upper power-of-two to x                          
-   template<bool SAFE = false, CT::Unsigned T> NOD() LANGULUS(INLINED)
-   constexpr T Roof2cexpr(const T x) noexcept(not SAFE) {
-      //TODO can be detected at compile time, use one combined func
-      if constexpr (SAFE) {
-         constexpr T lastPowerOfTwo = (T {1}) << (T {sizeof(T) * 8 - 1});
-         if (x > lastPowerOfTwo)
-            throw Except::Overflow("Roof2 overflowed");
+         ++n;
+         return n;
       }
-
-      T n = x;
-      --n;
-      n |= n >> 1;
-      n |= n >> 2;
-      n |= n >> 4;
-      if constexpr (sizeof(T) > 1)
-         n |= n >> 8;
-      if constexpr (sizeof(T) > 2)
-         n |= n >> 16;
-      if constexpr (sizeof(T) > 4)
-         n |= n >> 32;
-      if constexpr (sizeof(T) > 8)
-         throw Except::ToDo("Implement if struck");
-
-      ++n;
-      return n;
+      else {
+         return x <= 1 ? x : static_cast<T>((T {1}) << 
+            static_cast<T>(sizeof(T) * 8 - CountLeadingZeroes(static_cast<T>(x - 1))));
+      }
    }
 
    /// A somewhat safer reinterpret_cast for dense instances                  
