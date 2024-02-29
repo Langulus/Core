@@ -165,12 +165,12 @@ namespace Langulus
    #endif
 
    LANGULUS(INLINED)
-   constexpr Real operator "" _real(unsigned long long n) noexcept {
+   consteval Real operator "" _real(unsigned long long n) noexcept {
       return static_cast<Real>(n);
    }
    
    LANGULUS(INLINED)
-   constexpr Real operator "" _real(long double n) noexcept {
+   consteval Real operator "" _real(long double n) noexcept {
       return static_cast<Real>(n);
    }
 
@@ -262,7 +262,7 @@ namespace Langulus
    {
 
       template<class T>
-      NOD() constexpr auto NestedDecay() noexcept {
+      consteval auto NestedDecay() noexcept {
          using Stripped = Decvq<Deptr<Deext<T>>>;
          if constexpr (::std::same_as<T, Stripped>)
             return static_cast<Stripped*>(nullptr);
@@ -271,7 +271,7 @@ namespace Langulus
       }
 
       template<class T1, class T2>
-      NOD() constexpr bool NestedSimilar() noexcept {
+      consteval bool NestedSimilar() noexcept {
          using Stripped1 = Decvq<Deref<T1>>;
          using Stripped2 = Decvq<Deref<T2>>;
          if constexpr (::std::same_as<Stripped1, Stripped2>)
@@ -625,8 +625,8 @@ namespace Langulus
       /// Leverages that lambda expressions can be constexpr as of C++17      
       /// https://stackoverflow.com/questions/55288555                        
       template<class Lambda, int = (Lambda {}(), 0)>
-      constexpr bool IsConstexpr(Lambda) { return true; }
-      constexpr bool IsConstexpr(...) { return false; }
+      consteval bool IsConstexpr(Lambda) { return true; }
+      consteval bool IsConstexpr(...) { return false; }
          
       /// Check if type is a dense void                                       
       template<class...T>
@@ -662,7 +662,7 @@ namespace Langulus
       {
 
          template<class T>
-         NOD() constexpr auto NestedDecvq() noexcept {
+         NOD() consteval auto NestedDecvq() noexcept {
             using Stripped = Decvq<Deref<T>>;
             if constexpr (Decayed<Stripped>)
                return (Stripped*) nullptr;

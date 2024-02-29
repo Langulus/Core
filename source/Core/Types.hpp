@@ -55,7 +55,7 @@ namespace Langulus
    template<class...> Types() -> Types<void>;
 
    template<CT::Data...T>
-   constexpr auto CreateTypeList() {
+   consteval auto CreateTypeList() {
       if constexpr (sizeof...(T))
          return Types<T...> {};
       else
