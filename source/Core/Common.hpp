@@ -8,13 +8,10 @@
 ///                                                                           
 #pragma once
 #include "Config.hpp"
+#include "Size.hpp"
 #include <type_traits>
 #include <typeinfo>
-#include <cstddef>
 #include <functional>
-#include <span>
-#include <string_view>
-#include <limits>
 #include <concepts>
 #include <bit>
 #include <cstring>
@@ -116,108 +113,6 @@ namespace Langulus
    /// Type for counting things, depends on architecture                      
    using Count = ::std::size_t;
    constexpr Count CountMax = ::std::numeric_limits<Count>::max();
-
-   /// Type for counting bytes, depends on architecture                       
-   struct Size {
-      ::std::size_t mSize;
-
-      constexpr Size() noexcept = default;
-      constexpr Size(const Size&) noexcept = default;
-      constexpr Size(Size&&) noexcept = default;
-      constexpr Size(::std::size_t v) noexcept : mSize {v} {}
-      constexpr operator ::std::size_t() const noexcept { return mSize; }
-      constexpr Size& operator = (const Size&) noexcept = default;
-      constexpr Size& operator = (Size&&) noexcept = default;
-
-      constexpr ::std::string_view GetSuffix() const noexcept {
-         if      (mSize < 1'024LL)                 return "B";
-         else if (mSize < 1'048'576LL)             return "KB";
-         else if (mSize < 1'073'741'824LL)         return "MB";
-         else if constexpr (sizeof(mSize) > 4) {
-            if      (mSize < 1'099'511'627'776LL)     return "GB";
-            else if (mSize < 1'125'899'906'842'624LL) return "TB";
-            else return " PB";
-         }
-         else return "GB";
-      }
-   };
-
-   constexpr Size SizeMax = ::std::numeric_limits<Size>::max();
-
-   /// Byte count literal                                                     
-   constexpr Size operator"" _B(unsigned long long int num) noexcept {
-      return Size {static_cast<::std::size_t>(num)};
-   }
-
-	/// Floating-point bytesize literals, like 5.5_kB                          
-   constexpr Size operator"" _KiB(long double num) noexcept {
-      return Size {(size_t)((1LL << 10) * num)};
-   }
-   constexpr Size operator"" _MiB(long double num) noexcept {
-      return Size {(size_t)((1LL << 20) * num)};
-   }
-   constexpr Size operator"" _GiB(long double num) noexcept {
-      return Size {(size_t)((1LL << 30) * num)};
-   }
-   constexpr Size operator"" _TiB(long double num) noexcept {
-      return Size {(size_t)((1LL << 40) * num)};
-   }
-   constexpr Size operator"" _PiB(long double num) noexcept {
-      return Size {(size_t)((1LL << 50) * num)};
-   }
-   constexpr Size operator"" _KB(long double num) noexcept {
-      return Size {(size_t)(1'024LL * num)};
-   }
-   constexpr Size operator"" _MB(long double num) noexcept {
-      return Size {(size_t)(1'048'576LL * num)};
-   }
-   constexpr Size operator"" _GB(long double num) noexcept {
-      return Size {(size_t)(1'073'741'824LL * num)};
-   }
-
-#if LANGULUS_BITNESS() > 32
-   constexpr Size operator"" _TB(long double num) noexcept {
-      return Size {(size_t)(1'099'511'627'776LL * num)};
-   }
-   constexpr Size operator"" _PB(long double num) noexcept {
-      return Size {(size_t)(1'125'899'906'842'624LL * num)};
-   }
-#endif
-
-	/// Integer bytesize literals, like 5_kB                                   
-   constexpr Size operator"" _KiB(unsigned long long int num) noexcept {
-      return Size {(size_t)((1LL << 10) * num)};
-   }
-   constexpr Size operator"" _MiB(unsigned long long int num) noexcept {
-      return Size {(size_t)((1LL << 20) * num)};
-   }
-   constexpr Size operator"" _GiB(unsigned long long int num) noexcept {
-      return Size {(size_t)((1LL << 30) * num)};
-   }
-   constexpr Size operator"" _TiB(unsigned long long int num) noexcept {
-      return Size {(size_t)((1LL << 40) * num)};
-   }
-   constexpr Size operator"" _PiB(unsigned long long int num) noexcept {
-      return Size {(size_t)((1LL << 50) * num)};
-   }
-   constexpr Size operator"" _KB(unsigned long long int num) noexcept {
-      return Size {(size_t)(1'024LL * num)};
-   }
-   constexpr Size operator"" _MB(unsigned long long int num) noexcept {
-      return Size {(size_t)(1'048'576LL * num)};
-   }
-   constexpr Size operator"" _GB(unsigned long long int num) noexcept {
-      return Size {(size_t)(1'073'741'824LL * num)};
-   }
-
-#if LANGULUS_BITNESS() > 32
-   constexpr Size operator"" _TB(unsigned long long int num) noexcept {
-      return Size {(size_t)(1'099'511'627'776LL * num)};
-   }
-   constexpr Size operator"" _PB(unsigned long long int num) noexcept {
-      return Size {(size_t)(1'125'899'906'842'624LL * num)};
-   }
-#endif
 
    /// Type for offsetting pointers, depends on architecture                  
    using Offset = ::std::size_t;
