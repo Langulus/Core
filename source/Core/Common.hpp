@@ -523,9 +523,7 @@ namespace Langulus
 
          template<class...T>
          concept Referencable = requires (T&...a) {
-               {(a.Keep(), ...)};
-               {(a.Free(), ...)} -> Exact<Count>;
-               {(a.GetReferences(), ...)} -> Exact<Count>;
+               {(a.Reference(-1), ...)} -> Exact<Count>;
             };
 
          template<class...T>
