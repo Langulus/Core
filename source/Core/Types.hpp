@@ -26,20 +26,65 @@ namespace Langulus
    struct Types<T> {
       static constexpr bool Empty = false;
       using First = T;
+
+      template<class LAMBDA>
+      static constexpr decltype(auto) ForEach(LAMBDA&& generator) {
+         return generator.template operator()<T>();
+      }
+      template<class LAMBDA>
+      static constexpr decltype(auto) ForEachAnd(LAMBDA&& generator) {
+         return generator.template operator()<T>();
+      }
+      template<class LAMBDA>
+      static constexpr decltype(auto) ForEachOr(LAMBDA&& generator) {
+         return generator.template operator()<T>();
+      }
    };
 
    /// Type list that contains multiple non-void types                        
-   template<CT::Data T1, CT::Data T2, CT::Data... TAIL>
-   struct Types<T1, T2, TAIL...> {
+   template<CT::Data T1, CT::Data T2, CT::Data...TN>
+   struct Types<T1, T2, TN...> {
       static constexpr bool Empty = false;
       using First = T1;
       using Second = T2;
+
+      template<class LAMBDA>
+      static constexpr void ForEach(LAMBDA&& generator) {
+         generator.template operator()<T1>();
+         generator.template operator()<T2>();
+         (generator.template operator()<TN>(), ...);
+      }
+      template<class LAMBDA>
+      static constexpr bool ForEachAnd(LAMBDA&& generator) {
+         return generator.template operator()<T1>()
+            and generator.template operator()<T2>()
+            and (... and generator.template operator()<TN>());
+      }
+      template<class LAMBDA>
+      static constexpr bool ForEachOr(LAMBDA&& generator) {
+         return generator.template operator()<T1>()
+             or generator.template operator()<T2>()
+             or (... or generator.template operator()<TN>());
+      }
    };
 
    /// Type list, that contains only one void item - a canonical empty list   
-   template <>
+   template<>
    struct Types<void> {
       static constexpr bool Empty = true;
+
+      template<class LAMBDA>
+      static constexpr bool ForEach(LAMBDA&&) noexcept {
+         return false;
+      }
+      template<class LAMBDA>
+      static constexpr bool ForEachAnd(LAMBDA&&) noexcept {
+         return false;
+      }
+      template<class LAMBDA>
+      static constexpr bool ForEachOr(LAMBDA&&) noexcept {
+         return false;
+      }
    };
 
    /// Retrieve the first type from a type list                               
