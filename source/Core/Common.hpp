@@ -368,6 +368,7 @@ namespace Langulus
       concept Sparse = ((::std::is_pointer_v<Deref<T>> or Array<T>) and ...);
 
       /// True if T is not a pointer (and has no extent with [])              
+      /// It is still allowed to be a reference                               
       template<class...T>
       concept Dense = ((not Sparse<T>) and ...);
 
@@ -609,6 +610,11 @@ namespace Langulus
       /// Reference concept                                                   
       template<class...T>
       concept Reference = (::std::is_reference_v<T> and ...);
+
+      /// True if T is not a pointer (and has no extent with []), as well as  
+      /// not a reference                                                     
+      template<class...T>
+      concept Slab = ((Dense<T> and not Reference<T>) and ...);
 
       /// Check if types have no reference/pointer/extent/const/volatile      
       template<class...T>
