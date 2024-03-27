@@ -601,7 +601,13 @@ namespace Langulus
       template<class T1, class T2, class...TN>
       concept Related = Inner::Related<Decay<T1>, Decay<T2>>
           and (Inner::Related<Decay<T1>, Decay<TN>> and ...);
-   
+
+      /// Check if a type is virtually derived from all the provided BASE(s)  
+      template<class T, class...BASE>
+      concept VirtuallyDerivedFrom = ((::std::is_base_of_v<BASE, T>
+          and not requires (BASE* from) { static_cast<T*>(from); }
+         ) and ...);
+
       /// Binary compatibility check between T1 and the provided types        
       template<class T1, class T2, class...TN>
       concept BinaryCompatible = Inner::BinaryCompatible<Decay<T1>, Decay<T2>>
