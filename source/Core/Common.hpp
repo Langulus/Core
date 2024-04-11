@@ -307,152 +307,173 @@ namespace Langulus
       /// changes between completeness checks, so it is unlikely to cause any 
       /// real harm: https://stackoverflow.com/questions/21119281             
       template<class...T>
-      concept Complete = ((sizeof(T) == sizeof(T)) and ...);
+      concept Complete = sizeof...(T) > 0
+          and ((sizeof(T) == sizeof(T)) and ...);
 
-      /// True if decayed T1 matches all decayed types                        
+      /// True if decayed T1 matches all decayed TN types                     
       ///   @attention ignores type density and cv-qualifications             
-      template<class T1, class T2, class...TN>
-      concept Same = ::std::same_as<Decay<T1>, Decay<T2>>
-          and ((::std::same_as<Decay<T1>, Decay<TN>>) and ...);
+      template<class T1, class...TN>
+      concept Same = sizeof...(TN) > 0
+          and (::std::same_as<Decay<T1>, Decay<TN>> and ...);
 
-      /// True if unqualified T1 matches all unqualified types                
+      /// True if unqualified T1 matches all unqualified TN types             
       ///   @attention ignores cv-qualifications only                         
-      template<class T1, class T2, class...TN>
-      concept Similar = Langulus::Inner::NestedSimilar<T1, T2>()
+      template<class T1, class...TN>
+      concept Similar = sizeof...(TN) > 0
           and (Langulus::Inner::NestedSimilar<T1, TN>() and ...);
 
-      /// True if T1 matches exactly all the provided types, including        
+      /// True if T1 matches exactly all the provided TN, including           
       /// density and cv-qualifiers                                           
-      template<class T1, class T2, class...TN>
-      concept Exact = ::std::same_as<T1, T2>
-          and ((::std::same_as<T1, TN>) and ...);
+      template<class T1, class...TN>
+      concept Exact = sizeof...(TN) > 0
+          and (::std::same_as<T1, TN> and ...);
 
-      /// True if decayed T1 matches at least one of the decayed types        
+      /// True if decayed T1 matches at least one of the decayed TN           
       ///   @attention ignores type density and cv-qualifications             
-      template<class T1, class T2, class...TN>
-      concept SameAsOneOf = ::std::same_as<Decay<T1>, Decay<T2>> 
-           or ((::std::same_as<Decay<T1>, Decay<TN>>) or ...);
+      template<class T1, class...TN>
+      concept SameAsOneOf = sizeof...(TN) > 0
+          and (::std::same_as<Decay<T1>, Decay<TN>> or ...);
 
-      /// True if unqualified T1 matches at least one of the unqualified types
+      /// True if unqualified T1 matches at least one of the unqualified TN   
       ///   @attention ignores cv-qualifications only                         
-      template<class T1, class T2, class...TN>
-      concept SimilarAsOneOf = Langulus::Inner::NestedSimilar<T1, T2>()
-           or (Langulus::Inner::NestedSimilar<T1, TN>() or ...);
+      template<class T1, class...TN>
+      concept SimilarAsOneOf = sizeof...(TN) > 0
+          and (Langulus::Inner::NestedSimilar<T1, TN>() or ...);
 
-      /// True if T1 matches exactly at least one of the types, including     
+      /// True if T1 matches exactly at least one of the TN, including        
       /// density and cv-qualifications                                       
-      template<class T1, class T2, class...TN>
-      concept ExactAsOneOf = ::std::same_as<T1, T2>
-           or ((::std::same_as<T1, TN>) or ...);
+      template<class T1, class...TN>
+      concept ExactAsOneOf = sizeof...(TN) > 0
+          and (::std::same_as<T1, TN> or ...);
 
       /// Check if any T is the built-in one that signifies lack of support   
       template<class...T>
-      concept Unsupported = ((Same<::Langulus::Inner::Unsupported, T>) or ...);
+      concept Unsupported = sizeof...(T) > 0
+          and (Same<::Langulus::Inner::Unsupported, T> or ...);
 
       /// Check if all T are supported                                        
       template<class...T>
-      concept Supported = ((not Unsupported<T>) and ...);
+      concept Supported = sizeof...(T) > 0
+          and ((not Unsupported<T>) and ...);
 
       /// True if T is an array (has an extent with [])                       
       /// Sometimes a reference hides the pointer/extent, hence the deref     
       template<class...T>
-      concept Array = (::std::is_bounded_array_v<Deref<T>> and ...);
+      concept Array = sizeof...(T) > 0
+          and (::std::is_bounded_array_v<Deref<T>> and ...);
 
       /// Check whether all T are raw function signatures                     
       template<class...T>
-      concept Function = (::std::is_function_v<T> and ...);
+      concept Function = sizeof...(T) > 0
+          and (::std::is_function_v<T> and ...);
 
       /// True if T is a pointer (or has an extent with [])                   
       /// Sometimes a reference hides the pointer/extent, hence the deref     
       template<class...T>
-      concept Sparse = ((::std::is_pointer_v<Deref<T>> or Array<T>) and ...);
+      concept Sparse = sizeof...(T) > 0
+          and ((::std::is_pointer_v<Deref<T>> or Array<T>) and ...);
 
       /// True if T is not a pointer (and has no extent with [])              
       /// It is still allowed to be a reference                               
       template<class...T>
-      concept Dense = ((not Sparse<T>) and ...);
+      concept Dense = sizeof...(T) > 0
+          and ((not Sparse<T>) and ...);
 
       /// Check if type is constant-qualified                                 
       template<class...T>
-      concept Constant = (::std::is_const_v<Deref<T>> and ...);
+      concept Constant = sizeof...(T) > 0
+          and (::std::is_const_v<Deref<T>> and ...);
 
       /// Check if type is volatile-qualified                                 
       template<class...T>
-      concept Volatile = (::std::is_volatile_v<Deref<T>> and ...);
+      concept Volatile = sizeof...(T) > 0
+          and (::std::is_volatile_v<Deref<T>> and ...);
 
       /// Check if type is either const- or volatile-qualified                
       template<class...T>
-      concept Convoluted = ((Constant<T> or Volatile<T>) and ...);
+      concept Convoluted = sizeof...(T) > 0
+          and ((Constant<T> or Volatile<T>) and ...);
 
       /// Check if type is not constant-qualified                             
       template<class...T>
-      concept Mutable = ((not Constant<T>) and ...);
+      concept Mutable = sizeof...(T) > 0
+          and ((not Constant<T>) and ...);
 
       /// Check if type is signed (either sparse or dense)                    
       ///   @attention doesn't apply to numbers only, but anything negatable  
       template<class...T>
-      concept Signed = (::std::is_signed_v<Decay<T>> and ...);
+      concept Signed = sizeof...(T) > 0
+          and (::std::is_signed_v<Decay<T>> and ...);
 
       /// Check if type is signed and dense                                   
       ///   @attention doesn't apply to numbers only, but anything negatable  
       template<class...T>
-      concept DenseSigned = Signed<T...> and Dense<T...>;
+      concept DenseSigned = sizeof...(T) > 0
+          and Signed<T...> and Dense<T...>;
 
       /// Check if type is signed and sparse                                  
       ///   @attention doesn't apply to numbers only, but anything negatable  
       template<class...T>
-      concept SparseSigned = Signed<T...> and Sparse<T...>;
+      concept SparseSigned = sizeof...(T) > 0
+          and Signed<T...> and Sparse<T...>;
 
       /// Check if type is unsigned (either sparse or dense)                  
       ///   @attention doesn't apply to numbers only, but anything negatable  
       template<class...T>
-      concept Unsigned = ((not Signed<T>) and ...);
+      concept Unsigned = sizeof...(T) > 0
+          and ((not Signed<T>) and ...);
 
       /// Check if type is unsigned and dense                                 
       ///   @attention doesn't apply to numbers only, but anything negatable  
       template<class...T>
-      concept DenseUnsigned = Unsigned<T...> and Dense<T...>;
+      concept DenseUnsigned = sizeof...(T) > 0
+          and Unsigned<T...> and Dense<T...>;
 
       /// Check if type is unsigned and sparse                                
       ///   @attention doesn't apply to numbers only, but anything negatable  
       template<class...T>
-      concept SparseUnsigned = Unsigned<T...> and Sparse<T...>;
+      concept SparseUnsigned = sizeof...(T) > 0
+          and Unsigned<T...> and Sparse<T...>;
 
       /// Built-in boolean concept (either sparse or dense)                   
-      template<class T1, class...TN>
-      concept BuiltinBool = Same<bool, T1, TN...>;
+      template<class...T>
+      concept BuiltinBool = sizeof...(T) > 0
+          and Same<bool, T...>;
 
       /// Built-in character concept (either sparse or dense)                 
       template<class...T>
-      concept BuiltinCharacter = (
-            (SameAsOneOf<T, char, char8_t, char16_t, char32_t, wchar_t>
+      concept BuiltinCharacter = sizeof...(T) > 0 and (
+            (SimilarAsOneOf<T, char, char8_t, char16_t, char32_t, wchar_t>
          ) and ...);
 
       /// String literal concept - a bounded array with an extent             
       template<class...T>
-      concept StringLiteral = ((CT::Array<T>
-           and CT::SimilarAsOneOf<Deext<Deref<T>>, char, char8_t, char16_t, char32_t, wchar_t>
+      concept StringLiteral = sizeof...(T) > 0 and ((CT::Array<T>
+           and BuiltinCharacter<Deext<Deref<T>>>
          ) and ...);
 
       /// String pointer concept, aka null-terminated string                  
       template<class...T>
-      concept StringPointer = ((CT::Sparse<T>
-           and CT::SimilarAsOneOf<Deptr<Deref<T>>, char, char8_t, char16_t, char32_t, wchar_t>
+      concept StringPointer = sizeof...(T) > 0 and ((CT::Sparse<T>
+           and BuiltinCharacter<Deptr<Deref<T>>>
          ) and ...);
 
       /// String pointer concept                                              
       template<class...T>
-      concept String = ((StringLiteral<T> or StringPointer<T>) and ...);
+      concept String = sizeof...(T) > 0
+          and ((StringLiteral<T> or StringPointer<T>) and ...);
 
       /// Standard container concept                                          
       /// You can get container type using TypeOf, if CT::Typed               
       template<class...T>
-      concept StdContainer = (::std::ranges::range<T> and ...);
+      concept StdContainer = sizeof...(T) > 0
+          and (::std::ranges::range<T> and ...);
 
       /// Standard cintiguous container concept                               
       /// You can get container type using TypeOf, if CT::Typed               
       template<class...T>
-      concept StdContiguousContainer = ((::std::ranges::contiguous_range<T>
+      concept StdContiguousContainer = sizeof...(T) > 0
+          and ((::std::ranges::contiguous_range<T>
             and requires (T c) { {c.data()} -> CT::Sparse; }
             and requires (T c) { {c.size()} -> CT::Exact<::std::size_t>; }
          ) and ...);
@@ -460,176 +481,151 @@ namespace Langulus
       /// Built-in integer number concept (either sparse or dense)            
       ///   @attention excludes boolean types and char types                  
       template<class...T>
-      concept BuiltinInteger = ((::std::integral<Decay<T>>
+      concept BuiltinInteger = sizeof...(T) > 0
+          and ((::std::integral<Decay<T>>
             and not BuiltinBool<T> and not BuiltinCharacter<T>
          ) and ...);
 
       /// Check if type is any signed integer (either sparse or dense)			
       template<class...T>
-      concept BuiltinSignedInteger = BuiltinInteger<T...> and Signed<T...>;
+      concept BuiltinSignedInteger = sizeof...(T) > 0
+          and BuiltinInteger<T...> and Signed<T...>;
 
       /// Check if type is any unsigned integer (either sparse or dense)		
       template<class...T>
-      concept BuiltinUnsignedInteger = BuiltinInteger<T...> and Unsigned<T...>;
+      concept BuiltinUnsignedInteger = sizeof...(T) > 0
+          and BuiltinInteger<T...> and Unsigned<T...>;
 
       /// Built-in real number concept (either sparse or dense)               
       template<class...T>
-      concept BuiltinReal = (::std::floating_point<Decay<T>> and ...);
+      concept BuiltinReal = sizeof...(T) > 0
+          and (::std::floating_point<Decay<T>> and ...);
 
       /// Built-in number concept (either sparse or dense)                    
       ///   @attention excludes boolean types and char types                  
       template<class...T>
-      concept BuiltinNumber = ((BuiltinInteger<T> or BuiltinReal<T>) and ...);
+      concept BuiltinNumber = sizeof...(T) > 0
+          and ((BuiltinInteger<T> or BuiltinReal<T>) and ...);
 
       /// Dense built-in number concept                                       
       ///   @attention excludes boolean types and char types                  
       template<class...T>
-      concept DenseBuiltinNumber = BuiltinNumber<T...> and Dense<T...>;
+      concept DenseBuiltinNumber = sizeof...(T) > 0
+          and BuiltinNumber<T...> and Dense<T...>;
 
       /// Sparse built-in number concept                                      
       ///   @attention excludes boolean types and char types                  
       template<class...T>
-      concept SparseBuiltinNumber = BuiltinNumber<T...> and Sparse<T...>;
+      concept SparseBuiltinNumber = sizeof...(T) > 0
+          and BuiltinNumber<T...> and Sparse<T...>;
 
-      namespace Inner
-      {
-
-         /// Explicit conversion is a mess across many compilers, and the     
-         /// standard as a whole, so this concept enforces a new world order  
-         template<class FROM, class TO>
-         concept Convertible = requires (FROM& from) { TO {from}; }
-                            or requires (FROM& from) { TO {from.operator TO()}; }
-                            or requires (FROM& from) { static_cast<TO>(from); }
-                            or ::std::convertible_to<FROM, TO>;
-
-         template<class LHS, class RHS = LHS>
-         concept Sortable = requires (LHS& t, RHS& u) {
-               {t < u} -> Convertible<bool>;
-               {t > u} -> Convertible<bool>;
-            };
-
-         template<class LHS, class RHS = LHS>
-         concept Comparable = requires (LHS& lhs, RHS& rhs) {
-               {lhs == rhs} -> Convertible<bool>;
-            };
-
-         template<class...T>
-         concept Enum = (::std::is_enum_v<T> and ...);
-
-         template<class...T>
-         concept Fundamental = (::std::is_fundamental_v<T> and ...);
-
-         template<class...T>
-         concept Arithmetic = (::std::is_arithmetic_v<T> and ...);
-
-         template<class...T>
-         concept Referencable = requires (T&...a) {
-               {(a.Reference(-1), ...)} -> Exact<Count>;
-            };
-
-         template<class...T>
-         concept Swappable = (::std::is_swappable_v<T> and ...);
-
-         template<class...T>
-         concept SwappableNoexcept = (::std::is_nothrow_swappable_v<T> and ...);
-
-         template<class T, class BASE>
-         concept DerivedFrom = ::std::derived_from<T, BASE>;
-
-         template<class T1, class T2>
-         concept Related = DerivedFrom<T1, T2> or DerivedFrom<T2, T1>;
-
-         template<class T1, class T2>
-         concept BinaryCompatible = Similar<T1, T2>
-              or (Related<T1, T2> and sizeof(T1) == sizeof(T2));
-
-      } // namespace Langulus::CT::Inner
-
-      /// Sortable concept for any origin LHS and RHS, with an adequate       
-      /// <, > operators, or combined <=> operator                            
-      template<class LHS, class...RHS>
-      concept Sortable = Complete<Decay<LHS>, Decay<RHS>...>
-          and (Inner::Sortable<Decay<LHS>, Decay<RHS>> and ...);
+      /// Convertible concept                                                 
+      /// Explicit conversion is a mess across many compilers, and the        
+      /// standard as a whole, so this concept enforces a new world order     
+      template<class FROM, class...TO>
+      concept Convertible = sizeof...(TO) > 0 and Complete<FROM, TO...>
+          and ((requires (FROM& from) { TO {from}; }
+             or requires (FROM& from) { TO {from.operator TO()}; }
+             or requires (FROM& from) { static_cast<TO>(from); }
+             or ::std::convertible_to<FROM, TO>
+          ) and ...);
 
       /// Equality comparable concept for any origin LHS and RHS, with an     
       /// adequate == operator                                                
       template<class LHS, class...RHS>
-      concept Comparable = Complete<Decay<LHS>, Decay<RHS>...>
-          and (Inner::Comparable<Decay<LHS>, Decay<RHS>> and ...);
+      concept Comparable = sizeof...(RHS) > 0 and Complete<LHS, RHS...>
+          and requires (LHS& lhs, RHS&...rhs) {
+             { ((lhs == rhs), ...) } -> Convertible<bool>;
+          };
 
-      /// Convertible concept                                                 
-      /// Checks if a static_cast is possible between the provided types      
-      template<class FROM, class...TO>
-      concept Convertible = Complete<Decay<FROM>, Decay<TO>...>
-          and (Inner::Convertible<Decay<FROM>, Decay<TO>> and ...);
+      /// Sortable concept for any origin LHS and RHS, with an adequate       
+      /// <, > operators, or combined <=> operator                            
+      template<class LHS, class...RHS>
+      concept Sortable = sizeof...(RHS) > 0 and Complete<LHS, RHS...>
+          and requires (LHS& t, RHS&...u) {
+             { ((t < u), ...) } -> Convertible<bool>;
+             { ((t > u), ...) } -> Convertible<bool>;
+          };
 
-      /// Check if the origin T is an enum type                               
+      /// Check if all T are an enum types                                    
       template<class...T>
-      concept Enum = Complete<Decay<T>...>
-          and Inner::Enum<Decay<T>...>;
+      concept Enum = sizeof...(T) > 0 and Complete<T...>
+          and (::std::is_enum_v<T> and ...);
 
-      /// Check if the origin T is a fundamental type                         
+      /// Check if all T are fundamental types                                
+      /// Examples: int, void, float, nullptr_t, ...                          
+      /// Counter examples: int&, int*, any custom type, ref, or pointer      
       template<class...T>
-      concept Fundamental = Complete<Decay<T>...>
-          and Inner::Fundamental<Decay<T>...>;
+      concept Fundamental = sizeof...(T) > 0 and Complete<T...>
+          and (::std::is_fundamental_v<T> and ...);
 
-      /// Check if the origin T is an arithmetic type                         
+      /// Check if all T are arithmetic types                                 
+      /// Examples: bool, char, int, float, size_t                            
+      /// Counter examples: std::byte, atomic_int, custom type, ref, or ptr   
       template<class...T>
-      concept Arithmetic = Complete<Decay<T>...>
-          and Inner::Arithmetic<Decay<T>...>;
+      concept Arithmetic = sizeof...(T) > 0 and Complete<T...>
+          and (::std::is_arithmetic_v<T> and ...);
       
-      /// Check if the origin T is referencable                               
+      /// Check if all T are referencable                                     
+      /// All must have a Reference(Count) -> Count method                    
       template<class...T>
-      concept Referencable = Complete<Decay<T>...>
-          and Inner::Referencable<Decay<T>...>;
+      concept Referencable = sizeof...(T) > 0 and Complete<T...>
+          and requires (T&...a) {
+            { (a.Reference(-1), ...) } -> Exact<Count>;
+          };
                
       /// Check if the origin T is swappable                                  
       template<class...T>
-      concept Swappable = Complete<Decay<T>...>
-          and Inner::Swappable<Decay<T>...>;
+      concept Swappable = sizeof...(T) > 0 and Complete<T...>
+          and (::std::is_swappable_v<T> and ...);
 
       template<class...T>
-      concept SwappableNoexcept = Complete<Decay<T>...>
-          and Inner::SwappableNoexcept<Decay<T>...>;
+      concept SwappableNoexcept = sizeof...(T) > 0 and Complete<T...>
+          and (::std::is_nothrow_swappable_v<T> and ...);
 
       /// Check if the origin T inherits BASE                                 
       template<class T, class...BASE>
-      concept DerivedFrom = Complete<Decay<T>>
-          and (Inner::DerivedFrom<Decay<T>, Decay<BASE>> and ...);
+      concept DerivedFrom = sizeof...(BASE) > 0 and Complete<Decay<T>>
+          and (::std::derived_from<Decay<T>, Decay<BASE>> and ...);
    
       /// Check if T1 is somehow related to all of the provided types         
-      template<class T1, class T2, class...TN>
-      concept Related = Inner::Related<Decay<T1>, Decay<T2>>
-          and (Inner::Related<Decay<T1>, Decay<TN>> and ...);
+      template<class T1, class...TN>
+      concept Related = sizeof...(TN) > 0
+          and ((DerivedFrom<T1, TN> or DerivedFrom<TN, T1>) and ...);
 
       /// Check if a type is virtually derived from all the provided BASE(s)  
       template<class T, class...BASE>
-      concept VirtuallyDerivedFrom = ((::std::is_base_of_v<BASE, T>
-          and not requires (BASE* from) { static_cast<T*>(from); }
-         ) and ...);
+      concept VirtuallyDerivedFrom = sizeof...(BASE) > 0 and Complete<Decay<T>>
+          and ((::std::is_base_of_v<Decay<BASE>, Decay<T>>
+            and not requires (Decay<BASE>* from) { static_cast<Decay<T>*>(from); }
+          ) and ...);
 
-      /// Binary compatibility check between T1 and the provided types        
-      template<class T1, class T2, class...TN>
-      concept BinaryCompatible = Inner::BinaryCompatible<Decay<T1>, Decay<T2>>
-          and (Inner::BinaryCompatible<Decay<T1>, Decay<TN>> and ...);
+      /// Binary compatibility check between T1 and the provided TN           
+      template<class T1, class...TN>
+      concept BinaryCompatible = sizeof...(TN) > 0 and ((
+            Similar<T1, TN> or (Related<T1, TN> and sizeof(T1) == sizeof(TN))
+         ) and ...);
 
       /// Reference concept                                                   
       template<class...T>
-      concept Reference = (::std::is_reference_v<T> and ...);
+      concept Reference = sizeof...(T) > 0
+          and (::std::is_reference_v<T> and ...);
 
       /// True if T is not a pointer (and has no extent with []), as well as  
       /// not a reference                                                     
       template<class...T>
-      concept Slab = ((Dense<T> and not Reference<T>) and ...);
+      concept Slab = sizeof...(T) > 0
+          and ((Dense<T> and not Reference<T>) and ...);
 
       /// Check if types have no reference/pointer/extent/const/volatile      
       template<class...T>
-      concept Decayed = Dense<T...>
+      concept Decayed = sizeof...(T) > 0 and Dense<T...>
           and ((not Reference<T> and not Convoluted<T>) and ...);
    
       /// Check if types have reference/pointer/extent/const/volatile         
       template<class...T>
-      concept NotDecayed = ((not Decayed<T>) and ...);
+      concept NotDecayed = sizeof...(T) > 0
+          and ((not Decayed<T>) and ...);
    
       /// Check if a function encapsulated in a lambda is a constexpr         
       /// Leverages that lambda expressions can be constexpr as of C++17      
@@ -640,33 +636,36 @@ namespace Langulus
          
       /// Check if type is a dense void                                       
       template<class...T>
-      concept Void = (::std::is_void_v<T> and ...);
+      concept Void = sizeof...(T) > 0
+          and (::std::is_void_v<T> and ...);
 
       /// Check if type-erased                                                
       template<class...T>
-      concept TypeErased = Void<T...>;
+      concept TypeErased = sizeof...(T) > 0 and Void<T...>;
 
       /// A data type is any type that is not a dense void                    
       template<class...T>
-      concept Data = ((not Void<T>) and ...);
+      concept Data = sizeof...(T) > 0 and ((not Void<T>) and ...);
       
       /// Dense data concept                                                  
       template<class...T>
-      concept DenseData = Dense<T...> and Data<T...>
+      concept DenseData = sizeof...(T) > 0 and Dense<T...> and Data<T...>
           and ((not Reference<T>) and ...);
       
       /// Sparse data concept                                                 
       template<class...T>
-      concept SparseData = Sparse<T...> and Data<T...>
+      concept SparseData = sizeof...(T) > 0 and Sparse<T...> and Data<T...>
           and ((not Reference<T>) and ...);
       
       /// Data reference concept                                              
       template<class...T>
-      concept DataReference = Data<T...> and Reference<T...>;
+      concept DataReference = sizeof...(T) > 0
+          and Data<T...> and Reference<T...>;
       
       /// Check if all provided types match std::nullptr_t exactly            
-      template<class T1, class...TN>
-      concept Nullptr = Exact<::std::nullptr_t, T1, TN...>;
+      template<class...T>
+      concept Nullptr = sizeof...(T) > 0
+          and Exact<::std::nullptr_t, T...>;
 
       namespace Inner
       {
