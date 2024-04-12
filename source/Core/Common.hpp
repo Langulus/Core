@@ -356,8 +356,7 @@ namespace Langulus
       concept Supported = sizeof...(T) > 0
           and ((not Unsupported<T>) and ...);
 
-      /// True if T is an array (has an extent with [])                       
-      /// Sometimes a reference hides the pointer/extent, hence the deref     
+      /// True if all T are arrays (have extents with [])                     
       template<class...T>
       concept Array = sizeof...(T) > 0
           and (::std::is_bounded_array_v<Deref<T>> and ...);
@@ -367,103 +366,86 @@ namespace Langulus
       concept Function = sizeof...(T) > 0
           and (::std::is_function_v<T> and ...);
 
-      /// True if T is a pointer (or has an extent with [])                   
-      /// Sometimes a reference hides the pointer/extent, hence the deref     
+      /// True if all T are pointers (or have extents with [])                
       template<class...T>
       concept Sparse = sizeof...(T) > 0
           and ((::std::is_pointer_v<Deref<T>> or Array<T>) and ...);
 
-      /// True if T is not a pointer (and has no extent with [])              
-      /// It is still allowed to be a reference                               
+      /// True if all T are not pointers (and has no extent with [])          
+      /// Each T is still allowed to be a reference                           
       template<class...T>
       concept Dense = sizeof...(T) > 0
           and ((not Sparse<T>) and ...);
 
-      /// Check if type is constant-qualified                                 
+      /// Check if all T are aggregates                                       
+      template<class...T>
+      concept Aggregate = sizeof...(T) > 0
+          and (::std::is_aggregate_v<Deref<T>> and ...);
+
+      /// Check if all T are not aggregates                                   
+      template<class...T>
+      concept NotAggregate = sizeof...(T) > 0
+          and ((not ::std::is_aggregate_v<Deref<T>>) and ...);
+
+      /// Check if all T are constant-qualified                               
       template<class...T>
       concept Constant = sizeof...(T) > 0
           and (::std::is_const_v<Deref<T>> and ...);
 
-      /// Check if type is volatile-qualified                                 
+      /// Check if all T are volatile-qualified                               
       template<class...T>
       concept Volatile = sizeof...(T) > 0
           and (::std::is_volatile_v<Deref<T>> and ...);
 
-      /// Check if type is either const- or volatile-qualified                
+      /// Check if all T are either const- or volatile-qualified              
       template<class...T>
       concept Convoluted = sizeof...(T) > 0
           and ((Constant<T> or Volatile<T>) and ...);
 
-      /// Check if type is not constant-qualified                             
+      /// Check if all T are not constant-qualified                           
       template<class...T>
       concept Mutable = sizeof...(T) > 0
           and ((not Constant<T>) and ...);
 
-      /// Check if type is signed (either sparse or dense)                    
+      /// Check if all T are signed                                           
       ///   @attention doesn't apply to numbers only, but anything negatable  
       template<class...T>
       concept Signed = sizeof...(T) > 0
           and (::std::is_signed_v<Deref<T>> and ...);
 
-      /// Check if type is signed and dense                                   
+      /// Check if all T are unsigned                                         
       ///   @attention doesn't apply to numbers only, but anything negatable  
       template<class...T>
-      concept DenseSigned = sizeof...(T) > 0
-          and Signed<T...> and Dense<T...>;
+      concept Unsigned = sizeof...(T) > 0 and ((not Signed<T>) and ...);
 
-      /// Check if type is signed and sparse                                  
-      ///   @attention doesn't apply to numbers only, but anything negatable  
+      /// Check if all T are booleans                                         
       template<class...T>
-      concept SparseSigned = sizeof...(T) > 0
-          and Signed<T...> and Sparse<T...>;
+      concept BuiltinBool = sizeof...(T) > 0 and Similar<bool, T...>;
 
-      /// Check if type is unsigned (either sparse or dense)                  
-      ///   @attention doesn't apply to numbers only, but anything negatable  
-      template<class...T>
-      concept Unsigned = sizeof...(T) > 0
-          and ((not Signed<T>) and ...);
-
-      /// Check if type is unsigned and dense                                 
-      ///   @attention doesn't apply to numbers only, but anything negatable  
-      template<class...T>
-      concept DenseUnsigned = sizeof...(T) > 0
-          and Unsigned<T...> and Dense<T...>;
-
-      /// Check if type is unsigned and sparse                                
-      ///   @attention doesn't apply to numbers only, but anything negatable  
-      template<class...T>
-      concept SparseUnsigned = sizeof...(T) > 0
-          and Unsigned<T...> and Sparse<T...>;
-
-      /// Built-in boolean concept (either sparse or dense)                   
-      template<class...T>
-      concept BuiltinBool = sizeof...(T) > 0
-          and Same<bool, T...>;
-
-      /// Built-in character concept                                          
+      /// Check if all T are character types                                  
       template<class...T>
       concept BuiltinCharacter = sizeof...(T) > 0 and (
             (SimilarAsOneOf<Deref<T>, char, char8_t, char16_t, char32_t, wchar_t>
          ) and ...);
 
-      /// String literal concept - a bounded array with an extent             
+      /// Check if all T are literals - always bounded array with an extent   
       template<class...T>
       concept StringLiteral = sizeof...(T) > 0 and ((CT::Array<T>
            and BuiltinCharacter<Deext<Deref<T>>>
          ) and ...);
 
-      /// String pointer concept, aka null-terminated string                  
+      /// Check if all T are string pointers, hopefully null-terminated       
       template<class...T>
       concept StringPointer = sizeof...(T) > 0 and ((CT::Sparse<T>
            and BuiltinCharacter<Deptr<Deref<T>>>
          ) and ...);
 
-      /// String pointer concept                                              
+      /// Check if all T are either StringLiteral, or StringPointer           
       template<class...T>
       concept String = sizeof...(T) > 0
           and ((StringLiteral<T> or StringPointer<T>) and ...);
 
-      /// Standard container concept                                          
+      /// Check if all T are standard C++ containers                          
       /// You can get container type using TypeOf, if CT::Typed               
       template<class...T>
       concept StdContainer = sizeof...(T) > 0
@@ -478,45 +460,35 @@ namespace Langulus
             and requires (T c) { {c.size()} -> CT::Exact<::std::size_t>; }
          ) and ...);
 
-      /// Built-in integer number concept (either sparse or dense)            
+      /// Built-in integer number concept                                     
       ///   @attention excludes boolean types and char types                  
       template<class...T>
-      concept BuiltinInteger = sizeof...(T) > 0 and ((::std::integral<Deref<T>>
-            and not BuiltinBool<T> and not BuiltinCharacter<T>
+      concept BuiltinInteger = sizeof...(T) > 0 and ((
+            ::std::integral<Deref<T>>
+            and not BuiltinBool<T>
+            and not BuiltinCharacter<T>
          ) and ...);
 
-      /// Check if type is any signed integer (either sparse or dense)			
+      /// Check if type is any signed integer                                 
       template<class...T>
       concept BuiltinSignedInteger = sizeof...(T) > 0
           and BuiltinInteger<T...> and Signed<T...>;
 
-      /// Check if type is any unsigned integer (either sparse or dense)		
+      /// Check if type is any unsigned integer                               
       template<class...T>
       concept BuiltinUnsignedInteger = sizeof...(T) > 0
           and BuiltinInteger<T...> and Unsigned<T...>;
 
-      /// Built-in real number concept (either sparse or dense)               
+      /// Built-in real number concept                                        
       template<class...T>
       concept BuiltinReal = sizeof...(T) > 0
           and (::std::floating_point<Deref<T>> and ...);
 
-      /// Built-in number concept (either sparse or dense)                    
+      /// Built-in number concept                                             
       ///   @attention excludes boolean types and char types                  
       template<class...T>
       concept BuiltinNumber = sizeof...(T) > 0
           and ((BuiltinInteger<T> or BuiltinReal<T>) and ...);
-
-      /// Dense built-in number concept                                       
-      ///   @attention excludes boolean types and char types                  
-      template<class...T>
-      concept DenseBuiltinNumber = sizeof...(T) > 0
-          and BuiltinNumber<T...> and Dense<T...>;
-
-      /// Sparse built-in number concept                                      
-      ///   @attention excludes boolean types and char types                  
-      template<class...T>
-      concept SparseBuiltinNumber = sizeof...(T) > 0
-          and BuiltinNumber<T...> and Sparse<T...>;
 
       /// Convertible concept                                                 
       /// Explicit conversion is a mess across many compilers, and the        
@@ -607,10 +579,15 @@ namespace Langulus
             Similar<T1, TN> or (Related<T1, TN> and sizeof(T1) == sizeof(TN))
          ) and ...);
 
-      /// Reference concept                                                   
+      /// Check if all T are reference types                                  
       template<class...T>
       concept Reference = sizeof...(T) > 0
           and (::std::is_reference_v<T> and ...);
+
+      /// Check if all T are not reference types                              
+      template<class...T>
+      concept NotReference = sizeof...(T) > 0
+          and ((not ::std::is_reference_v<T>) and ...);
 
       /// True if T is not a pointer (and has no extent with []), as well as  
       /// not a reference                                                     
@@ -671,6 +648,7 @@ namespace Langulus
       namespace Inner
       {
 
+         /// Nested type qualifier stripper                                   
          template<class T>
          NOD() consteval auto NestedDecvq() noexcept {
             using Stripped = Decvq<Deref<T>>;
