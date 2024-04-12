@@ -403,7 +403,7 @@ namespace Langulus
       ///   @attention doesn't apply to numbers only, but anything negatable  
       template<class...T>
       concept Signed = sizeof...(T) > 0
-          and (::std::is_signed_v<Decay<T>> and ...);
+          and (::std::is_signed_v<Deref<T>> and ...);
 
       /// Check if type is signed and dense                                   
       ///   @attention doesn't apply to numbers only, but anything negatable  
@@ -440,10 +440,10 @@ namespace Langulus
       concept BuiltinBool = sizeof...(T) > 0
           and Same<bool, T...>;
 
-      /// Built-in character concept (either sparse or dense)                 
+      /// Built-in character concept                                          
       template<class...T>
       concept BuiltinCharacter = sizeof...(T) > 0 and (
-            (SimilarAsOneOf<T, char, char8_t, char16_t, char32_t, wchar_t>
+            (SimilarAsOneOf<Deref<T>, char, char8_t, char16_t, char32_t, wchar_t>
          ) and ...);
 
       /// String literal concept - a bounded array with an extent             
@@ -481,8 +481,7 @@ namespace Langulus
       /// Built-in integer number concept (either sparse or dense)            
       ///   @attention excludes boolean types and char types                  
       template<class...T>
-      concept BuiltinInteger = sizeof...(T) > 0
-          and ((::std::integral<Decay<T>>
+      concept BuiltinInteger = sizeof...(T) > 0 and ((::std::integral<Deref<T>>
             and not BuiltinBool<T> and not BuiltinCharacter<T>
          ) and ...);
 
@@ -499,7 +498,7 @@ namespace Langulus
       /// Built-in real number concept (either sparse or dense)               
       template<class...T>
       concept BuiltinReal = sizeof...(T) > 0
-          and (::std::floating_point<Decay<T>> and ...);
+          and (::std::floating_point<Deref<T>> and ...);
 
       /// Built-in number concept (either sparse or dense)                    
       ///   @attention excludes boolean types and char types                  
@@ -524,10 +523,12 @@ namespace Langulus
       /// standard as a whole, so this concept enforces a new world order     
       template<class FROM, class...TO>
       concept Convertible = sizeof...(TO) > 0 and Complete<FROM, TO...>
-          and ((requires (FROM& from) { TO {from}; }
-             or requires (FROM& from) { TO {from.operator TO()}; }
-             or requires (FROM& from) { static_cast<TO>(from); }
-             or ::std::convertible_to<FROM, TO>
+          and ((requires (Deref<FROM>& from) { Deref<TO> (from); }
+             or requires (Deref<FROM>& from) { Deref<TO> (from.operator Deref<TO>()); }
+             or requires (Deref<FROM>& from) { Deref<TO> (from.operator Deref<TO>&()); }
+             or requires (Deref<FROM>& from) { Deref<TO> (from.operator const Deref<TO>&()); }
+             or requires (Deref<TO>& to, Deref<FROM>& from) { to = static_cast<Deref<TO>>(from); }
+             or ::std::convertible_to<Deref<FROM>, Deref<TO>>
           ) and ...);
 
       /// Equality comparable concept for any origin LHS and RHS, with an     
@@ -550,21 +551,21 @@ namespace Langulus
       /// Check if all T are an enum types                                    
       template<class...T>
       concept Enum = sizeof...(T) > 0 and Complete<T...>
-          and (::std::is_enum_v<T> and ...);
+          and (::std::is_enum_v<Deref<T>> and ...);
 
       /// Check if all T are fundamental types                                
       /// Examples: int, void, float, nullptr_t, ...                          
       /// Counter examples: int&, int*, any custom type, ref, or pointer      
       template<class...T>
       concept Fundamental = sizeof...(T) > 0 and Complete<T...>
-          and (::std::is_fundamental_v<T> and ...);
+          and (::std::is_fundamental_v<Deref<T>> and ...);
 
       /// Check if all T are arithmetic types                                 
       /// Examples: bool, char, int, float, size_t                            
       /// Counter examples: std::byte, atomic_int, custom type, ref, or ptr   
       template<class...T>
       concept Arithmetic = sizeof...(T) > 0 and Complete<T...>
-          and (::std::is_arithmetic_v<T> and ...);
+          and (::std::is_arithmetic_v<Deref<T>> and ...);
       
       /// Check if all T are referencable                                     
       /// All must have a Reference(Count) -> Count method                    
