@@ -503,13 +503,30 @@ namespace Langulus
              or ::std::convertible_to<Deref<FROM>, Deref<TO>>
           ) and ...);
 
+      namespace Inner
+      {
+
+         template<class LHS, class RHS>
+         consteval bool Comparable() {
+            if constexpr (requires (const LHS& lhs, const RHS& rhs) {
+               { lhs == rhs } -> Convertible<bool>;
+            }) return true;
+            else if constexpr (requires (const LHS& lhs, const RHS& rhs) {
+               { lhs == static_cast<const LHS&>(rhs) } -> Convertible<bool>;
+            }) return true;
+            else if constexpr (requires (const LHS& lhs, const RHS& rhs) {
+               { static_cast<const RHS&>(lhs) == rhs } -> Convertible<bool>;
+            }) return true;
+            else return false;
+         }
+
+      } // namespace CT::Inner
+
       /// Equality comparable concept for any origin LHS and RHS, with an     
       /// adequate == operator                                                
       template<class LHS, class...RHS>
       concept Comparable = sizeof...(RHS) > 0 and Complete<LHS, RHS...>
-          and requires (LHS& lhs, RHS&...rhs) {
-             { ((lhs == rhs), ...) } -> Convertible<bool>;
-          };
+          and (Inner::Comparable<LHS, RHS>() and ...);
 
       /// Sortable concept for any origin LHS and RHS, with an adequate       
       /// <, > operators, or combined <=> operator                            
