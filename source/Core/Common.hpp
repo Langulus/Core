@@ -56,6 +56,9 @@
    /// Force no inlining                                                      
    #define LANGULUS_NOINLINE() __declspec(noinline)
 
+   /// Force inlining, even on debug builds                                   
+   #define LANGULUS_ALWAYS_INLINED() __forceinline
+
    #if LANGULUS(DEBUG)
       #define LANGULUS_INLINED() inline
    #else
@@ -65,6 +68,9 @@
 #else
    /// Force no inlining                                                      
    #define LANGULUS_NOINLINE() __attribute__((noinline))
+
+   /// Force inlining, even on debug builds                                   
+   #define LANGULUS_ALWAYS_INLINED() __attribute__((always_inline)) inline
 
    #if LANGULUS(DEBUG)
       #define LANGULUS_INLINED() inline
