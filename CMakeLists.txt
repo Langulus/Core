@@ -68,7 +68,8 @@ option(LANGULUS_PARANOIA
     incurs a serious runtime overhead, disabled by default" OFF)
 
 option(LANGULUS_TESTING 
-    "Builds tests, enabled by default" ON)
+    "Builds tests, disabled by default - Langulus tests are very exhaustive \
+	and might increase your build time and RAM usage significantly" OFF)
     
 option(LANGULUS_BENCHMARK
     "Enable benchmarking in tests, disabled by default" OFF)
