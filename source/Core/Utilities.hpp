@@ -14,14 +14,14 @@ namespace Langulus
 {
 
    /// Similar to std::isalpha, but constexpr                                 
-   NOD() LANGULUS(INLINED)
+   NOD() LANGULUS(ALWAYS_INLINED)
    constexpr Letter IsAlpha(const Letter a) noexcept {
       return (a >= 'a' and a <= 'z')
           or (a >= 'A' and a <= 'Z');
    }
 
    /// Similar to std::isspace, but constexpr                                 
-   NOD() LANGULUS(INLINED)
+   NOD() LANGULUS(ALWAYS_INLINED)
    constexpr Letter IsSpace(const Letter a) noexcept {
       return a == ' '
           or a == '\t'
@@ -32,7 +32,7 @@ namespace Langulus
    }
    
    /// Similar to std::isdigit, but constexpr                                 
-   NOD() LANGULUS(INLINED)
+   NOD() LANGULUS(ALWAYS_INLINED)
    constexpr Letter IsDigit(const Letter a) noexcept {
       return a >= '0'
          and a <= '9';
@@ -40,12 +40,12 @@ namespace Langulus
 
    /// Forward lvalue as either lvalue or rvalue                              
    /// Same as ::std::forward, but avoid writing the namespace                
-   template<class T> NOD() LANGULUS(INLINED)
+   template<class T> NOD() LANGULUS(ALWAYS_INLINED)
    constexpr T&& Forward(Deref<T>& a) noexcept {
       return static_cast<T&&>(a);
    }
 
-   template<class T> NOD() LANGULUS(INLINED)
+   template<class T> NOD() LANGULUS(ALWAYS_INLINED)
    constexpr T&& Forward(Deref<T>&& a) noexcept {
       static_assert(not ::std::is_lvalue_reference_v<T>, "Bad forward call");
       return static_cast<T&&>(a);
@@ -84,7 +84,7 @@ namespace Langulus
    /// Check if an unsigned integer is a power of two                         
    ///   @param n - the number to test                                        
    ///   @return true if number has exactly one bit set                       
-   NOD() LANGULUS(INLINED)
+   NOD() LANGULUS(ALWAYS_INLINED)
    constexpr bool IsPowerOfTwo(const CT::Unsigned auto n) noexcept {
       return ::std::has_single_bit(n);
    }
@@ -93,7 +93,7 @@ namespace Langulus
    /// from the least significant 'right' bit                                 
    ///   @param x - the value to scan                                         
    ///   @return the number of consecutive zero bits                          
-   NOD() LANGULUS(INLINED)
+   NOD() LANGULUS(ALWAYS_INLINED)
    constexpr int CountTrailingZeroes(const CT::Unsigned auto x) noexcept {
       return ::std::countr_zero(x);
    }
@@ -102,7 +102,7 @@ namespace Langulus
    /// from the most significant 'left' bit                                   
    ///   @param x - the value to scan                                         
    ///   @return the number of consecutive zero bits                          
-   NOD() LANGULUS(INLINED)
+   NOD() LANGULUS(ALWAYS_INLINED)
    constexpr int CountLeadingZeroes(const CT::Unsigned auto x) noexcept {
       return ::std::countl_zero(x);
    }
@@ -185,7 +185,7 @@ namespace Langulus
    }
 
    /// Always returns a pointer to the argument                               
-   template<class T> NOD() LANGULUS(INLINED)
+   template<class T> NOD() LANGULUS(ALWAYS_INLINED)
    constexpr decltype(auto) SparseCast(T& a) noexcept {
       if constexpr (CT::Sparse<T>)
          return a;
@@ -194,7 +194,7 @@ namespace Langulus
    }
 
    /// Always returns a pointer to the argument (const)                       
-   template<class T> NOD() LANGULUS(INLINED)
+   template<class T> NOD() LANGULUS(ALWAYS_INLINED)
    constexpr decltype(auto) SparseCast(const T& a) noexcept {
       if constexpr (CT::Sparse<T>)
          return a;

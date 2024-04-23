@@ -110,9 +110,16 @@ namespace Langulus
       struct MetaConst;
    }
 
-   namespace Anyness
+   namespace A
    {
       struct Block;
+   }
+
+   namespace Anyness
+   {
+      template<class TYPE = void>
+      struct Block;
+
       class Neat;
    }
 
@@ -170,12 +177,12 @@ namespace Langulus
       using Real = Float;
    #endif
 
-   LANGULUS(INLINED)
+   LANGULUS(ALWAYS_INLINED)
    consteval Real operator "" _real(unsigned long long n) noexcept {
       return static_cast<Real>(n);
    }
    
-   LANGULUS(INLINED)
+   LANGULUS(ALWAYS_INLINED)
    consteval Real operator "" _real(long double n) noexcept {
       return static_cast<Real>(n);
    }
