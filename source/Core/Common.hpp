@@ -711,4 +711,22 @@ namespace Langulus
    template<class T>
    using DecvqAll = Deptr<decltype(CT::Inner::NestedDecvq<T>())>;
 
+   /// Returns true if the provided arguments are of similar types            
+   template<class T1, class...TN>
+   consteval bool SimilarTypes(T1&&, TN&&...) {
+      return CT::Similar<T1, TN...>;
+   }
+
+   /// Returns true if the provided arguments are of exactly the same types   
+   template<class T1, class...TN>
+   consteval bool ExactTypes(T1&&, TN&&...) {
+      return CT::Exact<T1, TN...>;
+   }
+
+   /// Returns true if the provided arguments have the same origin types      
+   template<class T1, class...TN>
+   consteval bool SameTypes(T1&&, TN&&...) {
+      return CT::Same<T1, TN...>;
+   }
+
 } // namespace Langulus
