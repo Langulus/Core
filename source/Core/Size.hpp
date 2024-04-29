@@ -64,76 +64,76 @@ namespace Langulus
    };
 
    /// Byte count literal                                                     
-   consteval Size operator"" _B(unsigned long long int num) noexcept {
+   constexpr Size operator"" _B(unsigned long long int num) noexcept {
       return Size {static_cast<::std::size_t>(num)};
    }
 
 	/// Floating-point bytesize literals, like 5.5_kB                          
-   consteval Size operator"" _KiB(long double num) noexcept {
+   constexpr Size operator"" _KiB(long double num) noexcept {
       return Size {(size_t)((1LL << 10) * num)};
    }
-   consteval Size operator"" _MiB(long double num) noexcept {
+   constexpr Size operator"" _MiB(long double num) noexcept {
       return Size {(size_t)((1LL << 20) * num)};
    }
-   consteval Size operator"" _GiB(long double num) noexcept {
+   constexpr Size operator"" _GiB(long double num) noexcept {
       return Size {(size_t)((1LL << 30) * num)};
    }
-   consteval Size operator"" _TiB(long double num) noexcept {
+   constexpr Size operator"" _TiB(long double num) noexcept {
       return Size {(size_t)((1LL << 40) * num)};
    }
-   consteval Size operator"" _PiB(long double num) noexcept {
+   constexpr Size operator"" _PiB(long double num) noexcept {
       return Size {(size_t)((1LL << 50) * num)};
    }
-   consteval Size operator"" _KB(long double num) noexcept {
+   constexpr Size operator"" _KB(long double num) noexcept {
       return Size {(size_t)(Size::KB * num)};
    }
-   consteval Size operator"" _MB(long double num) noexcept {
+   constexpr Size operator"" _MB(long double num) noexcept {
       return Size {(size_t)(Size::MB * num)};
    }
-   consteval Size operator"" _GB(long double num) noexcept {
+   constexpr Size operator"" _GB(long double num) noexcept {
       return Size {(size_t)(Size::GB * num)};
    }
 
 #if LANGULUS_BITNESS() > 32
-   consteval Size operator"" _TB(long double num) noexcept {
+   constexpr Size operator"" _TB(long double num) noexcept {
       return Size {(size_t)(Size::TB * num)};
    }
-   consteval Size operator"" _PB(long double num) noexcept {
+   constexpr Size operator"" _PB(long double num) noexcept {
       return Size {(size_t)(Size::PB * num)};
    }
 #endif
 
 	/// Integer bytesize literals, like 5_kB                                   
-   consteval Size operator"" _KiB(unsigned long long int num) noexcept {
+   constexpr Size operator"" _KiB(unsigned long long int num) noexcept {
       return Size {(size_t)((1LL << 10) * num)};
    }
-   consteval Size operator"" _MiB(unsigned long long int num) noexcept {
+   constexpr Size operator"" _MiB(unsigned long long int num) noexcept {
       return Size {(size_t)((1LL << 20) * num)};
    }
-   consteval Size operator"" _GiB(unsigned long long int num) noexcept {
+   constexpr Size operator"" _GiB(unsigned long long int num) noexcept {
       return Size {(size_t)((1LL << 30) * num)};
    }
-   consteval Size operator"" _TiB(unsigned long long int num) noexcept {
+   constexpr Size operator"" _TiB(unsigned long long int num) noexcept {
       return Size {(size_t)((1LL << 40) * num)};
    }
-   consteval Size operator"" _PiB(unsigned long long int num) noexcept {
+   constexpr Size operator"" _PiB(unsigned long long int num) noexcept {
       return Size {(size_t)((1LL << 50) * num)};
    }
-   consteval Size operator"" _KB(unsigned long long int num) noexcept {
+   constexpr Size operator"" _KB(unsigned long long int num) noexcept {
       return Size {(size_t)(Size::KB * num)};
    }
-   consteval Size operator"" _MB(unsigned long long int num) noexcept {
+   constexpr Size operator"" _MB(unsigned long long int num) noexcept {
       return Size {(size_t)(Size::MB * num)};
    }
-   consteval Size operator"" _GB(unsigned long long int num) noexcept {
+   constexpr Size operator"" _GB(unsigned long long int num) noexcept {
       return Size {(size_t)(Size::GB * num)};
    }
 
 #if LANGULUS_BITNESS() > 32
-   consteval Size operator"" _TB(unsigned long long int num) noexcept {
+   constexpr Size operator"" _TB(unsigned long long int num) noexcept {
       return Size {(size_t)(Size::TB * num)};
    }
-   consteval Size operator"" _PB(unsigned long long int num) noexcept {
+   constexpr Size operator"" _PB(unsigned long long int num) noexcept {
       return Size {(size_t)(Size::PB * num)};
    }
 #endif

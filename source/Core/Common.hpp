@@ -138,13 +138,15 @@ namespace Langulus
 
       ::std::size_t mHash {};
 
-      LANGULUS(INLINED)
+      LANGULUS(ALWAYS_INLINED)
       explicit constexpr operator bool() const noexcept {
          return mHash != 0;
       }
 
       constexpr Hash() noexcept = default;
       constexpr Hash(const Hash&) noexcept = default;
+
+      LANGULUS(ALWAYS_INLINED)
       constexpr Hash(::std::size_t a) noexcept
          : mHash {a} {}
 
@@ -275,7 +277,7 @@ namespace Langulus
    {
 
       template<class T>
-      consteval auto NestedDecay() noexcept {
+      consteval auto NestedDecay() {
          using Stripped = Decvq<Deptr<Deext<T>>>;
          if constexpr (::std::same_as<T, Stripped>)
             return static_cast<Stripped*>(nullptr);
@@ -284,7 +286,7 @@ namespace Langulus
       }
 
       template<class T1, class T2>
-      consteval bool NestedSimilar() noexcept {
+      consteval bool NestedSimilar() {
          using Stripped1 = Decvq<Deref<T1>>;
          using Stripped2 = Decvq<Deref<T2>>;
          if constexpr (::std::same_as<Stripped1, Stripped2>)
@@ -326,38 +328,38 @@ namespace Langulus
       /// True if decayed T1 matches all decayed TN types                     
       ///   @attention ignores type density and cv-qualifications             
       template<class T1, class...TN>
-      concept Same = sizeof...(TN) > 0
-          and (::std::same_as<Decay<T1>, Decay<TN>> and ...);
+      concept Same = sizeof...(TN) == 0
+           or (::std::same_as<Decay<T1>, Decay<TN>> and ...);
 
       /// True if unqualified T1 matches all unqualified TN types             
       ///   @attention ignores cv-qualifications only                         
       template<class T1, class...TN>
-      concept Similar = sizeof...(TN) > 0
-          and (Langulus::Inner::NestedSimilar<T1, TN>() and ...);
+      concept Similar = sizeof...(TN) == 0
+           or (Langulus::Inner::NestedSimilar<T1, TN>() and ...);
 
       /// True if T1 matches exactly all the provided TN, including           
       /// density and cv-qualifiers                                           
       template<class T1, class...TN>
-      concept Exact = sizeof...(TN) > 0
-          and (::std::same_as<T1, TN> and ...);
+      concept Exact = sizeof...(TN) == 0
+           or (::std::same_as<T1, TN> and ...);
 
       /// True if decayed T1 matches at least one of the decayed TN           
       ///   @attention ignores type density and cv-qualifications             
       template<class T1, class...TN>
-      concept SameAsOneOf = sizeof...(TN) > 0
-          and (::std::same_as<Decay<T1>, Decay<TN>> or ...);
+      concept SameAsOneOf = sizeof...(TN) == 0
+           or (::std::same_as<Decay<T1>, Decay<TN>> or ...);
 
       /// True if unqualified T1 matches at least one of the unqualified TN   
       ///   @attention ignores cv-qualifications only                         
       template<class T1, class...TN>
-      concept SimilarAsOneOf = sizeof...(TN) > 0
-          and (Langulus::Inner::NestedSimilar<T1, TN>() or ...);
+      concept SimilarAsOneOf = sizeof...(TN) == 0
+           or (Langulus::Inner::NestedSimilar<T1, TN>() or ...);
 
       /// True if T1 matches exactly at least one of the TN, including        
       /// density and cv-qualifications                                       
       template<class T1, class...TN>
-      concept ExactAsOneOf = sizeof...(TN) > 0
-          and (::std::same_as<T1, TN> or ...);
+      concept ExactAsOneOf = sizeof...(TN) == 0
+           or (::std::same_as<T1, TN> or ...);
 
       /// Check if any T is the built-in one that signifies lack of support   
       template<class...T>
@@ -644,8 +646,7 @@ namespace Langulus
          
       /// Check if type is a dense void                                       
       template<class...T>
-      concept Void = sizeof...(T) > 0
-          and (::std::is_void_v<T> and ...);
+      concept Void = sizeof...(T) > 0 and (::std::is_void_v<T> and ...);
 
       /// Check if type-erased                                                
       template<class...T>
@@ -680,7 +681,7 @@ namespace Langulus
 
          /// Nested type qualifier stripper                                   
          template<class T>
-         NOD() consteval auto NestedDecvq() noexcept {
+         consteval auto NestedDecvq() {
             using Stripped = Decvq<Deref<T>>;
             if constexpr (Decayed<Stripped>)
                return (Stripped*) nullptr;
@@ -710,6 +711,21 @@ namespace Langulus
    /// pointer/array constness/volatileness, etc.                             
    template<class T>
    using DecvqAll = Deptr<decltype(CT::Inner::NestedDecvq<T>())>;
+
+   /// Strip all const/volatile qualifiers on all levels of indirection       
+   /// In a sense, it's just a nested const_cast                              
+   /// (this version preserves a reference, if any)                           
+   LANGULUS(ALWAYS_INLINED)
+   constexpr decltype(auto) DecvqCast(auto& a) noexcept {
+      return const_cast<DecvqAll<decltype(a)>&>(a);
+   }
+
+   /// Strip all const/volatile qualifiers on all levels of indirection       
+   /// In a sense, it's just a nested const_cast                              
+   LANGULUS(ALWAYS_INLINED)
+   constexpr decltype(auto) DecvqCast(CT::Sparse auto a) noexcept {
+      return const_cast<DecvqAll<decltype(a)>>(a);
+   }
 
    /// Returns true if the provided arguments are of similar types            
    template<class T1, class...TN>
