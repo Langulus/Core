@@ -450,8 +450,10 @@ namespace Langulus
          ) and ...);
 
       /// Check if all T are string pointers, hopefully null-terminated       
+      /// This account to all string pointers that _do not have extents_      
       template<class...T>
       concept StringPointer = sizeof...(T) > 0 and ((CT::Sparse<T>
+           and not CT::Array<T>
            and BuiltinCharacter<Deptr<Deref<T>>>
          ) and ...);
 
