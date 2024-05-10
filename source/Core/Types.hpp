@@ -106,5 +106,60 @@ namespace Langulus
       else
          return Types {};
    }
+   
+   namespace Inner
+   {
+      /// Type used to detect unavailable stuff all over                      
+      struct Unsupported {};
+
+      /// This function declaration is used to decompose a lambda             
+      /// You can use it to extract the argument types of functions, by using 
+      /// decltype on the function return.                                    
+      /// Handles functors, member/standing function pointers, lambdas.       
+      template<class R, class F, class A, class...AN>
+      Types<A, AN...> GetFunctionArguments(R(F::*)(A, AN...) const) {
+         LANGULUS_ERROR("Calling GetFunctionArguments is ill-formed");
+      }
+      template<class R, class F, class A, class...AN>
+      Types<A, AN...> GetFunctionArguments(R(F::*)(A, AN...)) {
+         LANGULUS_ERROR("Calling GetFunctionArguments is ill-formed");
+      }
+      template<class R, class A, class...AN>
+      Types<A, AN...> GetFunctionArguments(R(*)(A, AN...)) {
+         LANGULUS_ERROR("Calling GetFunctionArguments is ill-formed");
+      }
+      template<class F>
+      decltype(GetFunctionArguments(&F::operator())) GetFunctionArguments(F) {
+         LANGULUS_ERROR("Calling GetFunctionArguments is ill-formed");
+      }
+   }
+
+   /// Get the type of the first argument of a function                       
+   ///   @tparam F - anything invokable, like functor/member function/lambda  
+   template<class F>
+   using ArgumentOf = typename decltype(Inner::GetFunctionArguments(Fake<F>()))::First;
+
+   /// Get a type list corresponding to the function arguments                
+   ///   @tparam F - anything invokable, like functor/member function/lambda  
+   template<class F>
+   using ArgumentsOf = decltype(Inner::GetFunctionArguments(Fake<F>()));
+
+   /// Get the return type of a function                                      
+   ///   @tparam F - anything invokable, like functor/member function/lambda  
+   template<class F>
+   using ReturnOf = decltype((Fake<F>()) (Fake<ArgumentOf<F>>()));
+
+   namespace CT
+   {
+      /// Check if any T is the built-in one that signifies lack of support   
+      template<class...T>
+      concept Unsupported = sizeof...(T) > 0
+          and (Same<::Langulus::Inner::Unsupported, T> or ...);
+
+      /// Check if all T are supported                                        
+      template<class...T>
+      concept Supported = sizeof...(T) > 0
+          and ((not Unsupported<T>) and ...);
+   }
 
 } // namespace Langulus
