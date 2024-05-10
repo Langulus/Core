@@ -220,43 +220,6 @@ namespace Langulus
       LANGULUS_ERROR("Calling Fake is ill-formed");
    }
 
-   namespace Inner
-   {
-      /// Type used to detect unavailable stuff all over                      
-      struct Unsupported {};
-
-      /// This function declaration is used to decompose a lambda             
-      /// You can use it to extract the argument type of the lambda, using    
-      /// decltype on the return type                                         
-      /// Handles functors, member/standing function pointers, lambdas        
-      template<class R, class F, class A>
-      A GetFunctionArgument(R(F::*)(A) const) {
-         LANGULUS_ERROR("Calling GetFunctionArgument is ill-formed");
-      }
-      template<class R, class F, class A>
-      A GetFunctionArgument(R(F::*)(A)) {
-         LANGULUS_ERROR("Calling GetFunctionArgument is ill-formed");
-      }
-      template<class R, class A>
-      A GetFunctionArgument(R(*)(A)) {
-         LANGULUS_ERROR("Calling GetFunctionArgument is ill-formed");
-      }
-      template<class F>
-      decltype(GetFunctionArgument(&F::operator())) GetFunctionArgument(F) {
-         LANGULUS_ERROR("Calling GetFunctionArgument is ill-formed");
-      }
-   }
-
-   /// Get the type of the argument of a function                             
-   ///   @tparam F - anything invokable, like functor/member function/lambda  
-   template<class F>
-   using ArgumentOf = decltype(Inner::GetFunctionArgument(Fake<F>()));
-
-   /// Get the return type of a function                                      
-   ///   @tparam F - anything invokable, like functor/member function/lambda  
-   template<class F>
-   using ReturnOf = decltype((Fake<F>()) (Fake<ArgumentOf<F>>()));
-
    /// Remove a reference from type                                           
    template<class T>
    using Deref = ::std::remove_reference_t<T>;
@@ -360,16 +323,6 @@ namespace Langulus
       template<class T1, class...TN>
       concept ExactAsOneOf = sizeof...(TN) == 0
            or (::std::same_as<T1, TN> or ...);
-
-      /// Check if any T is the built-in one that signifies lack of support   
-      template<class...T>
-      concept Unsupported = sizeof...(T) > 0
-          and (Same<::Langulus::Inner::Unsupported, T> or ...);
-
-      /// Check if all T are supported                                        
-      template<class...T>
-      concept Supported = sizeof...(T) > 0
-          and ((not Unsupported<T>) and ...);
 
       /// True if all T are arrays (have extents with [])                     
       template<class...T>
