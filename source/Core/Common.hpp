@@ -382,21 +382,22 @@ namespace Langulus
       concept Mutable = sizeof...(T) > 0
           and ((not Constant<T>) and ...);
 
+      /// Check if all T are fundamental types                                
+      /// Examples: int, void, float, nullptr_t, ...                          
+      /// Counter examples: int&, int*, any custom type, ref, or pointer      
+      template<class...T>
+      concept Fundamental = sizeof...(T) > 0 and Complete<T...>
+          and (::std::is_fundamental_v<Deref<T>> and ...);
+
       namespace Inner
       {
 
-         template<class T>
+         template<class T, Fundamental F>
          consteval bool Signed() {
-            if constexpr (requires { static_cast<T>(-1) < static_cast<T>(0); }
-            and IsConstexpr([] { return static_cast<T>(-1) < static_cast<T>(0); }))
-               return static_cast<T>(-1) < static_cast<T>(0);
-            else if constexpr (requires { static_cast<T>(-1.0) < static_cast<T>(0.0); }
-            and IsConstexpr([] { return static_cast<T>(-1.0) < static_cast<T>(0.0); }))
-               return static_cast<T>(-1.0) < static_cast<T>(0.0);
-            else if constexpr (requires { static_cast<T>(-1.0f) < static_cast<T>(0.0f); }
-            and IsConstexpr([] { return static_cast<T>(-1.0f) < static_cast<T>(0.0f); }))
-               return static_cast<T>(-1.0f) < static_cast<T>(0.0f);
-            else return false;
+            return requires {
+               ::std::constructible_from<T, F>;
+               T {F {-1}} < T {F {0}};
+            };
          }
 
       } // namespace Langulus::CT::Inner
@@ -406,7 +407,11 @@ namespace Langulus
       /// int-initializable. This one is better                               
       ///   @attention doesn't apply to numbers only, but anything negatable  
       template<class...T>
-      concept Signed = sizeof...(T) > 0 and (Inner::Signed<T>() and ...);
+      concept Signed = sizeof...(T) > 0 and ((
+               Inner::Signed<T, int>()
+            or Inner::Signed<T, float>()
+            or Inner::Signed<T, double>()
+         ) and ...);
 
       /// Check if all T are unsigned                                         
       ///   @attention doesn't apply to numbers only, but anything negatable  
@@ -461,8 +466,7 @@ namespace Langulus
       ///   @attention excludes boolean types and char types                  
       template<class...T>
       concept BuiltinInteger = sizeof...(T) > 0 and ((
-            ::std::integral<Deref<T>>
-            and not BuiltinBool<T> and not BuiltinCharacter<T>
+            ::std::integral<Deref<T>> and not BuiltinBool<T>// and not BuiltinCharacter<T>
          ) and ...);
 
       /// Check if type is any built-in signed integer                        
@@ -537,13 +541,6 @@ namespace Langulus
       template<class...T>
       concept Enum = sizeof...(T) > 0 and Complete<T...>
           and (::std::is_enum_v<Deref<T>> and ...);
-
-      /// Check if all T are fundamental types                                
-      /// Examples: int, void, float, nullptr_t, ...                          
-      /// Counter examples: int&, int*, any custom type, ref, or pointer      
-      template<class...T>
-      concept Fundamental = sizeof...(T) > 0 and Complete<T...>
-          and (::std::is_fundamental_v<Deref<T>> and ...);
 
       /// Check if all T are arithmetic types                                 
       /// Examples: bool, char, int, float, size_t                            
