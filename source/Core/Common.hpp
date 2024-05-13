@@ -277,6 +277,13 @@ namespace Langulus
       ///   Concepts                                                          
       ///                                                                     
 
+      /// Check if a function encapsulated in a lambda is a constexpr         
+      /// Leverages that lambda expressions can be constexpr as of C++17      
+      /// https://stackoverflow.com/questions/55288555                        
+      template<class Lambda, int = (Lambda {}(), 0) >
+      consteval bool IsConstexpr(Lambda) { return true;  }
+      consteval bool IsConstexpr(...)    { return false; }
+
       /// Check if all T are complete (defined), by exploiting sizeof         
       /// Usefulness of this is limited to the first instantiation, and       
       /// that is how it is used upon reflection by RTTI. Any other use is    
@@ -375,11 +382,31 @@ namespace Langulus
       concept Mutable = sizeof...(T) > 0
           and ((not Constant<T>) and ...);
 
+      namespace Inner
+      {
+
+         template<class T>
+         consteval bool Signed() {
+            if constexpr (requires { static_cast<T>(-1) < static_cast<T>(0); }
+            and IsConstexpr([] { return static_cast<T>(-1) < static_cast<T>(0); }))
+               return static_cast<T>(-1) < static_cast<T>(0);
+            else if constexpr (requires { static_cast<T>(-1.0) < static_cast<T>(0.0); }
+            and IsConstexpr([] { return static_cast<T>(-1.0) < static_cast<T>(0.0); }))
+               return static_cast<T>(-1.0) < static_cast<T>(0.0);
+            else if constexpr (requires { static_cast<T>(-1.0f) < static_cast<T>(0.0f); }
+            and IsConstexpr([] { return static_cast<T>(-1.0f) < static_cast<T>(0.0f); }))
+               return static_cast<T>(-1.0f) < static_cast<T>(0.0f);
+            else return false;
+         }
+
+      } // namespace Langulus::CT::Inner
+
       /// Check if all T are signed                                           
+      /// std::is_signed_v is crap, because it assumes that all types are     
+      /// int-initializable. This one is better                               
       ///   @attention doesn't apply to numbers only, but anything negatable  
       template<class...T>
-      concept Signed = sizeof...(T) > 0
-          and (::std::is_signed_v<Deref<T>> and ...);
+      concept Signed = sizeof...(T) > 0 and (Inner::Signed<T>() and ...);
 
       /// Check if all T are unsigned                                         
       ///   @attention doesn't apply to numbers only, but anything negatable  
@@ -435,16 +462,15 @@ namespace Langulus
       template<class...T>
       concept BuiltinInteger = sizeof...(T) > 0 and ((
             ::std::integral<Deref<T>>
-            and not BuiltinBool<T>
-            and not BuiltinCharacter<T>
+            and not BuiltinBool<T> and not BuiltinCharacter<T>
          ) and ...);
 
-      /// Check if type is any signed integer                                 
+      /// Check if type is any built-in signed integer                        
       template<class...T>
       concept BuiltinSignedInteger = sizeof...(T) > 0
           and BuiltinInteger<T...> and Signed<T...>;
 
-      /// Check if type is any unsigned integer                               
+      /// Check if type is any built-in unsigned integer                      
       template<class...T>
       concept BuiltinUnsignedInteger = sizeof...(T) > 0
           and BuiltinInteger<T...> and Unsigned<T...>;
@@ -591,13 +617,6 @@ namespace Langulus
       template<class...T>
       concept NotDecayed = sizeof...(T) > 0
           and ((not Decayed<T>) and ...);
-   
-      /// Check if a function encapsulated in a lambda is a constexpr         
-      /// Leverages that lambda expressions can be constexpr as of C++17      
-      /// https://stackoverflow.com/questions/55288555                        
-      template<class Lambda, int = (Lambda {}(), 0)>
-      consteval bool IsConstexpr(Lambda) { return true; }
-      consteval bool IsConstexpr(...) { return false; }
          
       /// Check if type is a dense void                                       
       template<class...T>
