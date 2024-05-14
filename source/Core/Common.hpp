@@ -180,12 +180,12 @@ namespace Langulus
    #endif
 
    LANGULUS(ALWAYS_INLINED)
-   consteval Real operator "" _real(unsigned long long n) noexcept {
+   constexpr Real operator "" _real(unsigned long long n) noexcept {
       return static_cast<Real>(n);
    }
    
    LANGULUS(ALWAYS_INLINED)
-   consteval Real operator "" _real(long double n) noexcept {
+   constexpr Real operator "" _real(long double n) noexcept {
       return static_cast<Real>(n);
    }
 
@@ -466,7 +466,7 @@ namespace Langulus
       ///   @attention excludes boolean types and char types                  
       template<class...T>
       concept BuiltinInteger = sizeof...(T) > 0 and ((
-            ::std::integral<Deref<T>> and not BuiltinBool<T>// and not BuiltinCharacter<T>
+            ::std::integral<Deref<T>> and not BuiltinBool<T>
          ) and ...);
 
       /// Check if type is any built-in signed integer                        
