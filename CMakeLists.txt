@@ -13,7 +13,7 @@ set(LANGULUS ON CACHE INTERNAL
 )
 
 add_library(LangulusCore INTERFACE)
-target_compile_features(LangulusCore INTERFACE cxx_std_20)
+target_compile_features(LangulusCore INTERFACE cxx_std_23)
 target_include_directories(LangulusCore INTERFACE source)
 
 message("Compiler: ${CMAKE_CXX_COMPILER_ID} - ${CMAKE_CXX_COMPILER_VERSION}")
