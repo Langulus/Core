@@ -1,7 +1,7 @@
 # Langulus::Core
 `Langulus::Core` is a common header-only C++23 library, that is used in [all other Langulus](https://github.com/Langulus) libraries and plug-ins.
 It takes care of the four main aspects of the framework:
-1. **Configuration** - `LangulusCore` is a CMake `INTERFACE` target that serves as a common configurator for all other targets - it includes global compiler flags and options. You can read about exposed [[CMake options here|CMake Options]].
+1. **Configuration** - `LangulusCore` is a CMake `INTERFACE` target that serves as a common configurator for all other targets - it includes global compiler flags and options. You can read about [exposed CMake options here](https://github.com/Langulus/Core/wiki/CMake-Options).
 2. **Type Navigation** - patterns defined in the `Langulus` namespace, that are used practically everywhere. By type-navigation we mean things analogical to `std::remove_reference_t`, but improved and designed specifically with Langulus use cases in mind. You can read about the full list of such tools [[here|Type Navigation]].
 3. **Basic concepts** - the `Langulus::CT` namespace is the `CT` concept library, containing some rudimentary and widely used concepts. You can see the list [[here|Basic Concepts]]. More advanced concepts with more narrow uses are spreaded across multiple Langulus libraries.
 4. **Utilities** - defined in the `Langulus` namespace. Contains various widely used types and functions, such as:
