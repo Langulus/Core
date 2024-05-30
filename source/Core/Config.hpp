@@ -28,11 +28,11 @@
 #endif
 
 #if LANGULUS_SAFE()
-   #define IF_SAFE(a) a
-   #define IF_UNSAFE(a)
+   #define IF_SAFE(a)      a
+   #define IF_UNSAFE(a)    
 #else
-   #define IF_SAFE(a)
-   #define IF_UNSAFE(a) a
+   #define IF_SAFE(a)      
+   #define IF_UNSAFE(a)    a
 #endif
 
 /// Testing mode exposes some otherwise private functions                     
@@ -40,12 +40,12 @@
 #ifdef LANGULUS_TESTING
    #undef LANGULUS_TESTING
    #define LANGULUS_TESTING() 1
-   #define IF_LANGULUS_TESTING(a) a
-   #define IF_NOT_LANGULUS_TESTING(a)
+   #define IF_LANGULUS_TESTING(a)         a
+   #define IF_NOT_LANGULUS_TESTING(a)     LANGULUS(NOOP)
 #else
    #define LANGULUS_TESTING() 0
-   #define IF_LANGULUS_TESTING(a)
-   #define IF_NOT_LANGULUS_TESTING(a) a
+   #define IF_LANGULUS_TESTING(a)         LANGULUS(NOOP)
+   #define IF_NOT_LANGULUS_TESTING(a)     a
 #endif
 
 /// Benchmarking                                                              
@@ -53,24 +53,24 @@
 #ifdef LANGULUS_BENCHMARK
    #undef LANGULUS_BENCHMARK
    #define LANGULUS_BENCHMARK() 1
-   #define IF_LANGULUS_BENCHMARK(a) a
-   #define IF_NOT_LANGULUS_BENCHMARK(a)
+   #define IF_LANGULUS_BENCHMARK(a)       a
+   #define IF_NOT_LANGULUS_BENCHMARK(a)   LANGULUS(NOOP)
 #else
    #define LANGULUS_BENCHMARK() 0
-   #define IF_LANGULUS_BENCHMARK(a)
-   #define IF_NOT_LANGULUS_BENCHMARK(a) a
+   #define IF_LANGULUS_BENCHMARK(a)       LANGULUS(NOOP)
+   #define IF_NOT_LANGULUS_BENCHMARK(a)   a
 #endif
 
 /// Paranoid mode introduces overhead, but zeroes any freed memory            
 #ifdef LANGULUS_PARANOIA
    #undef LANGULUS_PARANOIA
    #define LANGULUS_PARANOID() 1
-   #define IF_LANGULUS_PARANOID(a) a
-   #define IF_NOT_LANGULUS_PARANOID(a)
+   #define IF_LANGULUS_PARANOID(a)        a
+   #define IF_NOT_LANGULUS_PARANOID(a)    LANGULUS(NOOP)
 #else
    #define LANGULUS_PARANOID() 0
-   #define IF_LANGULUS_PARANOID(a)
-   #define IF_NOT_LANGULUS_PARANOID(a) a
+   #define IF_LANGULUS_PARANOID(a)        LANGULUS(NOOP)
+   #define IF_NOT_LANGULUS_PARANOID(a)    a
 #endif
 
 /// Detect debug builds                                                       
@@ -80,11 +80,11 @@
                                 or defined(CB_DEBUG) \
                                 or defined(QT_QML_DEBUG))
    #undef LANGULUS_DEBUGGING
-   #define LANGULUS_DEBUG() 1
-   #define DEBUGGERY(a) a
+   #define LANGULUS_DEBUG()   1
+   #define DEBUGGERY(a)       a
 #else
-   #define LANGULUS_DEBUG() 0
-   #define DEBUGGERY(a)
+   #define LANGULUS_DEBUG()   0
+   #define DEBUGGERY(a)       LANGULUS(NOOP)
 #endif
 
 /// Reflections will be registered in a centralized location, allowing for    
@@ -95,13 +95,13 @@
 /// Gives a significant overhead on program launch, no dependencies           
 #ifdef LANGULUS_FEATURE_MANAGED_REFLECTION
    #undef LANGULUS_FEATURE_MANAGED_REFLECTION
-   #define LANGULUS_FEATURE_MANAGED_REFLECTION() 1
-   #define IF_LANGULUS_MANAGED_REFLECTION(a) a
-   #define IF_NOT_LANGULUS_MANAGED_REFLECTION(a)
+   #define LANGULUS_FEATURE_MANAGED_REFLECTION()   1
+   #define IF_LANGULUS_MANAGED_REFLECTION(a)       a
+   #define IF_NOT_LANGULUS_MANAGED_REFLECTION(a)   LANGULUS(NOOP)
 #else
-   #define LANGULUS_FEATURE_MANAGED_REFLECTION() 0
-   #define IF_LANGULUS_MANAGED_REFLECTION(a)
-   #define IF_NOT_LANGULUS_MANAGED_REFLECTION(a) a
+   #define LANGULUS_FEATURE_MANAGED_REFLECTION()   0
+   #define IF_LANGULUS_MANAGED_REFLECTION(a)       LANGULUS(NOOP)
+   #define IF_NOT_LANGULUS_MANAGED_REFLECTION(a)   a
 #endif
 
 /// Memory allocations will be pooled, authority will be tracked,             
@@ -110,13 +110,13 @@
 /// Significantly improves performance, no dependencies                       
 #ifdef LANGULUS_FEATURE_MANAGED_MEMORY
    #undef LANGULUS_FEATURE_MANAGED_MEMORY
-   #define LANGULUS_FEATURE_MANAGED_MEMORY() 1
-   #define IF_LANGULUS_MANAGED_MEMORY(a) a
-   #define IF_NOT_LANGULUS_MANAGED_MEMORY(a)
+   #define LANGULUS_FEATURE_MANAGED_MEMORY()    1
+   #define IF_LANGULUS_MANAGED_MEMORY(a)        a
+   #define IF_NOT_LANGULUS_MANAGED_MEMORY(a)    LANGULUS(NOOP)
 #else
-   #define LANGULUS_FEATURE_MANAGED_MEMORY() 0
-   #define IF_LANGULUS_MANAGED_MEMORY(a)
-   #define IF_NOT_LANGULUS_MANAGED_MEMORY(a) a
+   #define LANGULUS_FEATURE_MANAGED_MEMORY()    0
+   #define IF_LANGULUS_MANAGED_MEMORY(a)        LANGULUS(NOOP)
+   #define IF_NOT_LANGULUS_MANAGED_MEMORY(a)    a
 #endif
 
 /// Memory manager shall keep track of statistics                             
@@ -126,11 +126,11 @@
 #ifdef LANGULUS_FEATURE_MEMORY_STATISTICS
    #undef LANGULUS_FEATURE_MEMORY_STATISTICS
    #define LANGULUS_FEATURE_MEMORY_STATISTICS() 1
-   #define IF_LANGULUS_MEMORY_STATISTICS(a) a
-   #define IF_NOT_LANGULUS_MEMORY_STATISTICS(a)
+   #define IF_LANGULUS_MEMORY_STATISTICS(a)     a
+   #define IF_NOT_LANGULUS_MEMORY_STATISTICS(a) LANGULUS(NOOP)
 #else
    #define LANGULUS_FEATURE_MEMORY_STATISTICS() 0
-   #define IF_LANGULUS_MEMORY_STATISTICS(a)
+   #define IF_LANGULUS_MEMORY_STATISTICS(a)     LANGULUS(NOOP)
    #define IF_NOT_LANGULUS_MEMORY_STATISTICS(a) a
 #endif
 
@@ -138,26 +138,26 @@
 /// No overhead, no dependencies                                              
 #ifdef LANGULUS_FEATURE_NEWDELETE
    #undef LANGULUS_FEATURE_NEWDELETE
-   #define LANGULUS_FEATURE_NEWDELETE() 1
-   #define IF_LANGULUS_NEWDELETE(a) a
-   #define IF_NOT_LANGULUS_NEWDELETE(a)
+   #define LANGULUS_FEATURE_NEWDELETE()   1
+   #define IF_LANGULUS_NEWDELETE(a)       a
+   #define IF_NOT_LANGULUS_NEWDELETE(a)   LANGULUS(NOOP)
 #else
-   #define LANGULUS_FEATURE_NEWDELETE() 0
-   #define IF_LANGULUS_NEWDELETE(a) 
-   #define IF_NOT_LANGULUS_NEWDELETE(a) a
+   #define LANGULUS_FEATURE_NEWDELETE()   0
+   #define IF_LANGULUS_NEWDELETE(a)       LANGULUS(NOOP)
+   #define IF_NOT_LANGULUS_NEWDELETE(a)   a
 #endif
 
 /// Enables utf support and utilities for Text container                      
 /// No runtime overhead                                                       
 #ifdef LANGULUS_FEATURE_UNICODE
    #undef LANGULUS_FEATURE_UNICODE
-   #define LANGULUS_FEATURE_UNICODE() 1
-   #define IF_LANGULUS_UNICODE(a) a
-   #define IF_NOT_LANGULUS_UNICODE(a)
+   #define LANGULUS_FEATURE_UNICODE()     1
+   #define IF_LANGULUS_UNICODE(a)         a
+   #define IF_NOT_LANGULUS_UNICODE(a)     LANGULUS(NOOP)
 #else
-   #define LANGULUS_FEATURE_UNICODE() 0
-   #define IF_LANGULUS_UNICODE(a) 
-   #define IF_NOT_LANGULUS_UNICODE(a) a
+   #define LANGULUS_FEATURE_UNICODE()     0
+   #define IF_LANGULUS_UNICODE(a)         LANGULUS(NOOP)
+   #define IF_NOT_LANGULUS_UNICODE(a)     a
 #endif
 
 /// Enable memory compression utilities for containers                        
@@ -165,11 +165,11 @@
 #ifdef LANGULUS_FEATURE_COMPRESSION
    #undef LANGULUS_FEATURE_COMPRESSION
    #define LANGULUS_FEATURE_COMPRESSION() 1
-   #define IF_LANGULUS_COMPRESSION(a) a
-   #define IF_NOT_LANGULUS_COMPRESSION(a)
+   #define IF_LANGULUS_COMPRESSION(a)     a
+   #define IF_NOT_LANGULUS_COMPRESSION(a) LANGULUS(NOOP)
 #else
    #define LANGULUS_FEATURE_COMPRESSION() 0
-   #define IF_LANGULUS_COMPRESSION(a) 
+   #define IF_LANGULUS_COMPRESSION(a)     LANGULUS(NOOP)
    #define IF_NOT_LANGULUS_COMPRESSION(a) a
 #endif
 
@@ -177,13 +177,13 @@
 /// Gives a tiny runtime overhead, no dependencies                            
 #ifdef LANGULUS_FEATURE_ENCRYPTION
    #undef LANGULUS_FEATURE_ENCRYPTION
-   #define LANGULUS_FEATURE_ENCRYPTION() 1
-   #define IF_LANGULUS_ENCRYPTION(a) a
-   #define IF_NOT_LANGULUS_ENCRYPTION(a)
+   #define LANGULUS_FEATURE_ENCRYPTION()  1
+   #define IF_LANGULUS_ENCRYPTION(a)      a
+   #define IF_NOT_LANGULUS_ENCRYPTION(a)  LANGULUS(NOOP)
 #else
-   #define LANGULUS_FEATURE_ENCRYPTION() 0
-   #define IF_LANGULUS_ENCRYPTION(a) 
-   #define IF_NOT_LANGULUS_ENCRYPTION(a) a
+   #define LANGULUS_FEATURE_ENCRYPTION()  0
+   #define IF_LANGULUS_ENCRYPTION(a)      LANGULUS(NOOP)
+   #define IF_NOT_LANGULUS_ENCRYPTION(a)  a
 #endif
 
 /// Detect architecture                                                       

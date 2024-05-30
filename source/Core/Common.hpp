@@ -51,6 +51,10 @@
 /// if (std::is_constant_evaluated()) statements with `if consteval` ones     
 #define IF_CONSTEXPR() if (std::is_constant_evaluated())
 
+/// No-op for empty macros, forces coder to add a semicolon to avoid          
+/// obscure errors                                                            
+#define LANGULUS_NOOP() ((void)0)
+
 #if LANGULUS_COMPILER(MSVC)
    /// Force no inlining                                                      
    #define LANGULUS_NOINLINE() __declspec(noinline)
