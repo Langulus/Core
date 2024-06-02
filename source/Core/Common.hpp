@@ -397,8 +397,7 @@ namespace Langulus
 
          template<class T, Fundamental F>
          consteval bool Signed() {
-            return requires {
-               ::std::constructible_from<T, F>;
+            return ::std::constructible_from<T, F> and requires {
                T {F {-1}} < T {F {0}};
             };
          }
