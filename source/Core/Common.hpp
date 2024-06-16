@@ -492,18 +492,35 @@ namespace Langulus
       concept BuiltinNumber = sizeof...(T) > 0
           and ((BuiltinInteger<T> or BuiltinReal<T>) and ...);
 
+      namespace Inner
+      {
+
+         template<class FROM, class TO>
+         consteval bool ConvertibleTo() {
+            using DF = Deref<FROM>;
+            using DT = Deref<TO>;
+
+            if constexpr (CT::Similar<FROM, TO>)
+               return true;
+            else
+               return Complete<FROM, TO> and (
+                      requires (const DF& from) { DT (static_cast<DT>(from)); }
+                   or requires (const DF& from) { DT (from); }
+                   or requires (DT& to, const DF& from) { to = static_cast<DT>(from); }
+                   or requires (DT& to, const DF& from) { to = from; }
+               );
+         }
+
+      } // namespace Langulus::CT::Inner
+
       /// Convertible concept                                                 
       /// Explicit conversion is a mess across many compilers, and the        
       /// standard as a whole, so this concept enforces a new world order     
+      /// Latest change involved MSVC ICEs introduced in 19.40.33811.0        
+      ///   @attention all cast operators need to be const methods, because   
+      ///      MSVC doesn't support anything else, and will occasionally ICE  
       template<class FROM, class...TO>
-      concept Convertible = sizeof...(TO) > 0 and Complete<FROM, TO...>
-          and ((requires (Deref<FROM>& from) { Deref<TO> (from); }
-             or requires (Deref<FROM>& from) { Deref<TO> (from.operator Deref<TO>()); }
-             or requires (Deref<FROM>& from) { Deref<TO> (from.operator Deref<TO>&()); }
-             or requires (Deref<FROM>& from) { Deref<TO> (from.operator const Deref<TO>&()); }
-             or requires (Deref<TO>& to, Deref<FROM>& from) { to = static_cast<Deref<TO>>(from); }
-             or ::std::convertible_to<Deref<FROM>, Deref<TO>>
-          ) and ...);
+      concept Convertible = sizeof...(TO) > 0 and (Inner::ConvertibleTo<FROM, TO>() and ...);
 
       /// Equality comparable concept for any origin LHS and RHS, with an     
       /// adequate == operator                                                
