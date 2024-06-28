@@ -91,7 +91,6 @@ namespace Langulus
    ///                                                                        
    namespace Flow
    {
-
       struct Verb;
 
       template<class VERB>
@@ -123,6 +122,7 @@ namespace Langulus
       template<class TYPE = void>
       struct Block;
 
+      class Many;
       class Neat;
    }
 
