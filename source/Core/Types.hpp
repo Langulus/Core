@@ -20,6 +20,8 @@ namespace Langulus
    template<class...T>
    struct Types;
 
+
+   ///                                                                        
    /// Type list that contains exactly one type, which isn't void             
    template<CT::Data T>
    struct Types<T> {
@@ -38,8 +40,18 @@ namespace Langulus
       static constexpr decltype(auto) ForEachOr(LAMBDA&& generator) {
          return generator.template operator()<T>();
       }
+
+      template<class...MORE>
+      static consteval auto ConcatInner(Types<MORE...>) {
+         return Types<T, MORE...> {};
+      }
+
+      template<class LIST>
+      using Concat = decltype(ConcatInner(LIST {}));
    };
 
+
+   ///                                                                        
    /// Type list that contains multiple non-void types                        
    template<CT::Data T1, CT::Data T2, CT::Data...TN>
    struct Types<T1, T2, TN...> {
@@ -65,8 +77,18 @@ namespace Langulus
              or generator.template operator()<T2>()
              or (... or generator.template operator()<TN>());
       }
+
+      template<class...MORE>
+      static consteval auto ConcatInner(Types<MORE...>) {
+         return Types<T1, T2, TN..., MORE...> {};
+      }
+
+      template<class LIST>
+      using Concat = decltype(ConcatInner(LIST {}));
    };
 
+
+   ///                                                                        
    /// Type list, that contains only one void item - a canonical empty list   
    template<>
    struct Types<void> {
@@ -84,7 +106,16 @@ namespace Langulus
       static constexpr bool ForEachOr(LAMBDA&&) noexcept {
          return false;
       }
+
+      template<class...MORE>
+      static consteval auto ConcatInner(Types<MORE...>) {
+         return Types<MORE...> {};
+      }
+
+      template<class LIST>
+      using Concat = decltype(ConcatInner(LIST {}));
    };
+
 
    /// Retrieve the first type from a type list                               
    template<class...T>
