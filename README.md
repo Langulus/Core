@@ -8,10 +8,10 @@ It takes care of the four main aspects of the framework:
 
 # Standalone use
 You wish to use some of the utilities or concept library for yourself without downloading the entire Langulus framework?
-You can use this library on its own. If you have CMake 3.24+, the recommended way to get it is to add this to your CMakeLists.txt:
+You can use this library on its own. If you have CMake 3.28+, the recommended way to get it is to add this to your CMakeLists.txt:
 ```cmake
 include(FetchContent)
-FetchContent_Declare(LangulusCore GIT_REPOSITORY https://github.com/Langulus/Core.git GIT_TAG main)
+FetchContent_Declare(LangulusCore GIT_REPOSITORY https://github.com/Langulus/Core.git GIT_TAG main EXCLUDE_FROM_ALL)
 FetchContent_MakeAvailable(LangulusCore)
 ```
 Then just link to your target to get all the include directories:
@@ -29,5 +29,5 @@ Our design is led by practice - as more features are added to Langulus, more thi
 # Community feedback
 I would love feedback and suggestions, please feel free to join the [forum](https://github.com/Langulus/Core/discussions).
 However it should be stated clearly, that Langulus is primarily a personal project that I've been developing for over 10 years, and is aiming primarily at satisfying my requirements.
-As such, ideas and suggestions may not be necessarily implemented by me, unless I find them exceedingly useful.
+As such, ideas and suggestions may not be necessarily implemented by [me](https://github.com/Epixu), unless I find them exceedingly useful.
 If you really need me to add or improve something that isn't on my daily agenda, you should consider sponsoring me.
