@@ -123,7 +123,6 @@ namespace Langulus
       struct Block;
 
       class Many;
-      class Neat;
    }
 
    /// Type for counting things, depends on architecture                      
