@@ -271,53 +271,6 @@ namespace Langulus
    template<class T>
    using Decay = Deptr<decltype(Inner::NestedDecay<T>())>;
 
-   namespace Inner
-   {
-      
-      template<class T>
-      struct NestedSwapResult {
-         using LangulusIsNestedSwapResult = T;
-      };
-
-      template<class T, class WITH>
-      consteval decltype(auto) NestedSwap() requires (typename T::LangulusIsNestedSwapResult) {
-         if constexpr (::std::is_reference_v<T>)
-            return NestedSwapResult<decltype(NestedSwap<::std::remove_reference_t<T>, WITH>())&> {};
-         else if constexpr (::std::is_bounded_array_v<T>)
-            return (decltype(NestedSwap<::std::remove_extent_t<T>, WITH>())[::std::extent_v<T>]) {};
-         else if constexpr (::std::is_pointer_v<T>)
-            return (decltype(NestedSwap<::std::remove_pointer_t<T>, WITH>())*) nullptr;
-         else if constexpr (::std::is_const_v<T>)
-            return (const decltype(NestedSwap<::std::remove_const_t<T>, WITH>())) {};
-         else if constexpr (::std::is_volatile_v<T>)
-            return (volatile decltype(NestedSwap<::std::remove_const_t<T>, WITH>())) {};
-         else
-            return WITH {};
-      }
-
-      template<class T, class WITH>
-      consteval decltype(auto) NestedSwap() requires (not requires (typename T::LangulusIsNestedSwapResult)) {
-         if constexpr (::std::is_reference_v<T>)
-            return NestedSwapResult<decltype(NestedSwap<::std::remove_reference_t<T>, WITH>())&> {};
-         else if constexpr (::std::is_bounded_array_v<T>)
-            return (decltype(NestedSwap<::std::remove_extent_t<T>, WITH>())[::std::extent_v<T>]) {};
-         else if constexpr (::std::is_pointer_v<T>)
-            return (decltype(NestedSwap<::std::remove_pointer_t<T>, WITH>())*) nullptr;
-         else if constexpr (::std::is_const_v<T>)
-            return (const decltype(NestedSwap<::std::remove_const_t<T>, WITH>())) {};
-         else if constexpr (::std::is_volatile_v<T>)
-            return (volatile decltype(NestedSwap<::std::remove_const_t<T>, WITH>())) {};
-         else
-            return WITH {};
-      }
-
-   } // namespace Langulus::Inner
-
-   /// Reconstruct a type with all its extents, qualifiers and indirections,  
-   /// but with changed base type                                             
-   template<class T, class WITH>
-   using TypeSwap = typename decltype(Inner::NestedSwap<T, WITH>())::Type;
-
    /// A namespace dedicated for Compile Time checks and ConcepTs             
    namespace CT
    {
@@ -763,5 +716,63 @@ namespace Langulus
    consteval bool SameTypes(T1&&, TN&&...) {
       return CT::Same<T1, TN...>;
    }
+
+   namespace Inner
+   {
+      
+      template<class T>
+      concept IsNestedRetypeResult = requires {
+         typename T::LangulusIsNestedRetypeResult;
+      };
+
+      template<class T>
+      concept IsNotNestedRetypeResult = not IsNestedRetypeResult<T>;
+
+      template<IsNotNestedRetypeResult T>
+      struct NestedRetypeResult { using LangulusIsNestedRetypeResult = T; };
+
+      template<IsNotNestedRetypeResult T, CT::Decayed WITH>
+      consteval IsNestedRetypeResult auto NestedRetype() {
+         if constexpr (::std::same_as<T, WITH>) {
+            return NestedRetypeResult<WITH> {};
+         }
+         else if constexpr (::std::is_const_v<T>) {
+            using Retyped = decltype(NestedRetype<::std::remove_const_t<T>, WITH>());
+            return NestedRetypeResult<typename Retyped::LangulusIsNestedRetypeResult const> {};
+         }
+         else if constexpr (::std::is_volatile_v<T>) {
+            using Retyped = decltype(NestedRetype<::std::remove_volatile_t<T>, WITH>());
+            return NestedRetypeResult<typename Retyped::LangulusIsNestedRetypeResult volatile> {};
+         }
+         else if constexpr (::std::is_rvalue_reference_v<T>) {
+            using Retyped = decltype(NestedRetype<::std::remove_reference_t<T>, WITH>());
+            return NestedRetypeResult<typename Retyped::LangulusIsNestedRetypeResult&&> {};
+         }
+         else if constexpr (::std::is_lvalue_reference_v<T>) {
+            using Retyped = decltype(NestedRetype<::std::remove_reference_t<T>, WITH>());
+            return NestedRetypeResult<typename Retyped::LangulusIsNestedRetypeResult&> {};
+         }
+         else if constexpr (::std::is_bounded_array_v<T>) {
+            using Retyped = decltype(NestedRetype<::std::remove_extent_t<T>, WITH>());
+            return NestedRetypeResult<typename Retyped::LangulusIsNestedRetypeResult[::std::extent_v<T>]> {};
+         }
+         else if constexpr (::std::is_pointer_v<T>) {
+            using Retyped = decltype(NestedRetype<::std::remove_pointer_t<T>, WITH>());
+            return NestedRetypeResult<typename Retyped::LangulusIsNestedRetypeResult*> {};
+         }
+         else return NestedRetypeResult<WITH> {};
+      }
+      
+      template<IsNestedRetypeResult T, CT::Decayed WITH>
+      consteval IsNestedRetypeResult auto NestedRetype() {
+         return NestedRetype<typename T::LangulusIsNestedRetypeResult, WITH>();
+      }
+
+   } // namespace Langulus::Inner
+
+   /// Reconstruct a type with all its extents, qualifiers and indirections,  
+   /// but with changed base type                                             
+   template<class T, CT::Decayed WITH>
+   using Retype = typename decltype(Inner::NestedRetype<T, WITH>())::LangulusIsNestedRetypeResult;
 
 } // namespace Langulus
