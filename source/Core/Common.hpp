@@ -271,6 +271,53 @@ namespace Langulus
    template<class T>
    using Decay = Deptr<decltype(Inner::NestedDecay<T>())>;
 
+   namespace Inner
+   {
+      
+      template<class T>
+      struct NestedSwapResult {
+         using LangulusIsNestedSwapResult = T;
+      };
+
+      template<class T, class WITH>
+      consteval decltype(auto) NestedSwap() requires (typename T::LangulusIsNestedSwapResult) {
+         if constexpr (::std::is_reference_v<T>)
+            return NestedSwapResult<decltype(NestedSwap<::std::remove_reference_t<T>, WITH>())&> {};
+         else if constexpr (::std::is_bounded_array_v<T>)
+            return (decltype(NestedSwap<::std::remove_extent_t<T>, WITH>())[::std::extent_v<T>]) {};
+         else if constexpr (::std::is_pointer_v<T>)
+            return (decltype(NestedSwap<::std::remove_pointer_t<T>, WITH>())*) nullptr;
+         else if constexpr (::std::is_const_v<T>)
+            return (const decltype(NestedSwap<::std::remove_const_t<T>, WITH>())) {};
+         else if constexpr (::std::is_volatile_v<T>)
+            return (volatile decltype(NestedSwap<::std::remove_const_t<T>, WITH>())) {};
+         else
+            return WITH {};
+      }
+
+      template<class T, class WITH>
+      consteval decltype(auto) NestedSwap() requires (not requires (typename T::LangulusIsNestedSwapResult)) {
+         if constexpr (::std::is_reference_v<T>)
+            return NestedSwapResult<decltype(NestedSwap<::std::remove_reference_t<T>, WITH>())&> {};
+         else if constexpr (::std::is_bounded_array_v<T>)
+            return (decltype(NestedSwap<::std::remove_extent_t<T>, WITH>())[::std::extent_v<T>]) {};
+         else if constexpr (::std::is_pointer_v<T>)
+            return (decltype(NestedSwap<::std::remove_pointer_t<T>, WITH>())*) nullptr;
+         else if constexpr (::std::is_const_v<T>)
+            return (const decltype(NestedSwap<::std::remove_const_t<T>, WITH>())) {};
+         else if constexpr (::std::is_volatile_v<T>)
+            return (volatile decltype(NestedSwap<::std::remove_const_t<T>, WITH>())) {};
+         else
+            return WITH {};
+      }
+
+   } // namespace Langulus::Inner
+
+   /// Reconstruct a type with all its extents, qualifiers and indirections,  
+   /// but with changed base type                                             
+   template<class T, class WITH>
+   using TypeSwap = typename decltype(Inner::NestedSwap<T, WITH>())::Type;
+
    /// A namespace dedicated for Compile Time checks and ConcepTs             
    namespace CT
    {
@@ -374,7 +421,7 @@ namespace Langulus
       concept Volatile = sizeof...(T) > 0
           and (::std::is_volatile_v<Deref<T>> and ...);
 
-      /// Check if all T are either const- or volatile-qualified              
+      /// Check if all T are either const- and/or volatile-qualified          
       template<class...T>
       concept Convoluted = sizeof...(T) > 0
           and ((Constant<T> or Volatile<T>) and ...);
