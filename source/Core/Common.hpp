@@ -15,6 +15,7 @@
 #include <bit>
 #include <cstring>
 
+
 /// All non-argument macros should use this facility                          
 /// https://www.fluentcpp.com/2019/05/28/better-macros-better-flags/          
 #define LANGULUS(a) LANGULUS_##a()
@@ -554,7 +555,7 @@ namespace Langulus
       /// All must have a Reference(Count) -> Count method                    
       template<class...T>
       concept Referencable = sizeof...(T) > 0 and Complete<T...>
-          and requires (T&...a) {
+          and requires (Decvq<T>...a) {
             { (a.Reference(-1), ...) } -> Exact<Count>;
           };
                
@@ -686,17 +687,25 @@ namespace Langulus
 
    /// Strip all const/volatile qualifiers on all levels of indirection       
    /// In a sense, it's just a nested const_cast                              
-   /// (this version preserves a reference, if any)                           
-   LANGULUS(ALWAYS_INLINED)
-   constexpr decltype(auto) DecvqCast(auto& a) noexcept {
-      return const_cast<DecvqAll<decltype(a)>&>(a);
+   template<CT::Sparse T> requires (not CT::Reference<T>) LANGULUS(ALWAYS_INLINED)
+   constexpr decltype(auto) DecvqCast(T a) noexcept {
+      return const_cast<DecvqAll<T>>(a);
    }
 
    /// Strip all const/volatile qualifiers on all levels of indirection       
    /// In a sense, it's just a nested const_cast                              
-   LANGULUS(ALWAYS_INLINED)
-   constexpr decltype(auto) DecvqCast(CT::Sparse auto a) noexcept {
-      return const_cast<DecvqAll<decltype(a)>>(a);
+   /// (this version preserves a reference, if any)                           
+   template<CT::Dense T> requires (not CT::Reference<T>) LANGULUS(ALWAYS_INLINED)
+   constexpr decltype(auto) DecvqCast(T& a) noexcept {
+      return const_cast<DecvqAll<T>&>(a);
+   }
+
+   /// Strip all const/volatile qualifiers on all levels of indirection       
+   /// In a sense, it's just a nested const_cast                              
+   /// (this version preserves an rvalue, if any)                             
+   template<CT::Dense T> requires (not CT::Reference<T>) LANGULUS(ALWAYS_INLINED)
+   constexpr decltype(auto) DecvqCast(T&& a) noexcept {
+      return const_cast<DecvqAll<T>&&>(a);
    }
 
    /// Returns true if the provided arguments are of similar types            
