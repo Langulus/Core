@@ -39,9 +39,10 @@
 /// Trigger a static assert (without condition)                               
 /// This form is required in order of it to work in 'if constexpr - else'     
 /// https://stackoverflow.com/questions/38304847                              
-#define LANGULUS_ERROR(text) []<bool flag = false>() { \
+#define LANGULUS_ERROR(text) static_assert(false, "LANGULUS ERROR: " text);
+/*[]<bool flag = false>() { \ ^ no longer ill formed in C++23
       static_assert(flag, "LANGULUS ERROR: " text); \
-   }()
+   }()*/
 
 /// Exploits [[deprecated("warning")]] to log template instantiations         
 #define LANGULUS_TEMPLATE() [[deprecated("template intantiation")]]
