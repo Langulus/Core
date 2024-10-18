@@ -36,14 +36,6 @@
 #define LIKELY() [[likely]]
 #define UNLIKELY() [[unlikely]]
 
-/// Trigger a static assert (without condition)                               
-/// This form is required in order of it to work in 'if constexpr - else'     
-/// https://stackoverflow.com/questions/38304847                              
-#define LANGULUS_ERROR(text) static_assert(false, "LANGULUS ERROR: " text);
-/*[]<bool flag = false>() { \ ^ no longer ill formed in C++23
-      static_assert(flag, "LANGULUS ERROR: " text); \
-   }()*/
-
 /// Exploits [[deprecated("warning")]] to log template instantiations         
 #define LANGULUS_TEMPLATE() [[deprecated("template intantiation")]]
 
@@ -51,7 +43,8 @@
 ///   @attention must be followed by {...}                                    
 /// TODO when we transition to C++23, we should replace                       
 /// if (std::is_constant_evaluated()) statements with `if consteval` ones     
-#define IF_CONSTEXPR() if (std::is_constant_evaluated())
+/// unfortunately MSVC is lagging behind a lot                                
+#define IF_CONSTEXPR() if (::std::is_constant_evaluated())
 
 /// No-op for empty macros, forces coder to add a semicolon to avoid          
 /// obscure errors                                                            
@@ -215,13 +208,13 @@ namespace Langulus
    /// Same as ::std::declval, but conveniently named                         
    template<class T>
    ::std::add_rvalue_reference_t<T> Fake() noexcept {
-      LANGULUS_ERROR("Calling Fake is ill-formed");
+      static_assert(false, "Calling Fake is ill-formed");
    }
 
    /// Same as ::std::declval, but deduces type via argument                  
    template<class T>
    ::std::add_rvalue_reference_t<T> Fake(T) noexcept {
-      LANGULUS_ERROR("Calling Fake is ill-formed");
+      static_assert(false, "Calling Fake is ill-formed");
    }
 
    /// Remove a reference from type                                           
@@ -664,7 +657,7 @@ namespace Langulus
             else if constexpr (Sparse<Stripped>)
                return (decltype(NestedDecvq<Deptr<Stripped>>())*) nullptr;
             else
-               LANGULUS_ERROR("Shouldn't be possible");
+               static_assert(false, "Shouldn't be possible");
          }
 
       } // namespace Langulus::CT::Inner
