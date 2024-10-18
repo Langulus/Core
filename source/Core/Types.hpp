@@ -148,19 +148,19 @@ namespace Langulus
       /// Handles functors, member/standing function pointers, lambdas.       
       template<class R, class F, class A, class...AN>
       Types<A, AN...> GetFunctionArguments(R(F::*)(A, AN...) const) {
-         LANGULUS_ERROR("Calling GetFunctionArguments is ill-formed");
+         static_assert(false, "Calling GetFunctionArguments is ill-formed");
       }
       template<class R, class F, class A, class...AN>
       Types<A, AN...> GetFunctionArguments(R(F::*)(A, AN...)) {
-         LANGULUS_ERROR("Calling GetFunctionArguments is ill-formed");
+         static_assert(false, "Calling GetFunctionArguments is ill-formed");
       }
       template<class R, class A, class...AN>
       Types<A, AN...> GetFunctionArguments(R(*)(A, AN...)) {
-         LANGULUS_ERROR("Calling GetFunctionArguments is ill-formed");
+         static_assert(false, "Calling GetFunctionArguments is ill-formed");
       }
       template<class F>
       decltype(GetFunctionArguments(&F::operator())) GetFunctionArguments(F) {
-         LANGULUS_ERROR("Calling GetFunctionArguments is ill-formed");
+         static_assert(false, "Calling GetFunctionArguments is ill-formed");
       }
    }
 
