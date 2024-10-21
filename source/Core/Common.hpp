@@ -36,9 +36,6 @@
 #define LIKELY() [[likely]]
 #define UNLIKELY() [[unlikely]]
 
-/// Exploits [[deprecated("warning")]] to log template instantiations         
-#define LANGULUS_TEMPLATE() [[deprecated("template intantiation")]]
-
 /// Checks if code is executed at compile-time                                
 ///   @attention must be followed by {...}                                    
 /// TODO when we transition to C++23, we should replace                       
