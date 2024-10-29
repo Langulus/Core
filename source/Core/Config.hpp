@@ -217,6 +217,13 @@
    #define LANGULUS_COMPILER_CLANG() 0
 #endif
 
+#if defined(__wasm__)
+   // We're on a web assembly compiler!                                 
+   #define LANGULUS_COMPILER_WASM() 1
+#else
+   #define LANGULUS_COMPILER_WASM() 0
+#endif
+
 #if defined(__MINGW32__) or defined(__MINGW64__) 
    // We're on a mingw compiler!                                        
    #define LANGULUS_COMPILER_MINGW() 1
@@ -239,7 +246,7 @@
 /// Dumps the current function name                                           
 #if defined(__GNUC__) or (defined(__MWERKS__) and (__MWERKS__ >= 0x3000)) or (defined(__ICC) and (__ICC >= 600)) or defined(__ghs__)
    #define LANGULUS_FUNCTION() __PRETTY_FUNCTION__
-#elif defined(__clang__)
+#elif defined(__clang__) or defined(__wasm__)
    #define LANGULUS_FUNCTION() __PRETTY_FUNCTION__
 #elif defined(__DMC__) and (__DMC__ >= 0x810)
    #define LANGULUS_FUNCTION() __PRETTY_FUNCTION__
@@ -254,7 +261,7 @@
 #elif defined(__cplusplus) and (__cplusplus >= 201103)
    #define LANGULUS_FUNCTION() __func__
 #else
-   #error Not implemented
+   #error LANGULUS_FUNCTION not implemented
 #endif
 
 /// Utility macro, that turns its argument to a string literal (inner)        
@@ -306,21 +313,19 @@
 
 /// Shared object export/import attributes                                    
 #ifdef LANGULUS_SHARED_LIBRARIES
-   #if LANGULUS_COMPILER(GCC) or LANGULUS_COMPILER(CLANG)
+   #if LANGULUS_COMPILER(GCC) or LANGULUS_COMPILER(CLANG) or LANGULUS_COMPILER(WASM)
       #if LANGULUS_OS(WINDOWS)
 	      #define LANGULUS_EXPORT() __attribute__ ((dllexport))
 	      #define LANGULUS_IMPORT() __attribute__ ((dllimport))
-      #elif LANGULUS_OS(LINUX)
+      #else
 	      #define LANGULUS_EXPORT() __attribute__ ((visibility("default")))
 	      #define LANGULUS_IMPORT() // requires -fvisibility=hidden      
-      #else
-         #error Not implemented
       #endif
    #elif LANGULUS_COMPILER(MSVC) or LANGULUS_COMPILER(MINGW)
 	   #define LANGULUS_EXPORT() __declspec(dllexport)
 	   #define LANGULUS_IMPORT() __declspec(dllimport)
    #else 
-      #error Not implemented
+      #error Compiler not implemented
    #endif
 #else
    /// Shared library exports are disabled                                    
