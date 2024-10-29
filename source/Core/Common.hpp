@@ -174,12 +174,12 @@ namespace Langulus
    #endif
 
    LANGULUS(ALWAYS_INLINED)
-   constexpr Real operator "" _real(unsigned long long n) noexcept {
+   constexpr Real operator ""_real(unsigned long long n) noexcept {
       return static_cast<Real>(n);
    }
    
    LANGULUS(ALWAYS_INLINED)
-   constexpr Real operator "" _real(long double n) noexcept {
+   constexpr Real operator ""_real(long double n) noexcept {
       return static_cast<Real>(n);
    }
 

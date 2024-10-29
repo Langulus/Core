@@ -49,15 +49,50 @@ endif()
 
 # Configure the features you require                                    
 option(LANGULUS_SHARED_LIBRARIES 
-    "Will build shared libraries (DLL/SO) if enabled, \
+    "Will build shared libraries (DLL/SO/WASM) if enabled, \
     true by default" ON)
 
 if(LANGULUS_SHARED_LIBRARIES)
-    set(LANGULUS_LIBRARY_TYPE SHARED CACHE INTERNAL "" FORCE)
+	set(LANGULUS_LIBRARY_TYPE SHARED CACHE INTERNAL "" FORCE)
     set(CMAKE_POSITION_INDEPENDENT_CODE ON CACHE INTERNAL "" FORCE)
+	message("Building Langulus as shared library")
 else()
     set(LANGULUS_LIBRARY_TYPE STATIC CACHE INTERNAL "" FORCE)
+	message("Building Langulus as static library")
 endif()
+
+function(add_langulus_library NAME)
+	# Create a library dependent on build configuration					
+	if (EMSCRIPTEN AND LANGULUS_SHARED_LIBRARIES)
+		# https://github.com/emscripten-core/emscripten/issues/17804	
+		add_executable(${NAME} ${ARGN})
+		set_target_properties(${NAME} PROPERTIES
+			COMPILE_FLAGS  "-sSIDE_MODULE=1"
+			LINK_FLAGS     "-sSIDE_MODULE=1 -sWASM=1 -sSTANDALONE_WASM --no-entry"
+			ENABLE_EXPORTS ON
+			SUFFIX         ".wasm"
+		)
+	else()
+		add_library(${NAME} ${LANGULUS_LIBRARY_TYPE} ${ARGN})
+	endif()
+endfunction()
+
+function(add_langulus_mod NAME)
+	# Create a shared module library									
+	if (EMSCRIPTEN)
+		# https://github.com/emscripten-core/emscripten/issues/17804	
+		add_executable(${NAME} ${ARGN})
+		set_target_properties(${NAME} PROPERTIES
+			COMPILE_FLAGS  "-sSIDE_MODULE=1"
+			LINK_FLAGS     "-sSIDE_MODULE=1 -sWASM=1 -sSTANDALONE_WASM --no-entry"
+			SUFFIX         ".wasm"
+		)
+	else()
+		add_library(${NAME} SHARED ${ARGN})
+	endif()
+
+	target_link_libraries(${NAME} PRIVATE Langulus)
+endfunction()
 
 option(LANGULUS_SAFE_MODE 
     "Overrides additional error checking and sanity checks, \
