@@ -61,37 +61,114 @@ else()
 	message("Building Langulus as static library")
 endif()
 
+# Create a library dependent on build configuration						
 function(add_langulus_library NAME)
-	# Create a library dependent on build configuration					
 	if (EMSCRIPTEN AND LANGULUS_SHARED_LIBRARIES)
+		# When building for emscripten, we "fake" a shared library by	
+		# creating an executable with exports and no entry point		
+		# This "fake" shared library has to be linked in a specific way	
+		# only from wasm MAIN_MODULEs, so that both LangulusCore		
+		# interface is inherited, and the shared library is loaded in	
+		# at startup. Here's an example:								
+		#	target_link_libraries(LangulusLoggerTest PRIVATE			
+		#		$<TARGET_FILE:LangulusLogger> LangulusLogger			
+		#		^ 							  ^							
+		#		+- Links the *.wasm file      +- Inherits interface		
 		# https://github.com/emscripten-core/emscripten/issues/17804	
 		add_executable(${NAME} ${ARGN})
+		set_property(TARGET ${NAME} APPEND PROPERTY
+			COMPILE_FLAGS "-sSIDE_MODULE --no-entry -fPIC")
+		set_property(TARGET ${NAME} APPEND PROPERTY
+			LINK_FLAGS "-sSIDE_MODULE -sWASM=1 --no-entry -fPIC")
 		set_target_properties(${NAME} PROPERTIES
-			COMPILE_FLAGS  "-sSIDE_MODULE=1"
-			LINK_FLAGS     "-sSIDE_MODULE=1 -sWASM=1 -sSTANDALONE_WASM --no-entry"
 			ENABLE_EXPORTS ON
-			SUFFIX         ".wasm"
+			SUFFIX ".wasm"
 		)
 	else()
 		add_library(${NAME} ${LANGULUS_LIBRARY_TYPE} ${ARGN})
 	endif()
 endfunction()
 
+# Create a shared module library										
 function(add_langulus_mod NAME)
-	# Create a shared module library									
 	if (EMSCRIPTEN)
-		# https://github.com/emscripten-core/emscripten/issues/17804	
+		# When building for emscripten, we "fake" a shared library by	
+		# creating an executable with exports and no entry point		
+		# This "fake" shared library has to be linked in a specific way	
+		# only from wasm MAIN_MODULEs, so that both LangulusCore		
+		# interface is inherited, and the shared library is loaded in	
+		# at startup (mainly used in mod tests). You don't have to link 
+		# a mod at all, if you plan on dlopen-ing it at runtime. 		
+		# All Langulus symbols will be dangling until you do that,		
+		# hence the additional -sERROR_ON_UNDEFINED_SYMBOLS=0			
 		add_executable(${NAME} ${ARGN})
+		set_property(TARGET ${NAME} APPEND PROPERTY
+			COMPILE_FLAGS "-sSIDE_MODULE --no-entry -fPIC")
+		set_property(TARGET ${NAME} APPEND PROPERTY
+			LINK_FLAGS "-sSIDE_MODULE -sWASM=1 --no-entry -fPIC -sERROR_ON_UNDEFINED_SYMBOLS=0")
 		set_target_properties(${NAME} PROPERTIES
-			COMPILE_FLAGS  "-sSIDE_MODULE=1"
-			LINK_FLAGS     "-sSIDE_MODULE=1 -sWASM=1 -sSTANDALONE_WASM --no-entry"
-			SUFFIX         ".wasm"
+			ENABLE_EXPORTS ON
+			SUFFIX ".so"
 		)
 	else()
 		add_library(${NAME} SHARED ${ARGN})
 	endif()
 
+	# Lack of $<TARGET_FILE:Langulus> is INTENTIONAL					
+	# - we wouldn't want a mod to load any base framework symbols		
 	target_link_libraries(${NAME} PRIVATE Langulus)
+endfunction()
+
+# Create an executable													
+function(add_langulus_app NAME)
+    set(multiValueArgs SOURCES LIBRARIES DEPENDENCIES EMSCRIPTEN_COMPILE_FLAGS EMSCRIPTEN_LINK_FLAGS)
+    cmake_parse_arguments(PARSE_ARGV 0 arg "" "" "${multiValueArgs}")
+	add_executable(${NAME} ${arg_SOURCES})
+
+	if (EMSCRIPTEN)
+		# Pack all dependencies into a *.data file						
+		foreach(ITEM ${arg_DEPENDENCIES})
+			string(APPEND arg_EMSCRIPTEN_LINK_FLAGS
+				" --preload-file ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${ITEM}.so@${ITEM}.so")
+		endforeach()
+
+		# attention: -fwasm-exception are currently supported in several
+		# major web browsers, but may not be supported in all			
+		# WebAssembly engines yet. Also -sASYNCIFY isn't compatible!	
+		set_target_properties(${NAME} PROPERTIES
+			COMPILE_FLAGS  "-sMAIN_MODULE -fwasm-exceptions ${arg_EMSCRIPTEN_COMPILE_FLAGS}"
+			LINK_FLAGS     "-sMAIN_MODULE -sWASM=1 --emrun -sALLOW_MEMORY_GROWTH -fwasm-exceptions ${arg_EMSCRIPTEN_LINK_FLAGS}"
+			SUFFIX         ".html"
+		)
+
+		# When building for emscripten, our shared libraries are "fake"	
+		# and have to be linked in a specific way from wasm MAIN_MODULEs
+		# - once by using the *.wasm file, and once by using the shared	
+		# library target.												
+		# Any *.so files on the other hand must be packed in a *.data	
+		# file by using --preload-file with all the required mods, like	
+		# so: ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/LangulusMod*.so			
+		foreach(ITEM ${arg_LIBRARIES})
+			target_link_libraries(${NAME}
+				PRIVATE	$<TARGET_FILE:${ITEM}>
+				        ${ITEM}
+			)
+		endforeach()
+	else()
+		target_link_libraries(${NAME}
+			PRIVATE	${arg_LIBRARIES})
+	endif()
+
+	foreach(ITEM ${arg_DEPENDENCIES})
+		add_dependencies(${NAME} ${ITEM})
+	endforeach()
+endfunction()
+
+# Create a test executable												
+function(add_langulus_test NAME)
+	add_langulus_app(${NAME} ${ARGN})
+	target_link_libraries(${NAME} PRIVATE Catch2)
+	add_test(NAME ${NAME} COMMAND ${NAME})
 endfunction()
 
 option(LANGULUS_SAFE_MODE 
