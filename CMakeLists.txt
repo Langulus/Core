@@ -168,7 +168,11 @@ endfunction()
 function(add_langulus_test NAME)
 	add_langulus_app(${NAME} ${ARGN})
 	target_link_libraries(${NAME} PRIVATE Catch2)
-	add_test(NAME ${NAME} COMMAND ${NAME})
+	add_test(
+		NAME				${NAME}
+		COMMAND				${NAME}
+		WORKING_DIRECTORY	${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+	)
 endfunction()
 
 option(LANGULUS_SAFE_MODE 
