@@ -150,7 +150,7 @@ function(add_langulus_app NAME)
 		# so: ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/LangulusMod*.so			
 		foreach(ITEM ${arg_LIBRARIES})
 			target_link_libraries(${NAME}
-				PRIVATE	$<TARGET_FILE:${ITEM}>
+				PRIVATE $<IF:$<TARGET_EXISTS:${ITEM}>,$<TARGET_FILE:${ITEM}>, >	
 				        ${ITEM}
 			)
 		endforeach()
