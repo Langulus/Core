@@ -21,7 +21,7 @@
    #ifdef LANGULUS_ASSERTION_LEVEL
       #define LANGULUS_SAFE() LANGULUS_ASSERTION_LEVEL
    #else
-      #define LANGULUS_SAFE() 1
+      #define LANGULUS_SAFE() 2
    #endif
 #else
    #define LANGULUS_SAFE() 0
