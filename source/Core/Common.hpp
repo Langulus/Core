@@ -26,22 +26,13 @@
 /// Checks if a feature is enabled                                            
 #define LANGULUS_FEATURE(a) LANGULUS_FEATURE_##a()
 
-/// Convenience macro, for tagging unused declarations                        
-#define UNUSED() [[maybe_unused]]
-
-/// Convenience macro, for tagging non-discardable returns                    
-#define NOD() [[nodiscard]]
-
-/// Likely/Unlikely attributes                                                
-#define LIKELY() [[likely]]
-#define UNLIKELY() [[unlikely]]
-
 /// Checks if code is executed at compile-time                                
 ///   @attention must be followed by {...}                                    
 /// TODO when we transition to C++23, we should replace                       
 /// if (std::is_constant_evaluated()) statements with `if consteval` ones     
 /// unfortunately MSVC is lagging behind a lot                                
 #define IF_CONSTEXPR() if (::std::is_constant_evaluated())
+#define IF_NOT_CONSTEXPR() if (not ::std::is_constant_evaluated())
 
 /// No-op for empty macros, forces coder to add a semicolon to avoid          
 /// obscure errors                                                            
@@ -559,10 +550,27 @@ namespace Langulus
       concept SwappableNoexcept = sizeof...(T) > 0 and Complete<T...>
           and (::std::is_nothrow_swappable_v<T> and ...);
 
-      /// Check if the origin T inherits BASE                                 
+      namespace Inner
+      {
+
+         template<class T, class BASE>
+         consteval bool DerivedFrom() {
+            if constexpr (Same<T, BASE>)
+               return true;
+            else if constexpr (Complete<Decay<T>>)
+               return ::std::derived_from<Decay<T>, Decay<BASE>>;
+            else
+               return false;
+         }
+
+      } // namespace Langulus::CT::Inner
+
+      /// Check if the origin T publicly inherits (or is) all the BASE(s)     
+      /// Compensates for std::derived_from not returning true for the same   
+      /// primitive types...                                                  
       template<class T, class...BASE>
-      concept DerivedFrom = sizeof...(BASE) > 0 and Complete<Decay<T>>
-          and (::std::derived_from<Decay<T>, Decay<BASE>> and ...);
+      concept DerivedFrom = sizeof...(BASE) > 0
+          and (Inner::DerivedFrom<T, BASE>() and ...);
    
       /// Check if T1 is somehow related to all of the provided types         
       template<class T1, class...TN>
