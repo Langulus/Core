@@ -217,6 +217,14 @@ namespace Langulus
    template<class T>
    using Decvq = ::std::remove_cv_t<T>;
 
+   /// Remove a const from a type                                             
+   template<class T>
+   using Decq = ::std::remove_const_t<T>;
+
+   /// Remove a volatile from a type                                          
+   template<class T>
+   using Devq = ::std::remove_volatile_t<T>;
+
    /// Remove an array extent from a type                                     
    template<class T>
    using Deext = ::std::remove_extent_t<Deref<T>>;
