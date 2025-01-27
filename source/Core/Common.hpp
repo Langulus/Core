@@ -334,16 +334,25 @@ namespace Langulus
       concept Function = sizeof...(T) > 0
           and (::std::is_function_v<T> and ...);
 
+      namespace TI
+      {
+         template<class T>
+         struct SparseTrait {
+            using DT = Deref<T>;
+            static constexpr bool Value = ::std::is_pointer_v<DT> or Array<DT>;
+         };
+      }
+
       /// True if all T are pointers (or have extents with [])                
       template<class...T>
       concept Sparse = sizeof...(T) > 0
-          and ((::std::is_pointer_v<Deref<T>> or Array<T>) and ...);
+          and (TI::SparseTrait<T>::Value and ...);
 
       /// True if all T are not pointers (and has no extent with [])          
       /// Each T is still allowed to be a reference                           
       template<class...T>
       concept Dense = sizeof...(T) > 0
-          and ((not Sparse<T>) and ...);
+          and ((not TI::SparseTrait<T>::Value) and ...);
 
       /// Check if all T are aggregates                                       
       template<class...T>
