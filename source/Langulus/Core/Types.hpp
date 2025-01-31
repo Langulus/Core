@@ -15,9 +15,9 @@ namespace Langulus
    namespace CT
    {
       template<class T>
-      concept Types = T::CTTI_TypeListTag;
+      concept Typelist = T::CTTI_TypeListTag;
       template<class T>
-      concept NotTypes = not Types<T>;
+      concept NotTypelist = not Typelist<T>;
    }
 
    ///                                                                        
@@ -30,8 +30,8 @@ namespace Langulus
 
    namespace Inner
    {
-      template<class GATHERED, class HEAD, class...TAIL>
-      static consteval CT::Types auto GenerateTypes(auto&& lambda) {
+      template<CT::Typelist GATHERED, CT::NotTypelist HEAD, CT::NotTypelist...TAIL>
+      static consteval CT::Typelist auto GenerateTypes(auto&& lambda) {
          using R = decltype(lambda.template operator()<HEAD>());
          using C = typename GATHERED::template Concat<R>;
          if constexpr (sizeof...(TAIL))
@@ -53,14 +53,19 @@ namespace Langulus
       static constexpr bool ForEachAnd(auto&&) noexcept { return false; }
       static constexpr bool ForEachOr (auto&&) noexcept { return false; }
 
-      template<class L>
-      using Concat = Conditional<CT::Types<L>, L, Types<L>>;
+      template<CT::NotTypelist...N>
+      static consteval auto Concat(Types<N...>&&) -> Types<N...>;
+      template<CT::NotTypelist   N>
+      static consteval auto Concat(N&&) -> Types<N>;
+
+      template<class N>
+      using Cat = decltype(Concat(Fake<N&&>()));
    };
 
 
    ///                                                                        
    /// Type list that contains exactly one type, which isn't void             
-   template<CT::Data T>
+   template<CT::NotTypelist T>
    struct Types<T> {
       static constexpr bool CTTI_TypeListTag = true;
       static constexpr bool Empty = false;
@@ -103,16 +108,6 @@ namespace Langulus
          return lambda.template operator()<T,0>();
       }
 
-   private:
-      template<class...MORE>
-      static consteval CT::Types auto ConcatInner(Types<MORE...>) {
-         return Types<T, MORE...> {};
-      }
-
-   public:
-      template<class L>
-      using Concat = Conditional<CT::Types<L>, decltype(ConcatInner(L {})), Types<T, L>>;
-
       template<Offset I>
       static consteval auto AtInner() {
          static_assert(I == 0, "Index is out of type list bounds (list has one type)");
@@ -127,11 +122,14 @@ namespace Langulus
       ///          the lambda may or may not return Types, which will be      
       ///          concatenated along if so                                   
       ///   @return a type list, containing the generated types               
-      static consteval CT::Types auto GenerateTypes(auto&& lambda) {
+      static consteval CT::Typelist auto GenerateTypes(auto&& lambda) {
          static_assert(requires{ {lambda.template operator()<T>()} -> CT::Data; },
             "Provided argument is not a lambda of the form []<class> -> non-void type");
          using R = decltype(lambda.template operator()<T>());
-         return typename Types<void>::template Concat<R> {};
+         if constexpr (CT::Typelist<R>)
+            return R {};
+         else
+            return Types<R> {};
       }
 
       using Tuple = std::tuple<T>;
@@ -141,12 +139,20 @@ namespace Langulus
             "Provided argument is not a lambda of the form []<class> -> non-void type");
          return {lambda.template operator()<T>()};
       }
+
+      template<CT::NotTypelist...N>
+      static consteval auto Concat(Types<N...>&&) -> Types<T, N...>;
+      template<CT::NotTypelist   N>
+      static consteval auto Concat(N&&) -> Types<T, N>;
+
+      template<class N>
+      using Cat = decltype(Concat(Fake<N&&>()));
    };
 
 
    ///                                                                        
    /// Type list that contains multiple non-void types                        
-   template<CT::Data T1, CT::Data T2, CT::Data...TN>
+   template<CT::NotTypelist T1, CT::NotTypelist T2, CT::NotTypelist...TN>
    struct Types<T1, T2, TN...> {
       static constexpr bool CTTI_TypeListTag = true;
       static constexpr bool Empty = false;
@@ -176,6 +182,27 @@ namespace Langulus
          return lambda.template operator()<T1>()
              or lambda.template operator()<T2>()
              or (... or lambda.template operator()<TN>());
+      }
+
+      /// Doesn't generate code for further loops if lambda returns           
+      /// std::true_type instead of std::false_type                           
+      /// (utilizes a compile-time short-circuit)                             
+      static constexpr bool ForEachConstOr(auto&& lambda) {
+         static_assert(requires{ {lambda.template operator()<T1>()} -> ::std::same_as<::std::true_type>;  }
+                    or requires{ {lambda.template operator()<T1>()} -> ::std::same_as<::std::false_type>; },
+            "Provided argument is not a lambda of the form []<class> -> ::std::true_type or ::std::false_type");
+         if constexpr (::std::same_as<::std::true_type, decltype(lambda.template operator()<T1>())>) {
+            lambda.template operator()<T1>();
+            return true;
+         }
+         else if constexpr (::std::same_as<::std::true_type, decltype(lambda.template operator()<T2>())>) {
+            lambda.template operator()<T2>();
+            return true;
+         }
+         else if constexpr (sizeof...(TN))
+            return Types<TN...>::ForEachConstOr(lambda);
+         else
+            return false;
       }
 
       template<Offset IDX = 0>
@@ -224,16 +251,6 @@ namespace Langulus
          else return false;
       }
 
-   private:
-      template<class...MORE>
-      static consteval CT::Types auto ConcatInner(Types<MORE...>) {
-         return Types<T1, T2, TN..., MORE...> {};
-      }
-
-   public:
-      template<class L>
-      using Concat = Conditional<CT::Types<L>, decltype(ConcatInner(L {})), decltype(ConcatInner(Types<L> {}))>;
-
       template<Offset I>
       static consteval auto AtInner() {
          if constexpr (I == 0)
@@ -254,7 +271,7 @@ namespace Langulus
       ///          the lambda may or may not return Types, which will be      
       ///          concatenated along if so                                   
       ///   @return a type list, containing the generated types               
-      static consteval CT::Types auto GenerateTypes(auto&& lambda) {
+      static consteval CT::Typelist auto GenerateTypes(auto&& lambda) {
          static_assert(requires{ {lambda.template operator()<T1>()} -> CT::Data; },
             "Provided argument is not a lambda of the form []<class> -> non-void type");
          return Inner::GenerateTypes<Types<void>, T1, T2, TN...>(lambda);
@@ -271,6 +288,14 @@ namespace Langulus
             lambda.template operator()<TN>()...
          };
       }
+
+      template<CT::NotTypelist...N>
+      static consteval auto Concat(Types<N...>&&) -> Types<T1, T2, TN..., N...>;
+      template<CT::NotTypelist   N>
+      static consteval auto Concat(N&&) -> Types<T1, T2, TN..., N>;
+
+      template<class N>
+      using Cat = decltype(Concat(Fake<N&&>()));
    };
 
    #define LangulusTypegen(TYPES, LAMBDA) decltype(TYPES::GenerateTypes(LAMBDA));
@@ -287,7 +312,7 @@ namespace Langulus
    /// https://stackoverflow.com/questions/62847200                           
    template<class...> Types() -> Types<void>;
 
-   template<CT::Data...T>
+   template<CT::NotTypelist...T>
    consteval auto CreateTypeList() {
       if constexpr (sizeof...(T))
          return Types<T...> {};
