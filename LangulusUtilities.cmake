@@ -7,7 +7,16 @@ function(fetch_external_module NAME GIT_REPOSITORY REPO GIT_TAG TAG)
         message(WARNING "LANGULUS_EXTERNAL_DIRECTORY not defined, using default: ${LANGULUS_EXTERNAL_DIRECTORY}")
     endif()
 
-    message(STATUS "Fetching external library ${NAME}...")
+	# Completely avoid downloading or updating anything, once the appropriate folder exists
+	string(TOUPPER ${NAME} UPPERCASE_NAME)
+	if (EXISTS "${LANGULUS_EXTERNAL_DIRECTORY}/${NAME}-src")
+		set(FETCHCONTENT_SOURCE_DIR_${UPPERCASE_NAME} "${LANGULUS_EXTERNAL_DIRECTORY}/${NAME}-src" CACHE INTERNAL "" FORCE)
+		message(STATUS "Reusing external library ${NAME}... (delete ${LANGULUS_EXTERNAL_DIRECTORY}/${NAME}-src manually in order to redownload)")
+	else()
+		unset(FETCHCONTENT_SOURCE_DIR_${UPPERCASE_NAME} CACHE)
+		message(STATUS "Downloading external library ${NAME}...")
+	endif()
+
     FetchContent_Declare(
         ${NAME}
         GIT_REPOSITORY  ${REPO}
