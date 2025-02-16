@@ -193,7 +193,7 @@ namespace Langulus
    /// The bitness                                                            
    constexpr Offset Bitness = LANGULUS(BITNESS);
 
-   /// Same as ::std::declval, but conveniently named                         
+   /// Same as ::std::declval, but more conveniently named                    
    template<class T>
    ::std::add_rvalue_reference_t<T> Fake() noexcept {
       static_assert(false, "Calling Fake is ill-formed");
@@ -261,6 +261,9 @@ namespace Langulus
    /// pointers, extents, etc.                                                
    template<class T>
    using Decay = Deptr<decltype(Inner::NestedDecay<T>())>;
+
+   /// Type used to detect unavailable stuff all over                         
+   struct Unsupported {};
 
    /// A namespace dedicated for Compile Time checks and ConcepTs             
    namespace CT
@@ -390,6 +393,16 @@ namespace Langulus
       template<class...T>
       concept Fundamental = sizeof...(T) > 0 and Complete<T...>
           and (::std::is_fundamental_v<Deref<T>> and ...);
+      
+      /// Check if any T is the built-in one that signifies lack of support   
+      template<class...T>
+      concept Unsupported = sizeof...(T) > 0
+          and (Same<::Langulus::Unsupported, T> or ...);
+
+      /// Check if all T are supported                                        
+      template<class...T>
+      concept Supported = sizeof...(T) > 0
+          and ((not Unsupported<T>) and ...);
 
       namespace Inner
       {

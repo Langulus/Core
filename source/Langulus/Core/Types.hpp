@@ -322,8 +322,6 @@ namespace Langulus
    
    namespace Inner
    {
-      /// Type used to detect unavailable stuff all over                      
-      struct Unsupported {};
 
       /// This function declaration is used to decompose a lambda             
       /// You can use it to extract the argument types of functions, by using 
@@ -361,18 +359,5 @@ namespace Langulus
    ///   @tparam F - anything invokable, like functor/member function/lambda  
    template<class F>
    using ReturnOf = decltype((Fake<F>()) (Fake<ArgumentOf<F>>()));
-
-   namespace CT
-   {
-      /// Check if any T is the built-in one that signifies lack of support   
-      template<class...T>
-      concept Unsupported = sizeof...(T) > 0
-          and (Same<::Langulus::Inner::Unsupported, T> or ...);
-
-      /// Check if all T are supported                                        
-      template<class...T>
-      concept Supported = sizeof...(T) > 0
-          and ((not Unsupported<T>) and ...);
-   }
 
 } // namespace Langulus

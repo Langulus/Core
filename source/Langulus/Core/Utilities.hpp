@@ -7,6 +7,7 @@
 ///                                                                           
 #pragma once
 #include "Common.hpp"
+#include "Except.hpp"
 
 
 namespace Langulus

@@ -5,13 +5,6 @@ project(LangulusCore
     HOMEPAGE_URL    https://langulus.com
 )
 
-# Disable the FetchContent requests for langulus libraries from here on 
-set(LANGULUS ON CACHE INTERNAL 
-    "Defines the build tree as a part of Langulus,  \
-    thus prevents the downloading of base Langulus libraries. \
-    They should be in the build tree already" FORCE
-)
-
 add_library(LangulusCore INTERFACE)
 target_compile_features(LangulusCore INTERFACE cxx_std_23)
 target_include_directories(LangulusCore INTERFACE source)
@@ -19,7 +12,7 @@ target_include_directories(LangulusCore INTERFACE source)
 message("Compiler: ${CMAKE_CXX_COMPILER_ID} - ${CMAKE_CXX_COMPILER_VERSION}")
 
 if(CMAKE_CXX_FLAGS)
-    # Make sure trigraphs are disabled                                  
+    # Make sure trigraphs are disabled											
     STRING(FIND ${CMAKE_CXX_FLAGS} "/Zc:trigraphs" TRIGRAPHS_ENABLED)
     if (${TRIGRAPHS_ENABLED} GREATER -1)
         message(FATAL_ERROR "Langulus can't be built with trigraphs enabled")
@@ -47,7 +40,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     target_compile_options(LangulusCore INTERFACE -fmax-errors=5)
 endif()
 
-# Configure the features you require                                    
+# Configure the features you require											
 option(LANGULUS_SHARED_LIBRARIES 
     "Will build shared libraries (DLL/SO/WASM) if enabled, \
     true by default" ON)
@@ -61,7 +54,7 @@ else()
 	message("Building Langulus as static library")
 endif()
 
-# Create a library dependent on build configuration						
+# Create a library dependent on build configuration								
 function(add_langulus_library NAME)
 	if (EMSCRIPTEN AND LANGULUS_SHARED_LIBRARIES)
 		# When building for emscripten, we "fake" a shared library by	
@@ -89,7 +82,7 @@ function(add_langulus_library NAME)
 	endif()
 endfunction()
 
-# Create a shared module library										
+# Create a shared module library												
 function(add_langulus_mod NAME)
 	if (EMSCRIPTEN)
 		# When building for emscripten, we "fake" a shared library by	
@@ -119,7 +112,7 @@ function(add_langulus_mod NAME)
 	target_link_libraries(${NAME} PRIVATE Langulus)
 endfunction()
 
-# Create an executable													
+# Create an executable															
 function(add_langulus_app NAME)
     set(multiValueArgs SOURCES LIBRARIES DEPENDENCIES EMSCRIPTEN_COMPILE_FLAGS EMSCRIPTEN_LINK_FLAGS)
     cmake_parse_arguments(PARSE_ARGV 0 arg "" "" "${multiValueArgs}")
@@ -164,17 +157,6 @@ function(add_langulus_app NAME)
 	endforeach()
 endfunction()
 
-# Create a test executable												
-function(add_langulus_test NAME)
-	add_langulus_app(${NAME} ${ARGN})
-	target_link_libraries(${NAME} PRIVATE Catch2)
-	add_test(
-		NAME				${NAME}
-		COMMAND				${NAME}
-		WORKING_DIRECTORY	${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-	)
-endfunction()
-
 option(LANGULUS_SAFE_MODE 
     "Overrides additional error checking and sanity checks, \
     incurs a serious runtime overhead, disabled by default" OFF)
@@ -188,7 +170,7 @@ option(LANGULUS_TESTING
 	and might increase your build time and RAM usage significantly" OFF)
     
 option(LANGULUS_BENCHMARK
-    "Enable benchmarking in tests, disabled by default" OFF)
+    "Enable benchmarking in tests, disabled by default. Will increase test time tenfold!" OFF)
 
 option(LANGULUS_DEBUGGING 
     "Explicitly define debug mode, in the case that default flags are \
@@ -218,7 +200,7 @@ option(LANGULUS_FEATURE_MANAGED_REFLECTION
     This feature can be enabled only if LANGULUS_FEATURE_MANAGED_MEMORY is enabled. Enabled by default" ON)
 
 option(LANGULUS_FEATURE_MEMORY_STATISTICS
-    "Memory manager shall keep track of statistics, for the price of little overhead. Disabled by default" ON)
+    "Memory manager shall keep track of statistics, for the price of little overhead. Disabled by default" OFF)
 
 set(LANGULUS_ALIGNMENT 16 CACHE STRING "Default langulus alignment")
 message(STATUS "[FEATURE] Alignment was set to ${LANGULUS_ALIGNMENT}")
@@ -237,16 +219,6 @@ else()
     else()
         target_compile_options(LangulusCore INTERFACE -O2)
     endif()
-endif()
-
-if(LANGULUS_TESTING)
-	enable_testing()
-    include(LangulusUtilities.cmake)
-    fetch_external_module(
-        Catch2
-        GIT_REPOSITORY  https://github.com/catchorg/Catch2.git
-        GIT_TAG         d4b0b34 #v2.x
-    )
 endif()
 
 macro(reflect_option OPTION MESSAGE)
@@ -306,3 +278,21 @@ reflect_option(LANGULUS_LOGGER_ENABLE_FLOWS "Logger: flow messages")
 reflect_option(LANGULUS_LOGGER_ENABLE_INPUTS "Logger: input event messages")
 reflect_option(LANGULUS_LOGGER_ENABLE_NETWORKS "Logger: network messages")
 reflect_option(LANGULUS_LOGGER_ENABLE_OS "Logger: operating system messages")
+
+include(LangulusUtilities.cmake)
+
+# Create a test executable if tests are enabled									
+function(add_langulus_test NAME)
+	# Don't fetch langulus libraries if we're building the framework	
+	if (NOT LANGULUS)
+		fetch_langulus_module(Testing GIT_TAG 35756f11d2f9c475f27b094b8d4c82cd453969fc)
+	endif()
+
+	add_langulus_app(${NAME} ${ARGN})
+	target_link_libraries(${NAME} PRIVATE LangulusTesting)
+	add_test(
+		NAME				${NAME}
+		COMMAND				${NAME}
+		WORKING_DIRECTORY	${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+	)
+endfunction()
