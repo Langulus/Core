@@ -14,6 +14,7 @@
 #include <concepts>
 #include <bit>
 #include <cstring>
+#include <cstdint>
 
 
 /// All non-argument macros should use this facility                          
