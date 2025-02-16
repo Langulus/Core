@@ -13,8 +13,6 @@
    #error Langulus requires at least a C++20 compliant compiler in order to build
 #endif
 
-#include <cstdint>
-
 /// Safe mode enables assumption checks all over the code                     
 /// High overhead, usually enabled only when testing in debug builds          
 #if defined(LANGULUS_SAFE_MODE) or defined(LANGULUS_ASSERTION_LEVEL)
@@ -265,10 +263,10 @@
 #endif
 
 /// Utility macro, that turns its argument to a string literal (inner)        
-#define LANGULUS_STRINGIFY_INNER(x)		#x
+#define LANGULUS_STRINGIFY_INNER(x) #x
 
 /// Utility macro, that turns its argument to a string literal                
-#define LANGULUS_STRINGIFY(x)				LANGULUS_STRINGIFY_INNER(x)
+#define LANGULUS_STRINGIFY(x) LANGULUS_STRINGIFY_INNER(x)
 
 /// Macro that generates a literal with the function name, file, and line     
 #define LANGULUS_LOCATION() __FILE__ ":" LANGULUS_STRINGIFY(__LINE__)
