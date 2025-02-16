@@ -6,6 +6,7 @@
 /// SPDX-License-Identifier: MIT                                              
 ///                                                                           
 #pragma once
+#include <cstdint>   // INTPTR_MAX == INT64_MAX can't work without it   
 
 /// Sorry, Langulus is designed for at least C++20, will move to C++23        
 /// when full compiler support is provided                                    
