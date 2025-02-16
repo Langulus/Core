@@ -285,7 +285,7 @@ include(LangulusUtilities.cmake)
 function(add_langulus_test NAME)
 	# Don't fetch langulus libraries if we're building the framework	
 	if (NOT LANGULUS)
-		fetch_langulus_module(Testing GIT_TAG 35756f11d2f9c475f27b094b8d4c82cd453969fc)
+		fetch_langulus_module(Testing GIT_TAG main)
 	endif()
 
 	add_langulus_app(${NAME} ${ARGN})
