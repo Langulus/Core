@@ -273,6 +273,14 @@ namespace Langulus
       ///   Concepts                                                          
       ///                                                                     
 
+      /// Always true, useful to avoid -Wunused-local-typedefs                
+      template<class...>
+      concept True = true;
+
+      /// Always false, useful to avoid -Wunused-local-typedefs               
+      template<class...>
+      concept False = false;
+
       /// Check if a function encapsulated in a lambda is a constexpr         
       /// Leverages that lambda expressions can be constexpr as of C++17      
       /// https://stackoverflow.com/questions/55288555                        
