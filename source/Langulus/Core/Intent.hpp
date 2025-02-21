@@ -819,6 +819,12 @@ namespace Langulus
       explicit constexpr Describe(const Many& value) noexcept
          : mValue {value} {}
 
+      /// Forward as descibe                                                  
+      LANGULUS(ALWAYS_INLINED)
+      constexpr Describe&& Forward() noexcept {
+         return static_cast<Describe&&>(*this);
+      }
+
       /// The describe intent completely ignores nesting, only propagates     
       /// itself                                                              
       LANGULUS(ALWAYS_INLINED)
