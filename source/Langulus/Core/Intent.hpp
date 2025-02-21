@@ -831,7 +831,7 @@ namespace Langulus
       static constexpr decltype(auto) Nest(auto&& value) noexcept {
          using ALT = Decq<Deref<decltype(value)>>;
          if constexpr (CT::Similar<ALT, Describe>)
-            return Forward(value);
+            return ::std::forward<ALT>(value);
          else if constexpr (CT::Intent<ALT> and CT::Similar<TypeOf<ALT>, Many>)
             return Describe {*value};
          else if constexpr (CT::Similar<ALT, Many>)
