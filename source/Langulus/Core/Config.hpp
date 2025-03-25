@@ -118,6 +118,17 @@
    #define IF_NOT_LANGULUS_MANAGED_MEMORY(a)    a
 #endif
 
+/// Profiling                                                                 
+#ifdef LANGULUS_FEATURE_PROFILING
+   #undef LANGULUS_FEATURE_PROFILING
+   #define LANGULUS_FEATURE_PROFILING()    1
+#else
+   #define LANGULUS_FEATURE_PROFILING()    0
+#endif
+
+/// Will be redefined when you include <Langulus/Profiler.hpp>                
+#define LANGULUS_PROFILE()              LANGULUS(NOOP)
+
 /// Memory manager shall keep track of statistics                             
 /// Some overhead upon allocation/deallocation/reallocation                   
 /// Some methods, like string null-termination will pick more memory-         

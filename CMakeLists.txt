@@ -190,6 +190,9 @@ option(LANGULUS_FEATURE_COMPRESSION
 option(LANGULUS_FEATURE_ENCRYPTION
     "Allows for memory encryption for use with any container of your liking (WIP)" OFF)
 
+option(LANGULUS_FEATURE_PROFILING
+    "Performance measurements" OFF)
+
 option(LANGULUS_FEATURE_MANAGED_MEMORY
     "Memory will be pooled and recycled when freed, and you can safely push any kind of pointer, \
     as long as it was allocated by the memory manager, or by the overridden new/delete feature. Enabled by default" ON)
@@ -221,6 +224,10 @@ else()
     endif()
 endif()
 
+if(LANGULUS_BENCHMARK OR CMAKE_BUILD_TYPE MATCHES "Debug")
+    set(LANGULUS_FEATURE_PROFILING ON CACHE BOOL "Debug/benchmarking mode detected" FORCE)
+endif()
+
 macro(reflect_option OPTION MESSAGE)
 	if (${OPTION})
 		message(STATUS "[FEATURE] ${MESSAGE} enabled (${OPTION})")
@@ -232,6 +239,7 @@ reflect_option(LANGULUS_SAFE_MODE "Safe mode")
 reflect_option(LANGULUS_PARANOIA "Paranoid mode")
 reflect_option(LANGULUS_TESTING "Tests")
 reflect_option(LANGULUS_BENCHMARK "Benchmarking")
+reflect_option(LANGULUS_FEATURE_PROFILING "Profiling")
 reflect_option(LANGULUS_FEATURE_NEWDELETE "New/Delete operator override")
 reflect_option(LANGULUS_FEATURE_UNICODE "Unicode text containers")
 reflect_option(LANGULUS_FEATURE_COMPRESSION "Compressable memory")
