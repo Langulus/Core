@@ -66,6 +66,9 @@
    #endif
 #endif
 
+/// Will be redefined when you include <Langulus/Profiler.hpp>                
+#define LANGULUS_PROFILE() LANGULUS_NOOP()
+
 namespace Langulus
 {
 

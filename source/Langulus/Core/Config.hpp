@@ -126,9 +126,6 @@
    #define LANGULUS_FEATURE_PROFILING()    0
 #endif
 
-/// Will be redefined when you include <Langulus/Profiler.hpp>                
-#define LANGULUS_PROFILE()              LANGULUS(NOOP)
-
 /// Memory manager shall keep track of statistics                             
 /// Some overhead upon allocation/deallocation/reallocation                   
 /// Some methods, like string null-termination will pick more memory-         
