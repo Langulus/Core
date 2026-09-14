@@ -16,7 +16,7 @@
 
 /// Safe mode enables assumption checks all over the code                     
 /// High overhead, usually enabled only when testing in debug builds          
-#if defined(LANGULUS_SAFE_MODE) or defined(LANGULUS_ASSERTION_LEVEL)
+#if defined(LANGULUS_OPTION_SAFE_MODE) or defined(LANGULUS_ASSERTION_LEVEL)
    #ifdef LANGULUS_ASSERTION_LEVEL
       #define LANGULUS_SAFE() LANGULUS_ASSERTION_LEVEL
    #else
@@ -36,8 +36,7 @@
 
 /// Testing mode exposes some otherwise private functions                     
 /// Overhead is unlikely                                                      
-#ifdef LANGULUS_TESTING
-   #undef LANGULUS_TESTING
+#ifdef LANGULUS_OPTION_TESTING
    #define LANGULUS_TESTING() 1
    #define IF_LANGULUS_TESTING(a)         a
    #define IF_NOT_LANGULUS_TESTING(a)     LANGULUS(NOOP)
@@ -49,8 +48,7 @@
 
 /// Benchmarking                                                              
 /// Tests will become radically slower                                        
-#ifdef LANGULUS_BENCHMARK
-   #undef LANGULUS_BENCHMARK
+#ifdef LANGULUS_OPTION_BENCHMARK
    #define LANGULUS_BENCHMARK() 1
    #define IF_LANGULUS_BENCHMARK(a)       a
    #define IF_NOT_LANGULUS_BENCHMARK(a)   LANGULUS(NOOP)
@@ -61,8 +59,7 @@
 #endif
 
 /// Paranoid mode introduces overhead, but zeroes any freed memory            
-#ifdef LANGULUS_PARANOIA
-   #undef LANGULUS_PARANOIA
+#ifdef LANGULUS_OPTION_PARANOIA
    #define LANGULUS_PARANOID() 1
    #define IF_LANGULUS_PARANOID(a)        a
    #define IF_NOT_LANGULUS_PARANOID(a)    LANGULUS(NOOP)
@@ -73,12 +70,11 @@
 #endif
 
 /// Detect debug builds                                                       
-#if defined(LANGULUS_DEBUGGING) or (not defined(NDEBUG) \
+#if defined(LANGULUS_OPTION_DEBUGGING) or (not defined(NDEBUG) \
                                 or defined(DEBUG) \
                                 or defined(_DEBUG) \
                                 or defined(CB_DEBUG) \
                                 or defined(QT_QML_DEBUG))
-   #undef LANGULUS_DEBUGGING
    #define LANGULUS_DEBUG()   1
    #define DEBUGGERY(a)       a
 #else
@@ -92,8 +88,7 @@
 /// speeds up meta definition comparisons.                                    
 /// Naming collisions will be detected upon type registration                 
 /// Gives a significant overhead on program launch, no dependencies           
-#ifdef LANGULUS_FEATURE_MANAGED_REFLECTION
-   #undef LANGULUS_FEATURE_MANAGED_REFLECTION
+#ifdef LANGULUS_OPTION_MANAGED_REFLECTION
    #define LANGULUS_FEATURE_MANAGED_REFLECTION()   1
    #define IF_LANGULUS_MANAGED_REFLECTION(a)       a
    #define IF_NOT_LANGULUS_MANAGED_REFLECTION(a)   LANGULUS(NOOP)
@@ -107,8 +102,7 @@
 /// memory will be reused whenever possible, and you can also tweak           
 /// runtime allocation strategies on per-type basis                           
 /// Significantly improves performance, no dependencies                       
-#ifdef LANGULUS_FEATURE_MANAGED_MEMORY
-   #undef LANGULUS_FEATURE_MANAGED_MEMORY
+#ifdef LANGULUS_OPTION_MANAGED_MEMORY
    #define LANGULUS_FEATURE_MANAGED_MEMORY()    1
    #define IF_LANGULUS_MANAGED_MEMORY(a)        a
    #define IF_NOT_LANGULUS_MANAGED_MEMORY(a)    LANGULUS(NOOP)
@@ -119,8 +113,7 @@
 #endif
 
 /// Profiling                                                                 
-#ifdef LANGULUS_FEATURE_PROFILING
-   #undef LANGULUS_FEATURE_PROFILING
+#ifdef LANGULUS_OPTION_PROFILING
    #define LANGULUS_FEATURE_PROFILING()    1
 #else
    #define LANGULUS_FEATURE_PROFILING()    0
@@ -130,8 +123,7 @@
 /// Some overhead upon allocation/deallocation/reallocation                   
 /// Some methods, like string null-termination will pick more memory-         
 /// consitent, but less performant approaches (see Text::Terminate())         
-#ifdef LANGULUS_FEATURE_MEMORY_STATISTICS
-   #undef LANGULUS_FEATURE_MEMORY_STATISTICS
+#ifdef LANGULUS_OPTION_MEMORY_STATISTICS
    #define LANGULUS_FEATURE_MEMORY_STATISTICS() 1
    #define IF_LANGULUS_MEMORY_STATISTICS(a)     a
    #define IF_NOT_LANGULUS_MEMORY_STATISTICS(a) LANGULUS(NOOP)
@@ -143,8 +135,7 @@
 
 /// Replace the default new-delete operators with custom ones                 
 /// No overhead, no dependencies                                              
-#ifdef LANGULUS_FEATURE_NEWDELETE
-   #undef LANGULUS_FEATURE_NEWDELETE
+#ifdef LANGULUS_OPTION_NEWDELETE
    #define LANGULUS_FEATURE_NEWDELETE()   1
    #define IF_LANGULUS_NEWDELETE(a)       a
    #define IF_NOT_LANGULUS_NEWDELETE(a)   LANGULUS(NOOP)
@@ -156,8 +147,7 @@
 
 /// Enables utf support and utilities for Text container                      
 /// No runtime overhead                                                       
-#ifdef LANGULUS_FEATURE_UNICODE
-   #undef LANGULUS_FEATURE_UNICODE
+#ifdef LANGULUS_OPTION_UNICODE
    #define LANGULUS_FEATURE_UNICODE()     1
    #define IF_LANGULUS_UNICODE(a)         a
    #define IF_NOT_LANGULUS_UNICODE(a)     LANGULUS(NOOP)
@@ -169,8 +159,7 @@
 
 /// Enable memory compression utilities for containers                        
 /// Gives a bit of general runtime overhead, zstd will be linked              
-#ifdef LANGULUS_FEATURE_COMPRESSION
-   #undef LANGULUS_FEATURE_COMPRESSION
+#ifdef LANGULUS_OPTION_COMPRESSION
    #define LANGULUS_FEATURE_COMPRESSION() 1
    #define IF_LANGULUS_COMPRESSION(a)     a
    #define IF_NOT_LANGULUS_COMPRESSION(a) LANGULUS(NOOP)
@@ -182,8 +171,7 @@
 
 /// Enable memory encryption and decryption                                   
 /// Gives a tiny runtime overhead, no dependencies                            
-#ifdef LANGULUS_FEATURE_ENCRYPTION
-   #undef LANGULUS_FEATURE_ENCRYPTION
+#ifdef LANGULUS_OPTION_ENCRYPTION
    #define LANGULUS_FEATURE_ENCRYPTION()  1
    #define IF_LANGULUS_ENCRYPTION(a)      a
    #define IF_NOT_LANGULUS_ENCRYPTION(a)  LANGULUS(NOOP)
@@ -319,7 +307,7 @@
 #endif
 
 /// Shared object export/import attributes                                    
-#ifdef LANGULUS_SHARED_LIBRARIES
+#ifdef LANGULUS_OPTION_SHARED_LIBRARIES
    #if LANGULUS_COMPILER(GCC) or LANGULUS_COMPILER(CLANG) or LANGULUS_COMPILER(WASM)
       #if LANGULUS_OS(WINDOWS)
 	      #define LANGULUS_EXPORT() __attribute__ ((dllexport))
