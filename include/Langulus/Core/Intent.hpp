@@ -804,10 +804,10 @@ namespace Langulus
 
    ///                                                                        
    /// Descriptor intermediate type, use in constructors to enable descriptor 
-   /// construction. The inner type is always Anyness::Many                   
+   /// construction. The inner type is always Annies::Many                   
    struct Describe : A::Intent {
    protected:
-      using Many = Anyness::Many;
+      using Many = Annies::Many;
       const Many& mValue;
 
    public:

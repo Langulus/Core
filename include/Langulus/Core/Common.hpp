@@ -66,7 +66,7 @@
    #endif
 #endif
 
-/// Will be redefined when you include <Langulus/Profiler.hpp>                
+/// Will be redefined when you include <Langulus/Percist.hpp>                
 #define LANGULUS_PROFILE() LANGULUS_NOOP()
 
 namespace Langulus
@@ -103,7 +103,7 @@ namespace Langulus
       struct Block;
    }
 
-   namespace Anyness
+   namespace Annies
    {
       template<class TYPE = void>
       struct Block;
