@@ -6,14 +6,16 @@
 /// SPDX-License-Identifier: MIT                                              
 ///                                                                           
 #pragma once
-#include "Config.hpp"
-#include "Size.hpp"
-#include <type_traits>
+#include "Core.hpp"
+#include <limits>
+#include <concepts>
+#include <ranges>
+
+/*#include "Size.hpp"
 #include <typeinfo>
 #include <functional>
-#include <concepts>
 #include <bit>
-#include <cstring>
+#include <cstring>*/
 
 
 /// All non-argument macros should use this facility                          
@@ -147,7 +149,7 @@ namespace Langulus
    using Letter = char;
 
    /// Type for wrapping a compile-time string                                
-   using Token = ::std::basic_string_view<Letter>;
+   //using Token = ::std::basic_string_view<Letter>;
 
    /// Integer equivalent to a pointer, depends on architecture               
    using Pointer = ::std::uintptr_t;
@@ -176,18 +178,6 @@ namespace Langulus
    constexpr Real operator ""_real(long double n) noexcept {
       return static_cast<Real>(n);
    }
-
-
-
-   /// Check endianness at compile-time                                       
-   /// True if the architecture uses big/mixed endianness                     
-   constexpr bool BigEndianMachine = ::std::endian::native == ::std::endian::big;
-   /// True if the architecture uses little/mixed endianness                  
-   constexpr bool LittleEndianMachine = ::std::endian::native == ::std::endian::little;
-
-   #ifndef LANGULUS_ALIGNMENT
-      #define LANGULUS_ALIGNMENT 16
-   #endif
    
    /// The default alignment, depends on configuration and enabled SIMD       
    constexpr Offset Alignment = LANGULUS_ALIGNMENT;
@@ -195,18 +185,6 @@ namespace Langulus
 
    /// The bitness                                                            
    constexpr Offset Bitness = LANGULUS(BITNESS);
-
-   /// Same as ::std::declval, but more conveniently named                    
-   template<class T>
-   ::std::add_rvalue_reference_t<T> Fake() noexcept {
-      static_assert(false, "Calling Fake is ill-formed");
-   }
-
-   /// Same as ::std::declval, but deduces type via argument                  
-   template<class T>
-   ::std::add_rvalue_reference_t<T> Fake(T) noexcept {
-      static_assert(false, "Calling Fake is ill-formed");
-   }
 
    /// Remove a reference from type                                           
    template<class T>
@@ -277,12 +255,12 @@ namespace Langulus
       ///                                                                     
 
       /// Always true, useful to avoid -Wunused-local-typedefs                
-      template<class...>
+      /*template<class...>
       concept True = true;
 
       /// Always false, useful to avoid -Wunused-local-typedefs               
       template<class...>
-      concept False = false;
+      concept False = false;*/
 
       /// Check if a function encapsulated in a lambda is a constexpr         
       /// Leverages that lambda expressions can be constexpr as of C++17      
@@ -298,9 +276,9 @@ namespace Langulus
       /// Thankfully, most modern compilers do detect, if a definition        
       /// changes between completeness checks, so it is unlikely to cause any 
       /// real harm: https://stackoverflow.com/questions/21119281             
-      template<class...T>
+      /*template<class...T>
       concept Complete = sizeof...(T) > 0
-          and ((sizeof(T) == sizeof(T)) and ...);
+          and ((sizeof(T) == sizeof(T)) and ...);*/
 
       /// True if decayed T1 matches all decayed TN types                     
       ///   @attention ignores type density and cv-qualifications             
@@ -515,7 +493,7 @@ namespace Langulus
       concept BuiltinNumber = sizeof...(T) > 0
           and ((BuiltinInteger<T> or BuiltinReal<T>) and ...);
 
-      namespace Inner
+      /*namespace Inner
       {
 
          template<class FROM, class TO>
@@ -543,11 +521,11 @@ namespace Langulus
       ///   @attention all cast operators need to be const methods, because   
       ///      MSVC doesn't support anything else, and will occasionally ICE  
       template<class FROM, class...TO>
-      concept Convertible = sizeof...(TO) > 0 and (Inner::ConvertibleTo<FROM, TO>() and ...);
+      concept Convertible = sizeof...(TO) > 0 and (Inner::ConvertibleTo<FROM, TO>() and ...);*/
 
       /// Equality comparable concept for any origin LHS and RHS, with an     
       /// adequate == operator                                                
-      template<class LHS, class...RHS>
+      /*template<class LHS, class...RHS>
       concept Comparable = sizeof...(RHS) > 0 and Complete<LHS, RHS...>
           and requires (const LHS& l, const RHS&...r) {
              { ((l == r), ...) } -> Convertible<bool>;
@@ -604,32 +582,32 @@ namespace Langulus
                return false;
          }
 
-      } // namespace Langulus::CT::Inner
+      }*/ // namespace Langulus::CT::Inner
 
       /// Check if the origin T publicly inherits (or is) all the BASE(s)     
       /// Compensates for std::derived_from not returning true for the same   
       /// primitive types...                                                  
-      template<class T, class...BASE>
+      /*template<class T, class...BASE>
       concept DerivedFrom = sizeof...(BASE) > 0
           and (Inner::DerivedFrom<T, BASE>() and ...);
    
       /// Check if T1 is somehow related to all of the provided types         
       template<class T1, class...TN>
       concept Related = sizeof...(TN) > 0
-          and ((DerivedFrom<T1, TN> or DerivedFrom<TN, T1>) and ...);
+          and ((DerivedFrom<T1, TN> or DerivedFrom<TN, T1>) and ...);*/
 
       /// Check if a type is virtually derived from all the provided BASE(s)  
-      template<class T, class...BASE>
+      /*template<class T, class...BASE>
       concept VirtuallyDerivedFrom = sizeof...(BASE) > 0 and Complete<Decay<T>>
           and ((::std::is_base_of_v<Decay<BASE>, Decay<T>>
             and not requires (Decay<BASE>* from) { static_cast<Decay<T>*>(from); }
-          ) and ...);
+          ) and ...);*/
 
       /// Binary compatibility check between T1 and the provided TN           
-      template<class T1, class...TN>
+      /*template<class T1, class...TN>
       concept BinaryCompatible = sizeof...(TN) > 0 and ((
             Similar<T1, TN> or (Related<T1, TN> and sizeof(T1) == sizeof(TN))
-         ) and ...);
+         ) and ...);*/
 
       /// Check if all T are reference types                                  
       template<class...T>
@@ -658,19 +636,19 @@ namespace Langulus
           and ((not Decayed<T>) and ...);
          
       /// Check if type is a dense void                                       
-      template<class...T>
-      concept Void = sizeof...(T) > 0 and (::std::is_void_v<T> and ...);
+      /*template<class...T>
+      concept Void = sizeof...(T) > 0 and (::std::is_void_v<T> and ...);*/
 
       /// Check if type-erased                                                
-      template<class...T>
+      /*template<class...T>
       concept TypeErased = sizeof...(T) > 0 and Void<T...>;
 
       /// A data type is any type that is not a dense void                    
       template<class...T>
-      concept Data = sizeof...(T) > 0 and ((not Void<T>) and ...);
+      concept Data = sizeof...(T) > 0 and ((not Void<T>) and ...);*/
       
       /// Dense data concept                                                  
-      template<class...T>
+      /*template<class...T>
       concept DenseData = sizeof...(T) > 0 and Dense<T...> and Data<T...>
           and ((not Reference<T>) and ...);
       
@@ -682,7 +660,7 @@ namespace Langulus
       /// Data reference concept                                              
       template<class...T>
       concept DataReference = sizeof...(T) > 0
-          and Data<T...> and Reference<T...>;
+          and Data<T...> and Reference<T...>;*/
       
       /// Check if all provided types match std::nullptr_t exactly            
       template<class...T>

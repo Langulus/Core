@@ -6,7 +6,7 @@
 /// SPDX-License-Identifier: MIT                                              
 ///                                                                           
 #pragma once
-#include "Utilities.hpp"
+#include <Langulus/Core.hpp>
 #include <Langulus/Logger.hpp>
 
 
