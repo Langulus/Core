@@ -529,6 +529,9 @@
 
 namespace Langulus
 {
+   //using ::std::nullptr_t;
+   //using ::std::size_t;
+
    /// MARK: Yup                                                              
    /// Equivalent to ::std::true_type, but without the silliness              
    struct Yup {
@@ -554,10 +557,43 @@ namespace Langulus
    /// Same as ::std::declval, but more intuitively named                     
    template<class T>
    T&& Fake() { static_assert(false, "Calling Fake is ill-formed"); }
+
+   /// The default floating point type, depends on configuration              
+   #if LANGULUS_FPU == 16
+      using Real = float16_t;
+   #elif LANGULUS_FPU == 32
+      using Real = float;
+      static_assert(sizeof(Real) == 4);
+   #elif LANGULUS_FPU == 64
+      using Real = double;
+      static_assert(sizeof(Real) == 8);
+   #elif LANGULUS_FPU == 128
+      using Real = float128_t;
+   #else
+      #error "Unsupported real number size"
+   #endif
+
+   /// The size of a void* in bytes, depends on architecture                  
+   constexpr size_t Byteness = sizeof(void*);
+
+   /// The size of a void* in bits, depends on architecture                   
+   constexpr size_t Bitness = Byteness * 8;
+
+   /// The default alignment, configure via LANGULUS_ALIGNMENT                
+   constexpr uintptr_t Alignment = LANGULUS_ALIGNMENT;
+   static_assert(Alignment >= Byteness);
+
+   /// The default allocation size, configure via LANGULUS_MIN_ALLOC          
+   constexpr size_t MinimalAllocation = LANGULUS_MIN_ALLOC;
+   static_assert(MinimalAllocation >= Alignment);
+   
+   /// The smallest possible pool size, configure via LANGULUS_MIN_POOL       
+   constexpr size_t MinimalPoolSize = LANGULUS_MIN_POOL;
+   static_assert(MinimalPoolSize > MinimalAllocation);
 }
 
 #define LglsFake(...) ::Langulus::Fake<__VA_ARGS__>()
 
-/// Syntax sugar for calling pesky templated lambdas                       
+/// Syntax sugar for calling pesky templated lambdas                          
 #define LglsLamb(a, ...) a.template operator()<__VA_ARGS__>()
 #define LglsLambStatic(a, ...) ::std::decay_t<decltype(a)>::template operator()<__VA_ARGS__>()
