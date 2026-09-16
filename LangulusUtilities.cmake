@@ -119,7 +119,9 @@ function(add_langulus_library NAME)
    endif()
       
    foreach(ITEM ${arg_DEPENDENCIES})
-      add_dependencies(${NAME} ${ITEM})
+      if (TARGET ${ITEM})
+         add_dependencies(${NAME} ${ITEM})
+      endif()
    endforeach()
 endfunction()
 
@@ -195,7 +197,9 @@ function(add_langulus_app NAME)
    endif()
 
    foreach(ITEM ${arg_DEPENDENCIES})
-      add_dependencies(${NAME} ${ITEM})
+      if (TARGET ${ITEM})
+         add_dependencies(${NAME} ${ITEM})
+      endif()
    endforeach()
 endfunction()
 
