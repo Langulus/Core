@@ -61,7 +61,8 @@ option(LANGULUS_OPTION_PROFILING
 "Performance measurements at runtime" OFF)
 
 option(LANGULUS_OPTION_STACKTRACE
-"Enables logging of stacktrace on errors and assumptions (currently not available on GCC 14.2+)" OFF)
+"Enables logging of stacktrace on errors and assumptions (currently not available on GCC 14.2+). \
+Works only if LANGULUS_OPTION_LOGGING is enabled." OFF)
 
 option(LANGULUS_OPTION_FORCE_TYPE_ERASURE
 "Makes all containers type-erased, even the templated ones! \
