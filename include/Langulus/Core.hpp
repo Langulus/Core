@@ -529,9 +529,6 @@
 
 namespace Langulus
 {
-   //using ::std::nullptr_t;
-   //using ::std::size_t;
-
    /// MARK: Yup                                                              
    /// Equivalent to ::std::true_type, but without the silliness              
    struct Yup {
@@ -550,7 +547,6 @@ namespace Langulus
    /// Equivalent to ::std::false_type, but without the silliness             
    struct No {
       using CTTI_ReflectAs = void;
-      using CTTI_Void      = Yup;
       static constexpr bool Enabled = false;
    };
 
