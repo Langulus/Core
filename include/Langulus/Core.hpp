@@ -53,10 +53,10 @@
 #ifdef LANGULUS_OPTION_TESTING
    #define LANGULUS_TESTING() 1
    #define IF_LANGULUS_TESTING(a)         a
-   #define IF_NOT_LANGULUS_TESTING(a)     LANGULUS(NOOP)
+   #define IF_NOT_LANGULUS_TESTING(a)     
 #else
    #define LANGULUS_TESTING() 0
-   #define IF_LANGULUS_TESTING(a)         LANGULUS(NOOP)
+   #define IF_LANGULUS_TESTING(a)         
    #define IF_NOT_LANGULUS_TESTING(a)     a
 #endif
 
