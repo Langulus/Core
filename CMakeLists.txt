@@ -49,7 +49,7 @@ if dynamically linked. \
 This feature can be enabled only if LANGULUS_OPTION_MANAGED_MEMORY is enabled" OFF)
 
 option(LANGULUS_OPTION_UNICODE
-"Provides UTF8, UTF16, UTF32 tools and conversions inside Logger and Text containers" OFF)
+"Provides UTF8, UTF16, UTF32 tools and conversions inside Logger and Text containers" ON)
 
 option(LANGULUS_OPTION_COMPRESSION
 "Links to zstd library and provides memory compression for use with containers (TODO)" OFF)
