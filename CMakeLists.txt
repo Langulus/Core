@@ -114,7 +114,7 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU" AND NOT MSVC)
     target_compile_options(LangulusCore INTERFACE -fvisibility=hidden -fvisibility-inlines-hidden)
 endif()
 
-target_compile_features(LangulusCore INTERFACE cxx_std_23)
+target_compile_features(LangulusCore INTERFACE cxx_std_26)
 target_include_directories(LangulusCore INTERFACE include)
 #target_compile_options(LangulusCore INTERFACE -Wl,--icf=all)
 
