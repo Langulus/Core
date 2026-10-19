@@ -99,10 +99,12 @@
    #define LANGULUS_FORCE_TYPE_ERASURE() 1
    #define IF_LANGULUS_FORCE_TYPE_ERASURE(a)      a
    #define IF_NOT_LANGULUS_FORCE_TYPE_ERASURE(a)
+   #define if_constexpr_type_erased(...) 
 #else
    #define LANGULUS_FORCE_TYPE_ERASURE() 0
    #define IF_LANGULUS_FORCE_TYPE_ERASURE(a)
    #define IF_NOT_LANGULUS_FORCE_TYPE_ERASURE(a)  a
+   #define if_constexpr_type_erased(...) if constexpr (CT::TypeErased<__VA_ARGS__>)
 #endif
 
 /// Paranoid mode introduces overhead, but zeroes any freed memory            
