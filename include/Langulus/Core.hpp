@@ -451,6 +451,7 @@
    #define LglsDisableWarning_SelfAssign
    #define LglsDisableWarning_UnusedLocalTypedef
    #define LglsDisableWarning_NonTemplateFriend
+   #define LglsDisableWarning_MicrosoftCast
 #else
    #define LglsNoSideEffects __attribute__((const))
    #define LglsPure __attribute__((pure))
@@ -477,10 +478,12 @@
       #define LglsDisableWarning_SelfAssign LglsDisableWarning(-Wself-assign-overloaded)
       #define LglsDisableWarning_UnusedLocalTypedef LglsDisableWarning(-Wunused-local-typedef)
       #define LglsDisableWarning_NonTemplateFriend
+      #define LglsDisableWarning_MicrosoftCast LglsDisableWarning(-Wmicrosoft-cast)
    #else
       #define LglsDisableWarning_SelfAssign
       #define LglsDisableWarning_UnusedLocalTypedef
       #define LglsDisableWarning_NonTemplateFriend LglsDisableWarning(-Wnon-template-friend)
+      #define LglsDisableWarning_MicrosoftCast 
    #endif
 #endif
 
