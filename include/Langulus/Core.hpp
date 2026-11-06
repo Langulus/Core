@@ -128,7 +128,7 @@
    #define DEBUGGERY(a)       a
 #else
    #define LANGULUS_DEBUG()   0
-   #define DEBUGGERY(a)       LANGULUS(NOOP)
+   #define DEBUGGERY(a)       
 #endif
 
 /// Reflections will be registered in a centralized location, allowing for    
