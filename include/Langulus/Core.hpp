@@ -574,6 +574,16 @@ namespace Langulus
       #error "Unsupported real number size"
    #endif
 
+   LANGULUS(ALWAYS_INLINED)
+   constexpr Real operator ""_real(unsigned long long n) noexcept {
+      return static_cast<Real>(n);
+   }
+   
+   LANGULUS(ALWAYS_INLINED)
+   constexpr Real operator ""_real(long double n) noexcept {
+      return static_cast<Real>(n);
+   }
+   
    /// The size of a void* in bytes, depends on architecture                  
    constexpr size_t Byteness = sizeof(void*);
 
