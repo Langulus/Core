@@ -207,7 +207,7 @@ endfunction()
 function(add_langulus_test NAME)
    # Don't fetch langulus libraries if we're building the framework	
    if (NOT LANGULUS)
-      fetch_langulus_module(Testing GIT_TAG main)
+      fetch_langulus_module(Testing GIT_TAG wip)
    endif()
 
    add_langulus_app(${NAME} ${ARGN})
