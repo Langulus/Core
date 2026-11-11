@@ -7,6 +7,7 @@
 ///                                                                           
 #pragma once
 #include <cstdint>   // INTPTR_MAX == INT64_MAX can't work without it   
+#include <cstddef>   // size_t not recognized in cross builds otherwise 
 
 /// Sorry, Langulus is designed for at least C++23                            
 #if __cplusplus < 202302L
