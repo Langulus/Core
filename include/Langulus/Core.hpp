@@ -584,6 +584,8 @@ namespace Langulus
    constexpr Real operator ""_real(long double n) noexcept {
       return static_cast<Real>(n);
    }
+
+   using ::std::nullptr_t;
    
    /// The size of a void* in bytes, depends on architecture                  
    constexpr size_t Byteness = sizeof(void*);
